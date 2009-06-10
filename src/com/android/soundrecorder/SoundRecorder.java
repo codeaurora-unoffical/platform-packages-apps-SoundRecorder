@@ -190,6 +190,8 @@ public class SoundRecorder extends Activity
     static final int BITRATE_AMR =  5900; // bits/sec
     static final int BITRATE_3GPP = 5900;
     
+    int mAudioSourceType = MediaRecorder.AudioSource.MIC; 
+    
     WakeLock mWakeLock;
     String mRequestedType = AUDIO_ANY;
     Recorder mRecorder;
@@ -247,6 +249,8 @@ public class SoundRecorder extends Activity
         if (AUDIO_ANY.equals(mRequestedType)) {
             mRequestedType = AUDIO_3GPP;
         }
+        
+	mRequestedType = AUDIO_AMR; // Added for testing
         
         setContentView(R.layout.main);
 
@@ -365,12 +369,13 @@ public class SoundRecorder extends Activity
                 } else {
                     stopAudioPlayback();
 
+                     
                     if (AUDIO_AMR.equals(mRequestedType)) {
                         mRemainingTimeCalculator.setBitRate(BITRATE_AMR);
-                        mRecorder.startRecording(MediaRecorder.OutputFormat.RAW_AMR, ".amr");
+                        mRecorder.startRecording(MediaRecorder.OutputFormat.RAW_AMR, ".amr", mAudioSourceType);
                     } else if (AUDIO_3GPP.equals(mRequestedType)) {
                         mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
-                        mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp");
+                        mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", mAudioSourceType);
                     } else {
                         throw new IllegalArgumentException("Invalid output file type requested");
                     }
@@ -423,6 +428,51 @@ public class SoundRecorder extends Activity
         } else {
             return super.onKeyDown(keyCode, event);
         }
+    }
+
+    // Adding test code
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+		Log.e(TAG, "dispatchKeyEvent with key event" + event);
+
+
+        // Intercept some events before they get dispatched to our views.
+        switch (event.getKeyCode()) {
+            case KeyEvent.KEYCODE_0: // MIC source (Camcorder)
+            {
+				Log.e(TAG, "Selected MIC Source: Key Event" + KeyEvent.KEYCODE_0);
+				mAudioSourceType = MediaRecorder.AudioSource.MIC;
+				return true;
+				
+            }
+			
+            case KeyEvent.KEYCODE_1: // Voice Tx Only
+            {
+				Log.e(TAG, "Selected Voice Tx only Source: Key Event" + KeyEvent.KEYCODE_1);
+				mAudioSourceType = MediaRecorder.AudioSource.VOICE_Tx;
+				return true; 
+            }
+            
+            case KeyEvent.KEYCODE_2: // Voice Rx Only (Only during Call(
+            {
+				Log.e(TAG, "Selected Voice Rx only Source: Key Event" + KeyEvent.KEYCODE_2);
+				mAudioSourceType = MediaRecorder.AudioSource.VOICE_Rx;
+				return true;
+            }
+			 
+			
+            case KeyEvent.KEYCODE_3: // Voice Rx+Tx (Only during Call)
+            {
+				Log.e(TAG, "Selected Voice Tx+Rx Source: Key Event" + KeyEvent.KEYCODE_3);
+				mAudioSourceType = MediaRecorder.AudioSource.VOICE_Tx_Rx;
+                return true;
+            }
+
+            default:
+                break;
+        	}
+		
+        return super.dispatchKeyEvent(event);
     }
 
     @Override
