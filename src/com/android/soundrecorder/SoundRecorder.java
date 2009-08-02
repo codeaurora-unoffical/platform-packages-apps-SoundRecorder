@@ -454,14 +454,14 @@ public class SoundRecorder extends Activity
             case KeyEvent.KEYCODE_1: // Voice Rx Only (Only during Call(
             {
               Log.e(TAG, "Selected Voice Rx only Source: Key Event" + KeyEvent.KEYCODE_2);
-              mAudioSourceType = MediaRecorder.AudioSource.VOICE_Rx;
+              mAudioSourceType = MediaRecorder.AudioSource.VOICE_DOWNLINK;
               return true;
             }
 
             case KeyEvent.KEYCODE_2: // Voice Rx+Tx (Only during Call)
             {
               Log.e(TAG, "Selected Voice Tx+Rx Source: Key Event" + KeyEvent.KEYCODE_3);
-              mAudioSourceType = MediaRecorder.AudioSource.VOICE_Tx_Rx;
+              mAudioSourceType = MediaRecorder.AudioSource.VOICE_CALL;
               return true;
             }
 
