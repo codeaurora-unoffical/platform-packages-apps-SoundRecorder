@@ -63,6 +63,8 @@
     <string name="error_sdcard_access">Unable to access SD card</string>
     <!-- shown as the message in a dialog when the app encountered an unspecified internal error -->
     <string name="error_app_internal">Internal application error</string>
+    <!-- shown as the message in a dialog when the app encountered and unsupported format -->
+    <string name="error_app_unsupported">Unsupported format</string>
     <!-- shown as the message in a dialog when the recording could not be added to the media database -->
     <string name="error_mediadb_new_record">Unable to save recorded audio</string>
 </resources>

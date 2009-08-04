@@ -28,6 +28,7 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     public static final int SDCARD_ACCESS_ERROR = 1;
     public static final int INTERNAL_ERROR = 2;
     public static final int IN_CALL_RECORD_ERROR = 3;
+    public static final int UNSUPPORTED_FORMAT = 4;
     
     public interface OnStateChangedListener {
         public void onStateChanged(int state);
