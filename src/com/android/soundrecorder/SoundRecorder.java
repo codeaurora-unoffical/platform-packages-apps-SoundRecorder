@@ -900,6 +900,9 @@ public class SoundRecorder extends Activity
             case Recorder.INTERNAL_ERROR:
                 message = res.getString(R.string.error_app_internal);
                 break;
+            case Recorder.UNSUPPORTED_FORMAT:
+                message = res.getString(R.string.error_app_unsupported);
+                break;
         }
         if (message != null) {
             new AlertDialog.Builder(this)
