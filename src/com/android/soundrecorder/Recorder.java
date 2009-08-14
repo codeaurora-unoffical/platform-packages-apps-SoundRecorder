@@ -25,6 +25,7 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     public static final int NO_ERROR = 0;
     public static final int SDCARD_ACCESS_ERROR = 1;
     public static final int INTERNAL_ERROR = 2;
+    public static final int UNSUPPORTED_FORMAT = 3;
     
     public interface OnStateChangedListener {
         public void onStateChanged(int state);
@@ -143,7 +144,17 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(audiosourcetype);
         mRecorder.setOutputFormat(outputfileformat);
-        mRecorder.setAudioEncoder(codectype);
+
+        try {
+            mRecorder.setAudioEncoder(codectype);
+        } catch(RuntimeException exception) {
+            setError(UNSUPPORTED_FORMAT);
+            mRecorder.reset();
+            mRecorder.release();
+            mRecorder = null;
+            return;
+        }
+
         mRecorder.setOutputFile(mSampleFile.getAbsolutePath());
 
         // Handle IOException
