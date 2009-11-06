@@ -185,11 +185,14 @@ public class SoundRecorder extends Activity
 
     static final String AUDIO_3GPP = "audio/3gpp";
     static final String AUDIO_AMR = "audio/amr";
+    static final String AUDIO_EVRC = "audio/evrc";
+    static final String AUDIO_QCELP = "audio/qcelp";
     static final String AUDIO_ANY = "audio/*";
     static final String ANY_ANY = "*/*";
     
     static final int BITRATE_AMR =  5900; // bits/sec
     static final int BITRATE_3GPP = 5900;
+    int mAudioSourceType = MediaRecorder.AudioSource.MIC;
     
     WakeLock mWakeLock;
     String mRequestedType = AUDIO_ANY;
@@ -250,6 +253,8 @@ public class SoundRecorder extends Activity
             mRequestedType = AUDIO_3GPP;
         }
         
+        mRequestedType = AUDIO_AMR; // Default type
+
         setContentView(R.layout.main);
 
         mRecorder = new Recorder();
@@ -369,11 +374,16 @@ public class SoundRecorder extends Activity
 
                     if (AUDIO_AMR.equals(mRequestedType)) {
                         mRemainingTimeCalculator.setBitRate(BITRATE_AMR);
-                        mRecorder.startRecording(MediaRecorder.OutputFormat.AMR_NB, ".amr", this);
+                        mRecorder.startRecording(MediaRecorder.OutputFormat.RAW_AMR, ".amr", mAudioSourceType, MediaRecorder.AudioEncoder.AMR_NB);
+                    } else if (AUDIO_EVRC.equals(mRequestedType)) {
+                        mRemainingTimeCalculator.setBitRate(BITRATE_AMR);
+                        mRecorder.startRecording(MediaRecorder.OutputFormat.QCP, ".qcp", mAudioSourceType, MediaRecorder.AudioEncoder.EVRC);
+                    } else if (AUDIO_QCELP.equals(mRequestedType)) {
+                        mRemainingTimeCalculator.setBitRate(BITRATE_AMR);
+                        mRecorder.startRecording(MediaRecorder.OutputFormat.QCP, ".qcp", mAudioSourceType, MediaRecorder.AudioEncoder.QCELP);
                     } else if (AUDIO_3GPP.equals(mRequestedType)) {
                         mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
-                        mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp",
-                                this);
+                        mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", mAudioSourceType, MediaRecorder.AudioEncoder.AMR_NB);
                     } else {
                         throw new IllegalArgumentException("Invalid output file type requested");
                     }
@@ -426,6 +436,62 @@ public class SoundRecorder extends Activity
         } else {
             return super.onKeyDown(keyCode, event);
         }
+    }
+
+    // Voicememo Adding UI choice for the user to get the format needed
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+         Log.e(TAG, "dispatchKeyEvent with key event" + event);
+
+        // Intercept some events before they get dispatched to our views.
+        switch (event.getKeyCode()) {
+            case KeyEvent.KEYCODE_0: // MIC source (Camcorder)
+            {
+              Log.e(TAG, "Selected MIC Source: Key Event" + KeyEvent.KEYCODE_0);
+              mAudioSourceType = MediaRecorder.AudioSource.MIC;
+              return true;
+            }
+
+            case KeyEvent.KEYCODE_1: // Voice Rx Only (Only during Call(
+            {
+              Log.e(TAG, "Selected Voice Rx only Source: Key Event" + KeyEvent.KEYCODE_1);
+              mAudioSourceType = MediaRecorder.AudioSource.VOICE_DOWNLINK;
+              return true;
+            }
+
+            case KeyEvent.KEYCODE_2: // Voice Rx+Tx (Only during Call)
+            {
+              Log.e(TAG, "Selected Voice Tx+Rx Source: Key Event" + KeyEvent.KEYCODE_2);
+              mAudioSourceType = MediaRecorder.AudioSource.VOICE_CALL;
+              return true;
+            }
+
+            case KeyEvent.KEYCODE_3: // Selected AMR codec type
+            {
+              Log.e(TAG, "Selected AUDIO_AMR Codec: Key Event" + KeyEvent.KEYCODE_3);
+              mRequestedType = AUDIO_AMR;
+              return true;
+            }
+
+            case KeyEvent.KEYCODE_4: // Selected EVRC codec type
+            {
+              Log.e(TAG, "Selected Voice AUDIO_EVRC Codec: Key Event" + KeyEvent.KEYCODE_4);
+              mRequestedType = AUDIO_EVRC;
+              return true;
+            }
+
+            case KeyEvent.KEYCODE_5: // Selected QCELP codec type
+            {
+              Log.e(TAG, "Selected AUDIO_QCELP Codec: Key Event" + KeyEvent.KEYCODE_5);
+              mRequestedType = AUDIO_QCELP;
+              return true;
+            }
+
+            default:
+                break;
+        }
+
+        return super.dispatchKeyEvent(event);
     }
 
     @Override
