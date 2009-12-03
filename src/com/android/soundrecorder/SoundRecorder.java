@@ -187,6 +187,7 @@ public class SoundRecorder extends Activity
     static final String AUDIO_AMR = "audio/amr";
     static final String AUDIO_EVRC = "audio/evrc";
     static final String AUDIO_QCELP = "audio/qcelp";
+    static final String AUDIO_AAC_MP4 = "audio/aac_mp4";
     static final String AUDIO_ANY = "audio/*";
     static final String ANY_ANY = "*/*";
     
@@ -384,6 +385,9 @@ public class SoundRecorder extends Activity
                     } else if (AUDIO_3GPP.equals(mRequestedType)) {
                         mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
                         mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", mAudioSourceType, MediaRecorder.AudioEncoder.AMR_NB);
+                    } else if (AUDIO_AAC_MP4.equals(mRequestedType)) {
+                        mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
+                        mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", mAudioSourceType, MediaRecorder.AudioEncoder.AAC);
                     } else {
                         throw new IllegalArgumentException("Invalid output file type requested");
                     }
@@ -484,6 +488,12 @@ public class SoundRecorder extends Activity
             {
               Log.e(TAG, "Selected AUDIO_QCELP Codec: Key Event" + KeyEvent.KEYCODE_5);
               mRequestedType = AUDIO_QCELP;
+              return true;
+            }
+            case KeyEvent.KEYCODE_6: // Selected AAC codec type
+            {
+              Log.e(TAG, "Selected AUDIO_AAC_MP4 Codec: Key Event" + KeyEvent.KEYCODE_6);
+              mRequestedType = AUDIO_AAC_MP4;
               return true;
             }
 
