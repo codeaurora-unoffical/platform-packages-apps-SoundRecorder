@@ -125,7 +125,7 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
         signalStateChanged(IDLE_STATE);
     }
     
-    public void startRecording(int outputfileformat, String extension, int audiosourcetype, int codectype) {
+    public void startRecording(int outputfileformat, String extension) {
         stop();
         
         if (mSampleFile == null) {
@@ -142,11 +142,11 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
         }
         
         mRecorder = new MediaRecorder();
-        mRecorder.setAudioSource(audiosourcetype);
+        mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setOutputFormat(outputfileformat);
 
         try {
-            mRecorder.setAudioEncoder(codectype);
+            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
         } catch(RuntimeException exception) {
             setError(UNSUPPORTED_FORMAT);
             mRecorder.reset();
