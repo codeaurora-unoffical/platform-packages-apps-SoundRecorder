@@ -52,4 +52,6 @@
     <string name="error_app_unsupported">Unsupported format</string>
     <!-- shown as the message in a dialog when the recording could not be added to the media database -->
     <string name="error_mediadb_new_record">Unable to save recorded audio</string>
+    <!-- shown as the message in a dialog when the recording cannot be started while in call -->
+    <string name="error_mediadb_incall">this option is supported, only while in call</string>
 </resources>
