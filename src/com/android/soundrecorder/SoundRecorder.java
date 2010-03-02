@@ -33,6 +33,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.os.SystemProperties;
+import android.media.AudioManager;
 
 /**
  * Calculates remaining recording time based on available disk space and
@@ -447,6 +449,25 @@ public class SoundRecorder extends Activity
     public boolean dispatchKeyEvent(KeyEvent event) {
          Log.e(TAG, "dispatchKeyEvent with key event" + event);
 
+	if(event.getKeyCode() == KeyEvent.KEYCODE_1 || event.getKeyCode() == KeyEvent.KEYCODE_2){
+		String  DEVICE_name = SystemProperties.get("ro.product.device");
+		if (DEVICE_name.equalsIgnoreCase("msm7630_surf")){
+		AudioManager audioManager =
+	                    (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+		if(audioManager.getMode() != AudioManager.MODE_IN_CALL) {
+		        	Resources res = getResources();
+	                 	String message = null;
+		           	message = res.getString(R.string.error_mediadb_incall);
+				new AlertDialog.Builder(this)
+				.setTitle(R.string.app_name)
+	       	       		.setMessage(message)
+	                     	.setPositiveButton(R.string.button_ok, null)
+				.setCancelable(false)
+		 	 	.show();
+	       }
+		return super.dispatchKeyEvent(event);
+	}
+}
         // Intercept some events before they get dispatched to our views.
         switch (event.getKeyCode()) {
             case KeyEvent.KEYCODE_0: // MIC source (Camcorder)
