@@ -464,8 +464,8 @@ public class SoundRecorder extends Activity
 	                     	.setPositiveButton(R.string.button_ok, null)
 				.setCancelable(false)
 		 	 	.show();
+				return super.dispatchKeyEvent(event);
 	       }
-		return super.dispatchKeyEvent(event);
 	}
 }
         // Intercept some events before they get dispatched to our views.
