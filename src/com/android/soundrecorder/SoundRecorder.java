@@ -10,6 +10,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.IntentFilter;
 import android.content.BroadcastReceiver;
 import android.content.res.Configuration;
@@ -958,7 +959,8 @@ public class SoundRecorder extends Activity
      */
     public void onError(int error) {
         Resources res = getResources();
-        
+        boolean isExit = false;
+
         String message = null;
         switch (error) {
             case Recorder.SDCARD_ACCESS_ERROR:
@@ -972,13 +974,18 @@ public class SoundRecorder extends Activity
                 break;
             case Recorder.UNSUPPORTED_FORMAT:
                 message = res.getString(R.string.error_app_unsupported);
+                isExit = true;
                 break;
         }
         if (message != null) {
             new AlertDialog.Builder(this)
                 .setTitle(R.string.app_name)
                 .setMessage(message)
-                .setPositiveButton(R.string.button_ok, null)
+                .setPositiveButton(R.string.button_ok, (true==isExit)?
+                    (new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                             finish();
+                        }}):null)
                 .setCancelable(false)
                 .show();
         }
