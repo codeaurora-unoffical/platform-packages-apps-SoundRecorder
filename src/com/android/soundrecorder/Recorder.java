@@ -154,6 +154,10 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
             setError(UNSUPPORTED_FORMAT);
             mRecorder.reset();
             mRecorder.release();
+            if (mSampleFile != null)
+               mSampleFile.delete();
+            mSampleFile = null;
+            mSampleLength = 0;
             mRecorder = null;
             return;
         }
