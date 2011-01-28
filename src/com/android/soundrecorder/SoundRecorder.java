@@ -240,6 +240,7 @@ public class SoundRecorder extends Activity
                       case TelephonyManager.CALL_STATE_IDLE:
                       if ((mOldCallState == TelephonyManager.CALL_STATE_OFFHOOK) && !(mAudioSourceType == MediaRecorder.AudioSource.MIC)){
                          mRecorder.stop();
+                         mAudioSourceType = MediaRecorder.AudioSource.MIC;
                       }
                       break;
 
@@ -479,7 +480,7 @@ public class SoundRecorder extends Activity
     // Voicememo Adding UI choice for the user to get the format needed
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-         Log.e(TAG, "dispatchKeyEvent with key event" + event);
+         Log.v(TAG, "dispatchKeyEvent with key event" + event);
     if(event.getKeyCode() == KeyEvent.KEYCODE_6){
        AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
        if(audioManager.getMode() == AudioManager.MODE_IN_CALL) {

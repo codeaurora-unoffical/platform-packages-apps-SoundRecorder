@@ -14,6 +14,7 @@ import android.os.Environment;
 import android.util.Log;
 
 public class Recorder implements OnCompletionListener, OnErrorListener {
+    static final String TAG = "Recorder";
     static final String SAMPLE_PREFIX = "recording";
     static final String SAMPLE_PATH_KEY = "sample_path";
     static final String SAMPLE_LENGTH_KEY = "sample_length";
@@ -179,6 +180,7 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
             return;
         }
         // Handle RuntimeException if the recording couldn't start
+        Log.e(TAG,"audiosourcetype " +audiosourcetype);
         try {
             mRecorder.start();
         } catch (RuntimeException exception) {
