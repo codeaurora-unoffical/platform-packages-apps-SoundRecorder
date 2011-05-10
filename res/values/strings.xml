@@ -73,4 +73,6 @@
     <string name="error_mediadb_new_record">Unable to save recorded audio</string>
     <!-- shown as the message in a dialog when the recording cannot be started while in call -->
     <string name="error_mediadb_incall">This option is supported, only while in call</string>
+    <!-- shown as the message in a dialog when voice call recording is started for AAC format -->
+    <string name="error_mediadb_aacincall">AAC voice call recording is not supported</string>
 </resources>
