@@ -495,11 +495,12 @@ public class SoundRecorder extends Activity
     public boolean dispatchKeyEvent(KeyEvent event) {
          Log.v(TAG, "dispatchKeyEvent with key event" + event);
     if(event.getKeyCode() == KeyEvent.KEYCODE_6){
-       AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-       if(audioManager.getMode() == AudioManager.MODE_IN_CALL) {
+       if((mAudioSourceType == MediaRecorder.AudioSource.VOICE_CALL) ||
+          (mAudioSourceType == MediaRecorder.AudioSource.VOICE_DOWNLINK)||
+          (mAudioSourceType == MediaRecorder.AudioSource.VOICE_UPLINK )) {
           Resources res = getResources();
           String message = null;
-          message = res.getString(R.string.error_mediadb_incall);
+          message = res.getString(R.string.error_mediadb_aacincall);
           new AlertDialog.Builder(this)
           .setTitle(R.string.app_name)
           .setMessage(message)
@@ -512,10 +513,15 @@ public class SoundRecorder extends Activity
 
     if(event.getKeyCode() == KeyEvent.KEYCODE_1 || event.getKeyCode() == KeyEvent.KEYCODE_2){
        AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-       if(audioManager.getMode() != AudioManager.MODE_IN_CALL) {
+       if((audioManager.getMode() != AudioManager.MODE_IN_CALL) ||
+         (mRequestedType == AUDIO_AAC_MP4)) {
           Resources res = getResources();
           String message = null;
-          message = res.getString(R.string.error_mediadb_incall);
+          if(audioManager.getMode() != AudioManager.MODE_IN_CALL) {
+            message = res.getString(R.string.error_mediadb_incall);
+          } else {
+            message = res.getString(R.string.error_mediadb_aacincall);
+          }
           new AlertDialog.Builder(this)
           .setTitle(R.string.app_name)
           .setMessage(message)
