@@ -55,6 +55,7 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.media.AudioManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 /**
  * Calculates remaining recording time based on available disk space and
@@ -261,6 +262,8 @@ public class SoundRecorder extends Activity
     private BroadcastReceiver mSDCardMountEventReceiver = null;
     private TelephonyManager mTelephonyManager;
     private PhoneStateListener mPhoneStateListener;
+    String mTitle;
+    private boolean mAttaching = false;
 
     private PhoneStateListener getPhoneStateListener() {
         PhoneStateListener phoneStateListener = new PhoneStateListener() {
@@ -293,6 +296,11 @@ public class SoundRecorder extends Activity
 
         Intent i = getIntent();
         if (i != null) {
+            String action = i.getAction();
+
+            if (Intent.ACTION_GET_CONTENT.equals(action))
+                mAttaching = true;
+
             String s = i.getType();
             if (AUDIO_AMR.equals(s) || AUDIO_3GPP.equals(s) || AUDIO_ANY.equals(s)
                     || ANY_ANY.equals(s)) {
@@ -411,6 +419,7 @@ public class SoundRecorder extends Activity
         mAcceptButton.setOnClickListener(this);
         mDiscardButton.setOnClickListener(this);
 
+        if (!mAttaching) mAcceptButton.setText(getResources().getString(R.string.button_ok));
         mTimerFormat = getResources().getString(R.string.timer_format);
         
         mVUMeter.setRecorder(mRecorder);
@@ -509,11 +518,11 @@ public class SoundRecorder extends Activity
             case R.id.acceptButton:
                 mRecorder.stop();
                 saveSample();
-                finish();
+                mRecorder.clearContinue();
+                if (mAttaching) finish();
                 break;
             case R.id.discardButton:
                 mRecorder.delete();
-                finish();
                 break;
         }
     }
@@ -727,6 +736,8 @@ public class SoundRecorder extends Activity
         }
         if (uri == null) {
             return;
+        } else {
+            Toast.makeText(this, mTitle + "\n(" + mRecorder.sampleFile().getName() + ")", Toast.LENGTH_LONG).show();
         }
         setResult(RESULT_OK, new Intent().setData(uri));
     }
@@ -855,14 +866,14 @@ public class SoundRecorder extends Activity
         Date date = new Date(current);
         SimpleDateFormat formatter = new SimpleDateFormat(
                 res.getString(R.string.audio_db_title_format));
-        String title = formatter.format(date);
+        mTitle = formatter.format(date);
         long sampleLengthMillis = mRecorder.sampleLength() * 1000L;
 
         // Lets label the recorded audio file as NON-MUSIC so that the file
         // won't be displayed automatically, except for in the playlist.
         cv.put(MediaStore.Audio.Media.IS_MUSIC, "0");
 
-        cv.put(MediaStore.Audio.Media.TITLE, title);
+        cv.put(MediaStore.Audio.Media.TITLE, mTitle);
         cv.put(MediaStore.Audio.Media.DATA, file.getAbsolutePath());
         cv.put(MediaStore.Audio.Media.DATE_ADDED, (int) (current / 1000));
         cv.put(MediaStore.Audio.Media.DATE_MODIFIED, (int) (modDate / 1000));
@@ -981,7 +992,7 @@ public class SoundRecorder extends Activity
                     mRecordButton.requestFocus();
                     
                     mStateMessage1.setVisibility(View.INVISIBLE);
-                    mStateLED.setVisibility(View.VISIBLE);
+                    mStateLED.setVisibility(View.INVISIBLE);
                     //mStateLED.setImageResource(R.drawable.idle_led);
                     mStateMessage2.setVisibility(View.VISIBLE);
                     if (true == bSSRSupported) {
@@ -1019,7 +1030,7 @@ public class SoundRecorder extends Activity
                     mStateMessage2.setVisibility(View.VISIBLE);
                     mStateMessage2.setText(res.getString(R.string.recording_stopped));
                     //mStateLED.setImageResource(R.drawable.idle_led);
-                    mStateLED.setVisibility(View.VISIBLE);                        
+                    mStateLED.setVisibility(View.INVISIBLE);
                 }
                 
                 if (mErrorUiMessage != null) {

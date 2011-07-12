@@ -157,6 +157,15 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
         signalStateChanged(IDLE_STATE);
     }
     
+    public void clearContinue() {
+        stop();
+
+        mSampleFile = null;
+        mSampleLength = 0;
+
+        signalStateChanged(IDLE_STATE);
+    }
+
     public void startRecording(int outputfileformat, String extension, Context context, int audiosourcetype, int codectype) {
         stop();
         
