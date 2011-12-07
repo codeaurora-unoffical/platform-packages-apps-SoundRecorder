@@ -53,6 +53,7 @@ import android.widget.TextView;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.media.AudioManager;
+import android.view.inputmethod.InputMethodManager;
 
 /**
  * Calculates remaining recording time based on available disk space and
@@ -435,7 +436,22 @@ public class SoundRecorder extends Activity
                 break;
         }
     }
-    
+
+    /*
+     *Handle the "menu" hardware key.
+     */
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        //show softkeyboard after the "menu" key is pressed and released(key up)
+        if(keyCode == KeyEvent.KEYCODE_MENU) {
+            InputMethodManager inputMgr = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputMgr.toggleSoftInput(0, 0);
+            return true;
+        } else {
+            return super.onKeyUp(keyCode, event);
+        }
+    }
+
     /*
      * Handle the "back" hardware key. 
      */
@@ -466,10 +482,12 @@ public class SoundRecorder extends Activity
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
          Log.v(TAG, "dispatchKeyEvent with key event" + event);
-    if(event.getKeyCode() == KeyEvent.KEYCODE_6){
+    if(event.getKeyCode() == KeyEvent.KEYCODE_6 && event.getAction() == event.ACTION_UP){
+       //Ignore ACTION_DOWN to avoid showing error dialog twice
        if((mAudioSourceType == MediaRecorder.AudioSource.VOICE_CALL) ||
           (mAudioSourceType == MediaRecorder.AudioSource.VOICE_DOWNLINK)||
           (mAudioSourceType == MediaRecorder.AudioSource.VOICE_UPLINK )) {
+          mAudioSourceType = MediaRecorder.AudioSource.MIC;//Default type
           Resources res = getResources();
           String message = null;
           message = res.getString(R.string.error_mediadb_aacincall);
@@ -483,10 +501,13 @@ public class SoundRecorder extends Activity
        }
     }
 
-    if(event.getKeyCode() == KeyEvent.KEYCODE_1 || event.getKeyCode() == KeyEvent.KEYCODE_2){
+    if((event.getKeyCode() == KeyEvent.KEYCODE_1 || event.getKeyCode() == KeyEvent.KEYCODE_2)
+       && (event.getAction() == event.ACTION_UP)){
+       //Ignore ACTION_DOWN to avoid showing error dialog twice
        AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
        if((audioManager.getMode() != AudioManager.MODE_IN_CALL) ||
          (mRequestedType == AUDIO_AAC_MP4)) {
+          mAudioSourceType = MediaRecorder.AudioSource.MIC;//Default type
           Resources res = getResources();
           String message = null;
           if(audioManager.getMode() != AudioManager.MODE_IN_CALL) {
