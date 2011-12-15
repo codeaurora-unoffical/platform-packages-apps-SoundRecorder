@@ -494,10 +494,12 @@ public class SoundRecorder extends Activity
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
          Log.v(TAG, "dispatchKeyEvent with key event" + event);
-    if(event.getKeyCode() == KeyEvent.KEYCODE_6){
+    if(event.getKeyCode() == KeyEvent.KEYCODE_6 && event.getAction() == event.ACTION_UP){
+       //Ignore ACTION_DOWN to avoid showing error dialog twice
        if((mAudioSourceType == MediaRecorder.AudioSource.VOICE_CALL) ||
           (mAudioSourceType == MediaRecorder.AudioSource.VOICE_DOWNLINK)||
           (mAudioSourceType == MediaRecorder.AudioSource.VOICE_UPLINK )) {
+          mAudioSourceType = MediaRecorder.AudioSource.MIC;//Default type
           Resources res = getResources();
           String message = null;
           message = res.getString(R.string.error_mediadb_aacincall);
@@ -511,10 +513,13 @@ public class SoundRecorder extends Activity
        }
     }
 
-    if(event.getKeyCode() == KeyEvent.KEYCODE_1 || event.getKeyCode() == KeyEvent.KEYCODE_2){
+    if((event.getKeyCode() == KeyEvent.KEYCODE_1 || event.getKeyCode() == KeyEvent.KEYCODE_2)
+       && (event.getAction() == event.ACTION_UP)){
+       //Ignore ACTION_DOWN to avoid showing error dialog twice
        AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
        if((audioManager.getMode() != AudioManager.MODE_IN_CALL) ||
          (mRequestedType == AUDIO_AAC_MP4)) {
+          mAudioSourceType = MediaRecorder.AudioSource.MIC;//Default type
           Resources res = getResources();
           String message = null;
           if(audioManager.getMode() != AudioManager.MODE_IN_CALL) {
