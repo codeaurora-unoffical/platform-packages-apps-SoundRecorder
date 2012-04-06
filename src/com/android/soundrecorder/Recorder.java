@@ -41,6 +41,12 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     
     int mState = IDLE_STATE;
 
+    public int mChannels = 0;
+
+    public void SetChannelsCount(int nChannelsCount) {
+        mChannels = nChannelsCount;
+    }
+
     public static final int NO_ERROR = 0;
     public static final int SDCARD_ACCESS_ERROR = 1;
     public static final int INTERNAL_ERROR = 2;
@@ -163,6 +169,11 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
         
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(audiosourcetype);
+        //set channel for surround sound recording.
+        if (mChannels > 0) {
+            mRecorder.setAudioChannels(mChannels);
+        }
+
         mRecorder.setOutputFormat(outputfileformat);
 
         try {

@@ -209,6 +209,7 @@ public class SoundRecorder extends Activity
     static final String AUDIO_EVRC = "audio/evrc";
     static final String AUDIO_QCELP = "audio/qcelp";
     static final String AUDIO_AAC_MP4 = "audio/aac_mp4";
+    static final String AUDIO_WAVE_6CH_LPCM = "audio/wave_6ch_lpcm";
     static final String AUDIO_ANY = "audio/*";
     static final String ANY_ANY = "*/*";
     
@@ -453,6 +454,11 @@ public class SoundRecorder extends Activity
                     } else if (AUDIO_AAC_MP4.equals(mRequestedType)) {
                         mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
                         mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", this, mAudioSourceType, MediaRecorder.AudioEncoder.AAC);
+                    } else if (AUDIO_WAVE_6CH_LPCM.equals(mRequestedType)) {//WAVE LPCM  6-channel recording
+                        mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
+                        mRecorder.SetChannelsCount(6);
+                        mAudioSourceType = MediaRecorder.AudioSource.MIC;
+                        mRecorder.startRecording(MediaRecorder.OutputFormat.WAVE, ".wav", this, mAudioSourceType, MediaRecorder.AudioEncoder.LPCM);
                     } else {
                         throw new IllegalArgumentException("Invalid output file type requested");
                     }
@@ -615,6 +621,12 @@ public class SoundRecorder extends Activity
             {
               Log.e(TAG, "Selected AUDIO_AAC_MP4 Codec: Key Event" + KeyEvent.KEYCODE_6);
               mRequestedType = AUDIO_AAC_MP4;
+              return true;
+            }
+            case KeyEvent.KEYCODE_7: // Selected 6 channel wave lpcm codec type
+            {
+              Log.e(TAG, "Selected linear pcm Codec: Key Event" + KeyEvent.KEYCODE_7);
+              mRequestedType = AUDIO_WAVE_6CH_LPCM;
               return true;
             }
 
