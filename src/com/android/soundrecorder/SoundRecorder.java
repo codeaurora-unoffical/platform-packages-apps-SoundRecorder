@@ -224,6 +224,7 @@ public class SoundRecorder extends Activity
     String mRequestedType = AUDIO_ANY;
     Recorder mRecorder;
     boolean mSampleInterrupted = false;    
+    static boolean bSSRSupported;
     String mErrorUiMessage = null; // Some error messages are displayed in the UI, 
                                    // not a dialog. This happens when a recording
                                    // is interrupted for some reason.
@@ -333,6 +334,17 @@ public class SoundRecorder extends Activity
         }
         mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         mPhoneStateListener = getPhoneStateListener();
+
+        AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+        String ssrRet = audioManager.getParameters("ssr");
+        if (ssrRet.contains("=true")) {
+            Log.d(TAG,"Surround sound recording is supported");
+            bSSRSupported = true;
+        } else {
+            Log.d(TAG,"Surround sound recording is not supported");
+            bSSRSupported = false;
+        }
+
         updateUi();
     }
 
@@ -442,17 +454,25 @@ public class SoundRecorder extends Activity
                         mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
                         mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", this, mAudioSourceType, MediaRecorder.AudioEncoder.AAC);
                     } else if (AUDIO_AAC_5POINT1_CHANNEL.equals(mRequestedType)) {//AAC  6-channel recording
-                        mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
-                        mRecorder.setChannels(6);
-                        mRecorder.setSamplingRate(SAMPLERATE_MULTI_CH);
-                        mAudioSourceType = MediaRecorder.AudioSource.MIC;
-                        mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", this, mAudioSourceType, MediaRecorder.AudioEncoder.AAC);
+                        if (true == bSSRSupported) {
+                          mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
+                          mRecorder.setChannels(6);
+                          mRecorder.setSamplingRate(SAMPLERATE_MULTI_CH);
+                          mAudioSourceType = MediaRecorder.AudioSource.MIC;
+                          mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", this, mAudioSourceType, MediaRecorder.AudioEncoder.AAC);
+                        } else {
+                          throw new IllegalArgumentException("Invalid output file type requested");
+                        }
                     } else if (AUDIO_WAVE_6CH_LPCM.equals(mRequestedType)) {//WAVE LPCM  6-channel recording
-                        mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
-                        mRecorder.setChannels(6);
-                        mRecorder.setSamplingRate(SAMPLERATE_MULTI_CH);
-                        mAudioSourceType = MediaRecorder.AudioSource.MIC;
-                        mRecorder.startRecording(MediaRecorder.OutputFormat.WAVE, ".wav", this, mAudioSourceType, MediaRecorder.AudioEncoder.LPCM);
+                        if (true == bSSRSupported) {
+                          mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
+                          mRecorder.setChannels(6);
+                          mRecorder.setSamplingRate(SAMPLERATE_MULTI_CH);
+                          mAudioSourceType = MediaRecorder.AudioSource.MIC;
+                          mRecorder.startRecording(MediaRecorder.OutputFormat.WAVE, ".wav", this, mAudioSourceType, MediaRecorder.AudioEncoder.LPCM);
+                        } else {
+                          throw new IllegalArgumentException("Invalid output file type requested");
+                        }
                     } else {
                         throw new IllegalArgumentException("Invalid output file type requested");
                     }
@@ -619,15 +639,21 @@ public class SoundRecorder extends Activity
             }
             case KeyEvent.KEYCODE_7: // Selected 6 channel wave lpcm codec type
             {
-              Log.e(TAG, "Selected multichannel AAC Codec: Key Event" + KeyEvent.KEYCODE_7);
-              mRequestedType = AUDIO_AAC_5POINT1_CHANNEL;
-              return true;
+              if (true == bSSRSupported) {
+                Log.e(TAG, "Selected multichannel AAC Codec: Key Event" + KeyEvent.KEYCODE_7);
+                mRequestedType = AUDIO_AAC_5POINT1_CHANNEL;
+                return true;
+              }
+              break;
             }
             case KeyEvent.KEYCODE_8: // Selected 6 channel AAC recording
             {
-              Log.e(TAG, "Selected linear pcm Codec: Key Event" + KeyEvent.KEYCODE_7);
-              mRequestedType = AUDIO_WAVE_6CH_LPCM;
-              return true;
+                if (true == bSSRSupported) {
+                Log.e(TAG, "Selected linear pcm Codec: Key Event" + KeyEvent.KEYCODE_7);
+                mRequestedType = AUDIO_WAVE_6CH_LPCM;
+                return true;
+              }
+              break;
             }
 
             default:
@@ -925,8 +951,11 @@ public class SoundRecorder extends Activity
                     mStateLED.setVisibility(View.VISIBLE);
                     //mStateLED.setImageResource(R.drawable.idle_led);
                     mStateMessage2.setVisibility(View.VISIBLE);
-                    mStateMessage2.setText(res.getString(R.string.press_record));
-                    
+                    if (true == bSSRSupported) {
+                        mStateMessage2.setText(res.getString(R.string.press_record_ssr));
+                    } else {
+                        mStateMessage2.setText(res.getString(R.string.press_record));
+                    }
                     mExitButtons.setVisibility(View.INVISIBLE);
                     mVUMeter.setVisibility(View.VISIBLE);
 
