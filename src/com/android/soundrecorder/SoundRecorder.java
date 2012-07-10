@@ -212,12 +212,18 @@ public class SoundRecorder extends Activity
     static final String AUDIO_AAC_MP4 = "audio/aac_mp4";
     static final String AUDIO_WAVE_6CH_LPCM = "audio/wave_6ch_lpcm";
     static final String AUDIO_AAC_5POINT1_CHANNEL = "audio/aac_5point1_channel";
+    static final String AUDIO_AMR_WB = "audio/amr-wb";
     static final String AUDIO_ANY = "audio/*";
     static final String ANY_ANY = "*/*";
+
     
     static final int BITRATE_AMR =  5900; // bits/sec
     static final int BITRATE_3GPP = 5900;
     static final int SAMPLERATE_MULTI_CH = 48000;
+    static final int BITRATE_AMR_WB = 16000;
+    int mAudioOutputFormat = MediaRecorder.OutputFormat.AMR_WB;
+    String mAmrWidebandExtension = ".awb";
+
     int mAudioSourceType = MediaRecorder.AudioSource.MIC;
     static int mOldCallState = TelephonyManager.CALL_STATE_IDLE;
     WakeLock mWakeLock;
@@ -473,6 +479,11 @@ public class SoundRecorder extends Activity
                         } else {
                           throw new IllegalArgumentException("Invalid output file type requested");
                         }
+                    } else if (AUDIO_AMR_WB.equals(mRequestedType)) {
+                        mRemainingTimeCalculator.setBitRate(BITRATE_AMR_WB);
+                        mRecorder.setSamplingRate(BITRATE_AMR_WB);
+                        mRecorder.startRecording(mAudioOutputFormat, mAmrWidebandExtension, this, mAudioSourceType, MediaRecorder.AudioEncoder.AMR_WB);
+
                     } else {
                         throw new IllegalArgumentException("Invalid output file type requested");
                     }
@@ -654,6 +665,22 @@ public class SoundRecorder extends Activity
                 return true;
               }
               break;
+            }
+            case KeyEvent.KEYCODE_9: // Selected amr-wb codec type in .awb file format
+            {
+              Log.e(TAG, "### Selected amr wb Codec in .awb: Key Event" + KeyEvent.KEYCODE_8);
+              mRequestedType = AUDIO_AMR_WB;
+              mAudioOutputFormat = MediaRecorder.OutputFormat.AMR_WB;
+              mAmrWidebandExtension = ".awb";
+              return true;
+            }
+            case KeyEvent.KEYCODE_A: // Selected amr-wb codec type in .3gpp file format
+            {
+              Log.e(TAG, "### Selected awr wb Codec in 3gp: Key Event" + KeyEvent.KEYCODE_9);
+              mRequestedType = AUDIO_AMR_WB;
+              mAmrWidebandExtension = ".3gpp";
+              mAudioOutputFormat = MediaRecorder.OutputFormat.THREE_GPP;
+              return true;
             }
 
             default:
