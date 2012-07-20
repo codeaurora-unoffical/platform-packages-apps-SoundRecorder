@@ -54,6 +54,7 @@ import android.widget.TextView;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.media.AudioManager;
+import android.view.inputmethod.InputMethodManager;
 
 /**
  * Calculates remaining recording time based on available disk space and
@@ -209,11 +210,14 @@ public class SoundRecorder extends Activity
     static final String AUDIO_EVRC = "audio/evrc";
     static final String AUDIO_QCELP = "audio/qcelp";
     static final String AUDIO_AAC_MP4 = "audio/aac_mp4";
+    static final String AUDIO_WAVE_6CH_LPCM = "audio/wave_6ch_lpcm";
+    static final String AUDIO_AAC_5POINT1_CHANNEL = "audio/aac_5point1_channel";
     static final String AUDIO_ANY = "audio/*";
     static final String ANY_ANY = "*/*";
     
     static final int BITRATE_AMR =  5900; // bits/sec
     static final int BITRATE_3GPP = 5900;
+    static final int SAMPLERATE_MULTI_CH = 48000;
     int mAudioSourceType = MediaRecorder.AudioSource.MIC;
     static int mOldCallState = TelephonyManager.CALL_STATE_IDLE;
     WakeLock mWakeLock;
@@ -300,10 +304,10 @@ public class SoundRecorder extends Activity
                 mMaxFileSize = recorderState.getLong(MAX_FILE_SIZE_KEY, -1);
             }
         }
-        
+
         updateUi();
     }
-    
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -409,6 +413,18 @@ public class SoundRecorder extends Activity
                     } else if (AUDIO_AAC_MP4.equals(mRequestedType)) {
                         mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
                         mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", this, mAudioSourceType, MediaRecorder.AudioEncoder.AAC);
+                    } else if (AUDIO_AAC_5POINT1_CHANNEL.equals(mRequestedType)) {//AAC  6-channel recording
+                        mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
+                        mRecorder.setChannels(6);
+                        mRecorder.setSamplingRate(SAMPLERATE_MULTI_CH);
+                        mAudioSourceType = MediaRecorder.AudioSource.MIC;
+                        mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", this, mAudioSourceType, MediaRecorder.AudioEncoder.AAC);
+                    } else if (AUDIO_WAVE_6CH_LPCM.equals(mRequestedType)) {//WAVE LPCM  6-channel recording
+                        mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
+                        mRecorder.setChannels(6);
+                        mRecorder.setSamplingRate(SAMPLERATE_MULTI_CH);
+                        mAudioSourceType = MediaRecorder.AudioSource.MIC;
+                        mRecorder.startRecording(MediaRecorder.OutputFormat.WAVE, ".wav", this, mAudioSourceType, MediaRecorder.AudioEncoder.LPCM);
                     } else {
                         throw new IllegalArgumentException("Invalid output file type requested");
                     }
@@ -436,7 +452,22 @@ public class SoundRecorder extends Activity
                 break;
         }
     }
-    
+
+    /*
+     *Handle the "menu" hardware key.
+     */
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        //show softkeyboard after the "menu" key is pressed and released(key up)
+        if(keyCode == KeyEvent.KEYCODE_MENU) {
+            InputMethodManager inputMgr = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputMgr.toggleSoftInput(0, 0);
+            return true;
+        } else {
+            return super.onKeyUp(keyCode, event);
+        }
+    }
+
     /*
      * Handle the "back" hardware key. 
      */
@@ -467,10 +498,12 @@ public class SoundRecorder extends Activity
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
          Log.v(TAG, "dispatchKeyEvent with key event" + event);
-    if(event.getKeyCode() == KeyEvent.KEYCODE_6){
+    if(event.getKeyCode() == KeyEvent.KEYCODE_6 && event.getAction() == event.ACTION_UP){
+       //Ignore ACTION_DOWN to avoid showing error dialog twice
        if((mAudioSourceType == MediaRecorder.AudioSource.VOICE_CALL) ||
           (mAudioSourceType == MediaRecorder.AudioSource.VOICE_DOWNLINK)||
           (mAudioSourceType == MediaRecorder.AudioSource.VOICE_UPLINK )) {
+          mAudioSourceType = MediaRecorder.AudioSource.MIC;//Default type
           Resources res = getResources();
           String message = null;
           message = res.getString(R.string.error_mediadb_aacincall);
@@ -484,10 +517,13 @@ public class SoundRecorder extends Activity
        }
     }
 
-    if(event.getKeyCode() == KeyEvent.KEYCODE_1 || event.getKeyCode() == KeyEvent.KEYCODE_2){
+    if((event.getKeyCode() == KeyEvent.KEYCODE_1 || event.getKeyCode() == KeyEvent.KEYCODE_2)
+       && (event.getAction() == event.ACTION_UP)){
+       //Ignore ACTION_DOWN to avoid showing error dialog twice
        AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
        if((audioManager.getMode() != AudioManager.MODE_IN_CALL) ||
          (mRequestedType == AUDIO_AAC_MP4)) {
+          mAudioSourceType = MediaRecorder.AudioSource.MIC;//Default type
           Resources res = getResources();
           String message = null;
           if(audioManager.getMode() != AudioManager.MODE_IN_CALL) {
@@ -551,6 +587,18 @@ public class SoundRecorder extends Activity
             {
               Log.e(TAG, "Selected AUDIO_AAC_MP4 Codec: Key Event" + KeyEvent.KEYCODE_6);
               mRequestedType = AUDIO_AAC_MP4;
+              return true;
+            }
+            case KeyEvent.KEYCODE_7: // Selected 6 channel wave lpcm codec type
+            {
+              Log.e(TAG, "Selected multichannel AAC Codec: Key Event" + KeyEvent.KEYCODE_7);
+              mRequestedType = AUDIO_AAC_5POINT1_CHANNEL;
+              return true;
+            }
+            case KeyEvent.KEYCODE_8: // Selected 6 channel AAC recording
+            {
+              Log.e(TAG, "Selected linear pcm Codec: Key Event" + KeyEvent.KEYCODE_7);
+              mRequestedType = AUDIO_WAVE_6CH_LPCM;
               return true;
             }
 
@@ -879,7 +927,7 @@ public class SoundRecorder extends Activity
                     mStateMessage2.setVisibility(View.VISIBLE);
                     mStateMessage2.setText(res.getString(R.string.recording_stopped));
                     //mStateLED.setImageResource(R.drawable.idle_led);
-                    mStateLED.setVisibility(View.VISIBLE);
+                    mStateLED.setVisibility(View.VISIBLE);                        
                 }
                 
                 if (mErrorUiMessage != null) {
@@ -945,7 +993,7 @@ public class SoundRecorder extends Activity
             mSampleInterrupted = false;
             mErrorUiMessage = null;
         }
-
+        
         if (state == Recorder.RECORDING_STATE) {
             mWakeLock.acquire(); // we don't want to go to sleep while recording
         } else {

@@ -47,7 +47,10 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     public static final int INTERNAL_ERROR = 2;
     public static final int IN_CALL_RECORD_ERROR = 3;
     public static final int UNSUPPORTED_FORMAT = 4;
-    
+
+    public int mChannels = 0;
+    public int mSamplingRate = 0;
+
     public interface OnStateChangedListener {
         public void onStateChanged(int state);
         public void onError(int error);
@@ -100,7 +103,15 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     public void setOnStateChangedListener(OnStateChangedListener listener) {
         mOnStateChangedListener = listener;
     }
-    
+
+    public void setChannels(int nChannelsCount) {
+        mChannels = nChannelsCount;
+    }
+
+    public void setSamplingRate(int samplingRate) {
+        mSamplingRate = samplingRate;
+    }
+
     public int state() {
         return mState;
     }
@@ -164,6 +175,14 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
         
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(audiosourcetype);
+        //set channel for surround sound recording.
+        if (mChannels > 0) {
+            mRecorder.setAudioChannels(mChannels);
+        }
+        if (mSamplingRate > 0) {
+            mRecorder.setAudioSamplingRate(mSamplingRate);
+        }
+
         mRecorder.setOutputFormat(outputfileformat);
 
         try {
