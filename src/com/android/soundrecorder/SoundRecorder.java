@@ -252,7 +252,34 @@ public class SoundRecorder extends Activity
     Button mDiscardButton;
     VUMeter mVUMeter;
     private BroadcastReceiver mSDCardMountEventReceiver = null;
+    private TelephonyManager mTelephonyManager;
+    private PhoneStateListener mPhoneStateListener;
 
+    private PhoneStateListener getPhoneStateListener() {
+        PhoneStateListener phoneStateListener = new PhoneStateListener() {
+            @Override
+            public void onCallStateChanged(int state, String ignored) {
+               switch (state) {
+                      case TelephonyManager.CALL_STATE_IDLE:
+                      if ((mOldCallState == TelephonyManager.CALL_STATE_OFFHOOK)
+                               && !(mAudioSourceType == MediaRecorder.AudioSource.MIC)){
+                         mRecorder.stop();
+                      }
+                      break;
+
+                      case TelephonyManager.CALL_STATE_OFFHOOK:
+                      mOldCallState = TelephonyManager.CALL_STATE_OFFHOOK;
+                      break;
+
+                      default:
+                      // The control should not come here
+                      Log.e(TAG,"Unknown call state");
+                      break;
+                }
+            }
+        };
+        return phoneStateListener;
+    }
     @Override
     public void onCreate(Bundle icycle) {
         super.onCreate(icycle);
@@ -304,7 +331,8 @@ public class SoundRecorder extends Activity
                 mMaxFileSize = recorderState.getLong(MAX_FILE_SIZE_KEY, -1);
             }
         }
-
+        mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        mPhoneStateListener = getPhoneStateListener();
         updateUi();
     }
 
@@ -617,6 +645,8 @@ public class SoundRecorder extends Activity
 
     @Override
     protected void onPause() {
+        // Stop listening for phone state changes.
+        mTelephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_NONE);
         mSampleInterrupted = mRecorder.state() == Recorder.RECORDING_STATE;
         mRecorder.stop();
         
