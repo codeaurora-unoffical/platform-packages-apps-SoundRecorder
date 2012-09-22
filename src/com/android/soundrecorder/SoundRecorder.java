@@ -347,7 +347,13 @@ public class SoundRecorder extends Activity
 
         updateUi();
     }
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // While we're in the foreground, listen for phone state changes.
+        mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+            mTelephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+   }
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
