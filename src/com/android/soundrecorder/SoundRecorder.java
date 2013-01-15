@@ -210,8 +210,6 @@ public class SoundRecorder extends Activity
     static final String AUDIO_EVRC = "audio/evrc";
     static final String AUDIO_QCELP = "audio/qcelp";
     static final String AUDIO_AAC_MP4 = "audio/aac_mp4";
-    static final String AUDIO_WAVE_6CH_LPCM = "audio/wave_6ch_lpcm";
-    static final String AUDIO_AAC_5POINT1_CHANNEL = "audio/aac_5point1_channel";
     static final String AUDIO_AMR_WB = "audio/amr-wb";
     static final String AUDIO_ANY = "audio/*";
     static final String ANY_ANY = "*/*";
@@ -465,26 +463,6 @@ public class SoundRecorder extends Activity
                     } else if (AUDIO_AAC_MP4.equals(mRequestedType)) {
                         mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
                         mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", this, mAudioSourceType, MediaRecorder.AudioEncoder.AAC);
-                    } else if (AUDIO_AAC_5POINT1_CHANNEL.equals(mRequestedType)) {//AAC  6-channel recording
-                        if (true == bSSRSupported) {
-                          mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
-                          mRecorder.setChannels(6);
-                          mRecorder.setSamplingRate(SAMPLERATE_MULTI_CH);
-                          mAudioSourceType = MediaRecorder.AudioSource.MIC;
-                          mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", this, mAudioSourceType, MediaRecorder.AudioEncoder.AAC);
-                        } else {
-                          throw new IllegalArgumentException("Invalid output file type requested");
-                        }
-                    } else if (AUDIO_WAVE_6CH_LPCM.equals(mRequestedType)) {//WAVE LPCM  6-channel recording
-                        if (true == bSSRSupported) {
-                          mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
-                          mRecorder.setChannels(6);
-                          mRecorder.setSamplingRate(SAMPLERATE_MULTI_CH);
-                          mAudioSourceType = MediaRecorder.AudioSource.MIC;
-                          mRecorder.startRecording(MediaRecorder.OutputFormat.WAVE, ".wav", this, mAudioSourceType, MediaRecorder.AudioEncoder.LPCM);
-                        } else {
-                          throw new IllegalArgumentException("Invalid output file type requested");
-                        }
                     } else if (AUDIO_AMR_WB.equals(mRequestedType)) {
                         mRemainingTimeCalculator.setBitRate(BITRATE_AMR_WB);
                         mRecorder.setSamplingRate(BITRATE_AMR_WB);
@@ -653,24 +631,6 @@ public class SoundRecorder extends Activity
               Log.e(TAG, "Selected AUDIO_AAC_MP4 Codec: Key Event" + KeyEvent.KEYCODE_6);
               mRequestedType = AUDIO_AAC_MP4;
               return true;
-            }
-            case KeyEvent.KEYCODE_7: // Selected 6 channel wave lpcm codec type
-            {
-              if (true == bSSRSupported) {
-                Log.e(TAG, "Selected multichannel AAC Codec: Key Event" + KeyEvent.KEYCODE_7);
-                mRequestedType = AUDIO_AAC_5POINT1_CHANNEL;
-                return true;
-              }
-              break;
-            }
-            case KeyEvent.KEYCODE_8: // Selected 6 channel AAC recording
-            {
-                if (true == bSSRSupported) {
-                Log.e(TAG, "Selected linear pcm Codec: Key Event" + KeyEvent.KEYCODE_7);
-                mRequestedType = AUDIO_WAVE_6CH_LPCM;
-                return true;
-              }
-              break;
             }
             case KeyEvent.KEYCODE_9: // Selected amr-wb codec type in .awb file format
             {

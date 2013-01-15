@@ -52,7 +52,7 @@
     <!-- label shown before the user has recorded anything -->
     <string name="press_record">Press: 0-MIC 1-Rx 2-Tx+Rx 3-AMR 4-EVRC 5-QCELP 6-AAC_MP4 9-AMR-WB A-AMR-WB-3GPP and Press record</string>
     <!-- label shown before the user has recorded anything -SSR support added-->
-    <string name="press_record_ssr">Press: 0-MIC 1-Rx 2-Tx+Rx 3-AMR 4-EVRC 5-QCELP 6-AAC_MP4 7-AAC_SSR 8-LPCM_SSR 9-AMR-WB A-AMR-WB-3GPP and Press record</string>
+    <string name="press_record_ssr">Press: 0-MIC 1-Rx 2-Tx+Rx 3-AMR 4-EVRC 5-QCELP 6-AAC_MP4 7-AAC_SSR 9-AMR-WB A-AMR-WB-3GPP and Press record</string>
    
     <!-- the name under which recordings will be visible in the media database is formatted like this --> 
     <string name="audio_db_title_format"><xliff:g id="format">yyyy-MM-dd HH:mm:ss</xliff:g></string>
