@@ -218,9 +218,13 @@ public class SoundRecorder extends Activity
 
     
     static final int BITRATE_AMR =  5900; // bits/sec
+    static final int BITRATE_EVRC = 8500;
+    static final int BITRATE_QCELP = 13300;
     static final int BITRATE_3GPP = 5900;
     static final int SAMPLERATE_MULTI_CH = 48000;
     static final int BITRATE_AMR_WB = 16000;
+    static final int SAMPLERATE_AMR_WB = 16000;
+    static final int SAMPLERATE_8000 = 8000;
     int mAudioOutputFormat = MediaRecorder.OutputFormat.AMR_WB;
     String mAmrWidebandExtension = ".awb";
 
@@ -452,18 +456,22 @@ public class SoundRecorder extends Activity
 
                     if (AUDIO_AMR.equals(mRequestedType)) {
                         mRemainingTimeCalculator.setBitRate(BITRATE_AMR);
+                        mRecorder.setSamplingRate(SAMPLERATE_8000);
                         mRecorder.startRecording(MediaRecorder.OutputFormat.RAW_AMR, ".amr", this, mAudioSourceType, MediaRecorder.AudioEncoder.AMR_NB);
                     } else if (AUDIO_EVRC.equals(mRequestedType)) {
-                        mRemainingTimeCalculator.setBitRate(BITRATE_AMR);
+                        mRemainingTimeCalculator.setBitRate(BITRATE_EVRC);
+                        mRecorder.setSamplingRate(SAMPLERATE_8000);
                         mRecorder.startRecording(MediaRecorder.OutputFormat.QCP, ".qcp", this, mAudioSourceType, MediaRecorder.AudioEncoder.EVRC);
                     } else if (AUDIO_QCELP.equals(mRequestedType)) {
-                        mRemainingTimeCalculator.setBitRate(BITRATE_AMR);
+                        mRemainingTimeCalculator.setBitRate(BITRATE_QCELP);
+                        mRecorder.setSamplingRate(SAMPLERATE_8000);
                         mRecorder.startRecording(MediaRecorder.OutputFormat.QCP, ".qcp", this, mAudioSourceType, MediaRecorder.AudioEncoder.QCELP);
                     } else if (AUDIO_3GPP.equals(mRequestedType)) {
                         mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
                         mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", this, mAudioSourceType, MediaRecorder.AudioEncoder.AMR_NB);
                     } else if (AUDIO_AAC_MP4.equals(mRequestedType)) {
                         mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
+                        mRecorder.setSamplingRate(SAMPLERATE_MULTI_CH);
                         mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", this, mAudioSourceType, MediaRecorder.AudioEncoder.AAC);
                     } else if (AUDIO_AAC_5POINT1_CHANNEL.equals(mRequestedType)) {//AAC  6-channel recording
                         if (true == bSSRSupported) {
