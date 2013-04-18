@@ -354,7 +354,7 @@ public class SoundRecorder extends Activity
             Log.d(TAG,"Surround sound recording is not supported");
             bSSRSupported = false;
         }
-
+        bSSRSupported = false;
         updateUi();
     }
     @Override
@@ -532,6 +532,9 @@ public class SoundRecorder extends Activity
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         //show softkeyboard after the "menu" key is pressed and released(key up)
+        if(!bSSRSupported) {
+            return super.onKeyUp(keyCode, event);
+        }
         if(keyCode == KeyEvent.KEYCODE_MENU) {
             InputMethodManager inputMgr = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
             inputMgr.toggleSoftInput(0, 0);
@@ -569,7 +572,7 @@ public class SoundRecorder extends Activity
 
     // Voicememo Adding UI choice for the user to get the format needed
     @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
+    public boolean dispatchKeyEvent(KeyEvent event) {   
          Log.v(TAG, "dispatchKeyEvent with key event" + event);
     if(event.getKeyCode() == KeyEvent.KEYCODE_6 && event.getAction() == event.ACTION_UP){
        //Ignore ACTION_DOWN to avoid showing error dialog twice
