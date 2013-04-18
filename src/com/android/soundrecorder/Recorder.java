@@ -167,7 +167,7 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
             }
             if (!sampleDir.canWrite()) // Workaround for broken sdcard support on the device.
                 sampleDir = new File("/sdcard/sdcard"+"/SoundRecord");
-            
+                           
             try {
                 mSampleFile = File.createTempFile(SAMPLE_PREFIX, extension, sampleDir);
             } catch (IOException e) {
