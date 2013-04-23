@@ -77,4 +77,8 @@
     <string name="error_mediadb_incall">This option is supported, only while in call</string>
     <!-- shown as the message in a dialog when voice call recording is started for AAC format -->
     <string name="error_mediadb_aacincall">AAC voice call recording is not supported</string>
+    <string name="format_setting"> File type </string>
+    <string name="format_setting_AMR_item"> AMR </string>
+    <string name="format_setting_3GPP_item"> 3GPP </string> 
+    
 </resources>

@@ -55,6 +55,12 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.media.AudioManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
+import android.content.DialogInterface;
+import android.view.ContextThemeWrapper;
+import android.app.AlertDialog;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
 
 /**
  * Calculates remaining recording time based on available disk space and
@@ -265,6 +271,7 @@ public class SoundRecorder extends Activity
     private BroadcastReceiver mSDCardMountEventReceiver = null;
     private TelephonyManager mTelephonyManager;
     private PhoneStateListener mPhoneStateListener;
+    private int mFileType = 0;
 
     private PhoneStateListener getPhoneStateListener() {
         PhoneStateListener phoneStateListener = new PhoneStateListener() {
@@ -526,18 +533,75 @@ public class SoundRecorder extends Activity
         }
     }
 
+    private void openOptionDialog() {   
+       final Context dialogContext = new ContextThemeWrapper(this, android.R.style.Theme_Holo_Dialog);
+       final Resources res = dialogContext.getResources();
+       final LayoutInflater dialogInflater = (LayoutInflater)dialogContext
+             .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+     
+       final ArrayAdapter<Integer> adapter = new ArrayAdapter<Integer>(this,
+             android.R.layout.simple_list_item_single_choice) {
+           @Override
+           public View getView(int position, View convertView, ViewGroup parent) {
+               if (convertView == null) {
+                   convertView = dialogInflater.inflate(android.R.layout.simple_list_item_single_choice,
+                         parent, false);
+               }
+ 
+                final int resId = this.getItem(position);
+                ((TextView)convertView).setText(resId);
+                return convertView;
+              }
+           };
+        
+         adapter.add(R.string.format_setting_AMR_item);
+         adapter.add(R.string.format_setting_3GPP_item);
+         
+         final DialogInterface.OnClickListener clickListener = new DialogInterface.OnClickListener() {
+         public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                final int resId = adapter.getItem(which);
+                switch (resId) {            
+                case R.string.format_setting_AMR_item: {                        
+			  mRequestedType = AUDIO_AMR;	
+                        mFileType = 0;
+                        break;
+                    }
+                case R.string.format_setting_3GPP_item: {                        
+			  mRequestedType = AUDIO_3GPP;
+                        mFileType = 1;
+                        break;
+                    }
+
+               default: {
+			Log.e(TAG, "Unexpected resource: " +getResources().getResourceEntryName(resId));
+                    }
+                }
+            }
+         };
+
+         AlertDialog ad =  null;
+         ad =  new AlertDialog.Builder(this)
+                .setTitle(R.string.format_setting)
+                .setSingleChoiceItems(adapter, mFileType, clickListener)
+                .create();                  
+	   ad.setCanceledOnTouchOutside(true);
+	   ad.show();		
+         
+    }
     /*
      *Handle the "menu" hardware key.
      */
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         //show softkeyboard after the "menu" key is pressed and released(key up)
-        if(!bSSRSupported) {
-            return super.onKeyUp(keyCode, event);
-        }
+       // if(!bSSRSupported) {
+        //    return super.onKeyUp(keyCode, event);
+        //}
         if(keyCode == KeyEvent.KEYCODE_MENU) {
-            InputMethodManager inputMgr = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputMgr.toggleSoftInput(0, 0);
+           if(mRecorder.state() == Recorder.IDLE_STATE){
+                openOptionDialog();
+           }
             return true;
         } else {
             return super.onKeyUp(keyCode, event);
