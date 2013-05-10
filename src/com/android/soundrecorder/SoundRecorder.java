@@ -524,11 +524,9 @@ public class SoundRecorder extends Activity
             case R.id.acceptButton:
                 mRecorder.stop();
                 saveSample();
-                finish();
                 break;
             case R.id.discardButton:
                 mRecorder.delete();
-                finish();
                 break;
         }
     }
@@ -800,6 +798,7 @@ public class SoundRecorder extends Activity
         } catch(UnsupportedOperationException ex) {  // Database manipulation failure
             return;
         }
+        mRecorder.resetState(); //reset teh recorder state after saved
         if (uri == null) {
             return;
         }

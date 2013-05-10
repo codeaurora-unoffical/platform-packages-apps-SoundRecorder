@@ -131,6 +131,17 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     }
     
     /**
+     * Just reset the recorder state.
+     */
+    public void resetState() {
+
+        mSampleFile = null;
+        mSampleLength = 0;
+        
+        signalStateChanged(IDLE_STATE);
+    }
+    
+    /**
      * Resets the recorder state. If a sample was recorded, the file is deleted.
      */
     public void delete() {
