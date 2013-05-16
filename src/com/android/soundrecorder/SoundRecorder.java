@@ -562,6 +562,16 @@ public class SoundRecorder extends Activity
                     break;
             }
             return true;
+        } else if(keyCode == KeyEvent.KEYCODE_HEADSETHOOK) {
+            switch(mRecorder.state()) {
+                case Recorder.IDLE_STATE:
+                    break;
+                case Recorder.PLAYING_STATE:
+                case Recorder.RECORDING_STATE:
+                    mRecorder.stop();
+                    break;
+            }
+            return super.onKeyDown(keyCode, event);
         } else {
             return super.onKeyDown(keyCode, event);
         }
