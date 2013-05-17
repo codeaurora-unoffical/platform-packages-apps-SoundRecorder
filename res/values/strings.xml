@@ -80,5 +80,8 @@
     <string name="format_setting"> File type </string>
     <string name="format_setting_AMR_item"> AMR </string>
     <string name="format_setting_3GPP_item"> 3GPP </string> 
-    
+     <string name="storage_setting">Memory location</string>
+    <string name="storage_setting_sdcard_item"> SD card </string>
+    <string name="storage_setting_Local_item"> Phone storage</string>
+   <string name="no_phonestorage">Phonestorage unmounted</string>
 </resources>
