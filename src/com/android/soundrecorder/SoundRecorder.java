@@ -236,6 +236,7 @@ public class SoundRecorder extends Activity
     Recorder mRecorder;
     boolean mSampleInterrupted = false;    
     static boolean bSSRSupported;
+    private String mLastFileName;
     String mErrorUiMessage = null; // Some error messages are displayed in the UI, 
                                    // not a dialog. This happens when a recording
                                    // is interrupted for some reason.
@@ -759,7 +760,7 @@ public class SoundRecorder extends Activity
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.app_name);
-        builder.setMessage(R.string.file_saved);
+        builder.setMessage(mLastFileName +"\n"+ getResources().getString(R.string.file_saved));
         if(exit == true) {
             builder.setPositiveButton(R.string.button_ok,
                 new DialogInterface.OnClickListener() {
@@ -911,6 +912,7 @@ public class SoundRecorder extends Activity
                 res.getString(R.string.audio_db_title_format));
         String title = formatter.format(date);
         long sampleLengthMillis = mRecorder.sampleLength() * 1000L;
+        mLastFileName = file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf("/")+1,file.getAbsolutePath().length());
 
         // Lets label the recorded audio file as NON-MUSIC so that the file
         // won't be displayed automatically, except for in the playlist.
