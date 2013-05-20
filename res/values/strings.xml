@@ -77,4 +77,8 @@
     <string name="error_mediadb_incall">This option is supported, only while in call</string>
     <!-- shown as the message in a dialog when voice call recording is started for AAC format -->
     <string name="error_mediadb_aacincall">AAC voice call recording is not supported</string>
+    <!-- Label shown during recording -->
+    <string name="recording_now">Recording now ...</string>
+    <!-- shown as the message in a dialog when the recording file is saved successfully -->
+    <string name="file_saved">File has been saved</string>
 </resources>

@@ -531,8 +531,7 @@ public class SoundRecorder extends Activity
                 break;
             case R.id.acceptButton:
                 mRecorder.stop();
-                saveSample();
-                finish();
+                saveSampleAndExit(true);
                 break;
             case R.id.discardButton:
                 mRecorder.delete();
@@ -564,13 +563,12 @@ public class SoundRecorder extends Activity
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             switch (mRecorder.state()) {
                 case Recorder.IDLE_STATE:
-                    if (mRecorder.sampleLength() > 0)
-                        saveSample();
-                    finish();
+                    if (!saveSampleAndExit(true)) {
+                        finish();
+                    }
                     break;
                 case Recorder.PLAYING_STATE:
                     mRecorder.stop();
-                    saveSample();
                     break;
                 case Recorder.RECORDING_STATE:
                     mRecorder.clear();
@@ -747,19 +745,44 @@ public class SoundRecorder extends Activity
      * If we have just recorded a smaple, this adds it to the media data base
      * and sets the result to the sample's URI.
      */
-    private void saveSample() {
-        if (mRecorder.sampleLength() == 0)
-            return;
+    private boolean saveSampleAndExit(boolean exit) {
+        if (mRecorder.sampleLength() <= 0)
+            return false;
         Uri uri = null;
         try {
             uri = this.addToMediaDB(mRecorder.sampleFile());
         } catch(UnsupportedOperationException ex) {  // Database manipulation failure
-            return;
+            return false;
         }
         if (uri == null) {
-            return;
+            return false;
         }
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.app_name);
+        builder.setMessage(R.string.file_saved);
+        if(exit == true) {
+            builder.setPositiveButton(R.string.button_ok,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        finish();
+                    }
+                }
+            );
+        }
+        else {
+            builder.setPositiveButton(R.string.button_ok,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }
+            );
+        }
+        builder.setCancelable(false);
+        builder.show();
         setResult(RESULT_OK, new Intent().setData(uri));
+        return true;
     }
     
     /*
