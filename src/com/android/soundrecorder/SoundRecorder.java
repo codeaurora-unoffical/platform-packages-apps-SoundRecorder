@@ -520,7 +520,20 @@ public class SoundRecorder extends Activity
                 break;
             case R.id.discardButton:
                 mRecorder.delete();
-                finish();
+                //prompt before exit
+                new AlertDialog.Builder(this)
+                    .setTitle(R.string.app_name)
+                    .setMessage(R.string.file_discard)
+                    .setPositiveButton(R.string.button_ok,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                finish();
+                            }
+                        }
+                    )
+                    .setCancelable(false)
+                    .show();
                 break;
         }
     }
@@ -723,16 +736,21 @@ public class SoundRecorder extends Activity
      * and sets the result to the sample's URI.
      */
     private boolean saveSampleAndExit(boolean exit) {
-        if (mRecorder.sampleLength() <= 0)
-            return false;
         Uri uri = null;
+
+        if (mRecorder.sampleLength() <= 0) {
+            mRecorder.delete();
+            return false;
+        }
+
         try {
             uri = this.addToMediaDB(mRecorder.sampleFile());
         } catch(UnsupportedOperationException ex) {  // Database manipulation failure
             return false;
-        }
-        if (uri == null) {
-            return false;
+        } finally {
+            if (uri == null) {
+                return false;
+            }
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.app_name);
