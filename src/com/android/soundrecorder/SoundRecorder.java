@@ -41,6 +41,7 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.os.StatFs;
 import android.os.PowerManager.WakeLock;
+import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -453,6 +454,12 @@ public class SoundRecorder extends Activity
                     updateUi();
                 } else {
                     stopAudioPlayback();
+                    AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+                    //because of send broadcast to OFF FM is an asynchronous Process
+                    //so sometimes it need little time,Otherwise startRecordin will be error
+                    if (audioManager.isFMActive()) {
+                        SystemClock.sleep(100);
+                    }
 
                     if (AUDIO_AMR.equals(mRequestedType)) {
                         mRemainingTimeCalculator.setBitRate(BITRATE_AMR);
