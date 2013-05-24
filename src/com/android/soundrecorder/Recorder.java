@@ -50,7 +50,8 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
 
     public int mChannels = 0;
     public int mSamplingRate = 0;
-
+    public String mStoragePath = SoundRecorder.STORAGE_PATH_LOCAL_PHONE;
+    
     public interface OnStateChangedListener {
         public void onStateChanged(int state);
         public void onError(int error);
@@ -131,6 +132,17 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     }
     
     /**
+     * Just reset the recorder state.
+     */
+    public void resetState() {
+
+        mSampleFile = null;
+        mSampleLength = 0;
+        
+        signalStateChanged(IDLE_STATE);
+    }
+    
+    /**
      * Resets the recorder state. If a sample was recorded, the file is deleted.
      */
     public void delete() {
@@ -161,13 +173,13 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
         stop();
         
         if (mSampleFile == null) {
-            File sampleDir =new File(Environment.getExternalStorageDirectory().toString()+"/SoundRecord");
+            File sampleDir =new File(mStoragePath);
             if(!sampleDir.exists()) {
                 boolean suc = sampleDir.mkdirs();
             }
             if (!sampleDir.canWrite()) // Workaround for broken sdcard support on the device.
                 sampleDir = new File("/sdcard/sdcard"+"/SoundRecord");
-            
+                           
             try {
                 mSampleFile = File.createTempFile(SAMPLE_PREFIX, extension, sampleDir);
             } catch (IOException e) {
@@ -318,5 +330,8 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     private void setError(int error) {
         if (mOnStateChangedListener != null)
             mOnStateChangedListener.onError(error);
+    }
+    public void setStoragePath(String path){
+        mStoragePath = path;
     }
 }
