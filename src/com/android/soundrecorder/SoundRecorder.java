@@ -532,6 +532,10 @@ public class SoundRecorder extends Activity
                 break;
             case R.id.stopButton:
                 mRecorder.stop();
+                // Display the tips of stop record
+                mStateMessage2.setVisibility(View.VISIBLE);
+                mStateMessage2.setText(getResources().getString(R.string.recording_stopped));
+                mStateLED.setVisibility(View.VISIBLE);
                 break;
             case R.id.acceptButton:
                 mRecorder.stop();
