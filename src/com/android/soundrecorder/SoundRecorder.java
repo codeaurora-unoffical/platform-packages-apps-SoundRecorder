@@ -225,6 +225,7 @@ public class SoundRecorder extends Activity
     static final int BITRATE_AMR_WB = 16000;
     static final int SAMPLERATE_AMR_WB = 16000;
     static final int SAMPLERATE_8000 = 8000;
+    static final long STOP_WAIT = 300;
     int mAudioOutputFormat = MediaRecorder.OutputFormat.AMR_WB;
     String mAmrWidebandExtension = ".awb";
 
@@ -429,8 +430,15 @@ public class SoundRecorder extends Activity
         // should be public, but isn't.
         Intent i = new Intent("com.android.music.musicservicecommand");
         i.putExtra("command", "pause");
-
+        ((AudioManager) getSystemService(AUDIO_SERVICE))
+                .requestAudioFocus(null, AudioManager.STREAM_MUSIC,
+                AudioManager.AUDIOFOCUS_GAIN);
         sendBroadcast(i);
+        try{
+           Thread.sleep(STOP_WAIT);
+        } catch (InterruptedException ex) {
+              Log.e(TAG,"sleep() for stop wait interrupted");
+        }
     }
 
     /*
