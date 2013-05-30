@@ -579,7 +579,8 @@ public class SoundRecorder extends Activity
                     mRecorder.stop();
                     break;
                 case Recorder.RECORDING_STATE:
-                    mRecorder.clear();
+                    mRecorder.stop();
+                    saveSampleAndExit(true);
                     break;
             }
             return true;
