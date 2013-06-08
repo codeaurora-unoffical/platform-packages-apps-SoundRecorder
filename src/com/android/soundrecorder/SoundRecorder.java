@@ -542,7 +542,6 @@ public class SoundRecorder extends Activity
                     } else {
                         throw new IllegalArgumentException("Invalid output file type requested");
                     }
-                   Log.d(TAG,"maxfilesizie----------"+mMaxFileSize);
                     if (mMaxFileSize != -1) {
                         mRemainingTimeCalculator.setFileSizeLimit(
                                 mRecorder.sampleFile(), mMaxFileSize);
@@ -1001,10 +1000,8 @@ public class SoundRecorder extends Activity
      * Shows/hides the appropriate child views for the new state.
      */
     private void updateUi() {
-        Resources res = getResources();
-           Log.d(TAG,"------------"+mRecorder.state()+"------"+mRecorder.sampleLength());
+        Resources res = getResources();           
         switch (mRecorder.state()) {
-         
             case Recorder.IDLE_STATE:
                 if (mRecorder.sampleLength() == 0) {
                     mRecordButton.setEnabled(true);
