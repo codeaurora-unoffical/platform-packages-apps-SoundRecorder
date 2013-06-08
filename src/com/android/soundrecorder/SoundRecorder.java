@@ -542,7 +542,7 @@ public class SoundRecorder extends Activity
                     } else {
                         throw new IllegalArgumentException("Invalid output file type requested");
                     }
-                    
+                   Log.d(TAG,"maxfilesizie----------"+mMaxFileSize);
                     if (mMaxFileSize != -1) {
                         mRemainingTimeCalculator.setFileSizeLimit(
                                 mRecorder.sampleFile(), mMaxFileSize);
@@ -762,6 +762,7 @@ public class SoundRecorder extends Activity
             return;
         }
         setResult(RESULT_OK, new Intent().setData(uri));
+        if(mMaxFileSize != -1) finish();
     }
     
     /*
@@ -1001,8 +1002,9 @@ public class SoundRecorder extends Activity
      */
     private void updateUi() {
         Resources res = getResources();
-        
+           Log.d(TAG,"------------"+mRecorder.state()+"------"+mRecorder.sampleLength());
         switch (mRecorder.state()) {
+         
             case Recorder.IDLE_STATE:
                 if (mRecorder.sampleLength() == 0) {
                     mRecordButton.setEnabled(true);
@@ -1179,7 +1181,7 @@ public class SoundRecorder extends Activity
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);  
          menu.findItem(R.id.menu_item_storage).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);  
-        menu.findItem(R.id.menu_item_filetype).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);
+        menu.findItem(R.id.menu_item_filetype).setEnabled(mRecorder.state() == Recorder.IDLE_STATE && mMaxFileSize== -1 );
         return true;
     }
 
