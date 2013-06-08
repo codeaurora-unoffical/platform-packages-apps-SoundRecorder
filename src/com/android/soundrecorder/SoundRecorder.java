@@ -762,6 +762,7 @@ public class SoundRecorder extends Activity
             return;
         }
         setResult(RESULT_OK, new Intent().setData(uri));
+        if(mMaxFileSize != -1) finish();
     }
     
     /*
@@ -1179,7 +1180,7 @@ public class SoundRecorder extends Activity
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);  
          menu.findItem(R.id.menu_item_storage).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);  
-        menu.findItem(R.id.menu_item_filetype).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);
+        menu.findItem(R.id.menu_item_filetype).setEnabled(mRecorder.state() == Recorder.IDLE_STATE && mMaxFileSize== -1 );
         return true;
     }
 
