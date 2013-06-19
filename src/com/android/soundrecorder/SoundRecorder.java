@@ -961,7 +961,12 @@ public class SoundRecorder extends Activity
         ContentResolver resolver = getContentResolver();
         Uri base = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Log.d(TAG, "ContentURI: " + base);
-        Uri result = resolver.insert(base, cv);
+        Uri result;
+        try {
+            result = resolver.insert(base, cv);
+        } catch (Exception exception) {
+            result = null;
+        }
         if (result == null) {
             new AlertDialog.Builder(this)
                 .setTitle(R.string.app_name)
