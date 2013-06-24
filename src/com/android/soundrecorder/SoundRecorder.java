@@ -300,7 +300,8 @@ public class SoundRecorder extends Activity
     private int mFileType = 0;
     private int mPath = 0;
     private String mStoragePath =STORAGE_PATH_LOCAL_PHONE;
-
+    private Menu mMenu = null;
+    
     private PhoneStateListener getPhoneStateListener() {
         PhoneStateListener phoneStateListener = new PhoneStateListener() {
             @Override
@@ -595,6 +596,10 @@ public class SoundRecorder extends Activity
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {   
          Log.v(TAG, "dispatchKeyEvent with key event" + event);
+        if(event.getKeyCode() == KeyEvent.KEYCODE_MENU && mMenu!= null){
+             mMenu.findItem(R.id.menu_item_storage).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);  
+             mMenu.findItem(R.id.menu_item_filetype).setEnabled(mRecorder.state() == Recorder.IDLE_STATE && mMaxFileSize== -1 );
+        }
     if(event.getKeyCode() == KeyEvent.KEYCODE_6 && event.getAction() == event.ACTION_UP){
        //Ignore ACTION_DOWN to avoid showing error dialog twice
        if((mAudioSourceType == MediaRecorder.AudioSource.VOICE_CALL) ||
@@ -1181,6 +1186,7 @@ public class SoundRecorder extends Activity
         super.onPrepareOptionsMenu(menu);  
          menu.findItem(R.id.menu_item_storage).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);  
         menu.findItem(R.id.menu_item_filetype).setEnabled(mRecorder.state() == Recorder.IDLE_STATE && mMaxFileSize== -1 );
+        mMenu = menu;
         return true;
     }
 
