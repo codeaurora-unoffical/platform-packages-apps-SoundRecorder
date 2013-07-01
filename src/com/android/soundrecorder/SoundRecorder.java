@@ -871,7 +871,7 @@ public class SoundRecorder extends Activity
 
         // Lets label the recorded audio file as NON-MUSIC so that the file
         // won't be displayed automatically, except for in the playlist.
-        cv.put(MediaStore.Audio.Media.IS_MUSIC, "0");
+        cv.put(MediaStore.Audio.Media.IS_MUSIC, "1");
 
         cv.put(MediaStore.Audio.Media.TITLE, mTitle);
         cv.put(MediaStore.Audio.Media.DATA, file.getAbsolutePath());
