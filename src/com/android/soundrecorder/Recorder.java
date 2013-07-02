@@ -29,10 +29,12 @@ import android.media.MediaPlayer.OnErrorListener;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Recorder implements OnCompletionListener, OnErrorListener {
     static final String TAG = "Recorder";
-    static final String SAMPLE_PREFIX = "recording";
+    static final String SAMPLE_PREFIX = "record_";
     static final String SAMPLE_PATH_KEY = "sample_path";
     static final String SAMPLE_LENGTH_KEY = "sample_length";
 
@@ -64,8 +66,9 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     
     MediaRecorder mRecorder = null;
     MediaPlayer mPlayer = null;
-    
-    public Recorder() {
+    private SimpleDateFormat sdFormatter;
+    public Recorder(SimpleDateFormat formatter) {
+        sdFormatter = formatter;
     }
     
     public void saveState(Bundle recorderState) {
@@ -181,7 +184,14 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
                 sampleDir = new File("/sdcard/sdcard"+"/SoundRecord");
                            
             try {
-                mSampleFile = File.createTempFile(SAMPLE_PREFIX, extension, sampleDir);
+                long current = System.currentTimeMillis();
+	         Date date = new Date(current);
+		  String title = sdFormatter.format(date);
+		  String strName =  SAMPLE_PREFIX + title  + extension;
+                Log.v(TAG,"---------mSampleFile Name= "+mSampleFile + "---strName = " + strName);
+		  mSampleFile = new File(sampleDir, strName);
+                mSampleFile.createNewFile();
+               // mSampleFile = File.createTempFile(SAMPLE_PREFIX, extension, sampleDir);
             } catch (IOException e) {
                 setError(SDCARD_ACCESS_ERROR);
                 return;
