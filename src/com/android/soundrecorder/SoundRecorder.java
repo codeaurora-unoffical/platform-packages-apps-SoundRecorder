@@ -65,6 +65,7 @@ import android.view.ViewGroup;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import java.text.SimpleDateFormat;
 
 /**
  * Calculates remaining recording time based on available disk space and
@@ -356,8 +357,11 @@ public class SoundRecorder extends Activity
         mRequestedType = AUDIO_AMR; // Default type
 
         setContentView(R.layout.main);
+        Resources res = getResources();
+        SimpleDateFormat formatter = new SimpleDateFormat(
+                        res.getString(R.string.audio_db_title_format));
 
-        mRecorder = new Recorder();
+        mRecorder = new Recorder(formatter);
         mRecorder.setOnStateChangedListener(this);
         mRemainingTimeCalculator = new RemainingTimeCalculator();
 

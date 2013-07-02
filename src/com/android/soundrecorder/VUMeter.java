@@ -85,7 +85,9 @@ public class VUMeter extends View {
             mCurrentAngle = Math.max(angle, mCurrentAngle - DROPOFF_STEP);
 
         mCurrentAngle = Math.min(maxAngle, mCurrentAngle);
-
+        if(mRecorder.state()==Recorder.IDLE_STATE){
+            mCurrentAngle = minAngle;
+        }
         float w = getWidth();
         float h = getHeight();
         float pivotX = w/2;
