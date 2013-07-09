@@ -751,6 +751,22 @@ public class SoundRecorder extends Activity
             unregisterReceiver(mSDCardMountEventReceiver);
             mSDCardMountEventReceiver = null;
         }
+
+        switch (mRecorder.state()) {
+            case Recorder.IDLE_STATE:
+                if (mRecorder.sampleLength() > 0)
+                    saveSample();
+                finish();
+                break;
+            case Recorder.PLAYING_STATE:
+                mRecorder.stop();
+                saveSample();
+                break;
+            case Recorder.RECORDING_STATE:
+                mRecorder.clear();
+                break;
+        }
+
         super.onDestroy();
     }
     
