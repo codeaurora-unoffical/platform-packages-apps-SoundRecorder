@@ -170,9 +170,12 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
         stop();
         
         if (mSampleFile == null) {
-            File sampleDir = Environment.getExternalStorageDirectory();
+            File sampleDir =new File(Environment.getExternalStorageDirectory().toString()+"/SoundRecord");
+            if(!sampleDir.exists()) {
+                boolean suc = sampleDir.mkdirs();
+            }
             if (!sampleDir.canWrite()) // Workaround for broken sdcard support on the device.
-                sampleDir = new File("/sdcard/sdcard");
+                sampleDir = new File("/sdcard/sdcard"+"/SoundRecord");
             
             try {
                 mSampleFile = File.createTempFile(SAMPLE_PREFIX, extension, sampleDir);
