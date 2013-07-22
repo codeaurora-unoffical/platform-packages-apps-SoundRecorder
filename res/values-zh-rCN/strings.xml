@@ -44,4 +44,10 @@
     <string name="recording_now">正在录音 ...</string>
     <string name="file_saved">文件保存成功</string>
     <string name="file_discard">放弃录音</string>
+    <!-- shown as the dialog title when user selects recording format -->
+    <string name="format_setting">"文件类型"</string>
+    <string name="format_setting_amr_item">"AMR"</string>
+    <string name="format_setting_3gpp_item">"3GPP"</string>
+    <string name="format_setting_wav_item">"WAV"</string>
+    <string name="keyboard">键盘</string>
 </resources>
