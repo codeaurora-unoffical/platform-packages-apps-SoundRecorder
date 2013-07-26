@@ -25,6 +25,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.os.Bundle;
 import android.os.Environment;
@@ -61,10 +62,15 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     int mSampleLength = 0;      // length of current sample
     File mSampleFile = null;
     
+    AudioManager audioMngr;
+    
     MediaRecorder mRecorder = null;
     MediaPlayer mPlayer = null;
-    
-    public Recorder() {
+
+    public Recorder(Context mContext) {
+    /*PEDRO BEGIN */
+    audioMngr = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);    
+    /*END*/
     }
     
     public void saveState(Bundle recorderState) {
@@ -77,6 +83,16 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
             return 0;
         return mRecorder.getMaxAmplitude();
     }
+
+    /*PEDRO BEGIN*/
+    private OnAudioFocusChangeListener mAudioFocusListener = new OnAudioFocusChangeListener() {
+        public void onAudioFocusChange(int focusChange) {
+	    if (focusChange == AudioManager.AUDIOFOCUS_LOSS){
+		//Log.e("Recorder","Pedro AUDIOFOCUS_LOSS");				
+  	    }
+        }
+    };
+    /*Pedro End*/
     
     public void restoreState(Bundle recorderState) {
         String samplePath = recorderState.getString(SAMPLE_PATH_KEY);
@@ -232,7 +248,7 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
         try {
             mRecorder.start();
         } catch (RuntimeException exception) {
-            AudioManager audioMngr = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+            
             boolean isInCall = ((audioMngr.getMode() == AudioManager.MODE_IN_CALL) ||
                     (audioMngr.getMode() == AudioManager.MODE_IN_COMMUNICATION));
             if (isInCall) {
@@ -264,7 +280,12 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     
     public void startPlayback() {
         stop();
-        
+        /*PEDRO BEGIN*/
+	int result = audioMngr.requestAudioFocus(mAudioFocusListener,AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+	if(result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED){
+		Log.e("Recorder","PEDRO audio focus granted");
+	}
+	/*PEDRO END*/
         mPlayer = new MediaPlayer();
         try {
             mPlayer.setDataSource(mSampleFile.getAbsolutePath());
@@ -290,6 +311,10 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
         if (mPlayer == null) // we were not in playback
             return;
 
+	/*PEDRO BEGIN*/
+	//Log.e("Recorder","PEDRO abandon audio focus");
+	audioMngr.abandonAudioFocus(mAudioFocusListener);
+	/*END*/
         mPlayer.stop();
         mPlayer.release();
         mPlayer = null;

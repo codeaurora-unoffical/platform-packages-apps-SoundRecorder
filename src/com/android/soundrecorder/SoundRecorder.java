@@ -325,7 +325,7 @@ public class SoundRecorder extends Activity
 
         setContentView(R.layout.main);
 
-        mRecorder = new Recorder();
+        mRecorder = new Recorder(this);
         mRecorder.setOnStateChangedListener(this);
         mRemainingTimeCalculator = new RemainingTimeCalculator();
 
@@ -594,6 +594,7 @@ public class SoundRecorder extends Activity
     if((event.getKeyCode() == KeyEvent.KEYCODE_1 || event.getKeyCode() == KeyEvent.KEYCODE_2)
        && (event.getAction() == event.ACTION_UP)){
        //Ignore ACTION_DOWN to avoid showing error dialog twice
+Log.e(TAG,"PEDRO3");
        AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
        if((audioManager.getMode() != AudioManager.MODE_IN_CALL) ||
          (mRequestedType == AUDIO_AAC_MP4)) {
@@ -665,6 +666,7 @@ public class SoundRecorder extends Activity
             }
             case KeyEvent.KEYCODE_7: // Selected 6 channel wave lpcm codec type
             {
+Log.e(TAG,"PEDRO2");
               if (true == bSSRSupported) {
                 Log.e(TAG, "Selected multichannel AAC Codec: Key Event" + KeyEvent.KEYCODE_7);
                 mRequestedType = AUDIO_AAC_5POINT1_CHANNEL;
@@ -674,6 +676,7 @@ public class SoundRecorder extends Activity
             }
             case KeyEvent.KEYCODE_8: // Selected 6 channel AAC recording
             {
+Log.e(TAG,"PEDRO1");
                 if (true == bSSRSupported) {
                 Log.e(TAG, "Selected linear pcm Codec: Key Event" + KeyEvent.KEYCODE_7);
                 mRequestedType = AUDIO_WAVE_6CH_LPCM;
@@ -697,9 +700,31 @@ public class SoundRecorder extends Activity
               mAudioOutputFormat = MediaRecorder.OutputFormat.THREE_GPP;
               return true;
             }
-
-            default:
+	    case KeyEvent.KEYCODE_MEDIA_PLAY: //PEDRO to avoid problem with a2dp 
+	    {
+	      if(event.getAction() == event.ACTION_UP && mRecorder.mSampleFile != null){
+              //Log.e(TAG, "PEDRO Key Event is : KEYCODE_MEDIA_PLAY context:"+this+" state "+mRecorder.state() );  
+	        if(mRecorder.state() == 0){
+		  mRecorder.startPlayback();
+		}		
+	      //return true;
+	      }return true;
+	    }
+	    case KeyEvent.KEYCODE_MEDIA_PAUSE: //PEDRO to avoid problem with a2dp 
+	    {
+	      if(event.getAction() == event.ACTION_UP && mRecorder.mSampleFile != null){
+                //Log.e(TAG, "PEDRO Key Event is : KEYCODE_MEDIA_PAUSE context:"+this+" state "+mRecorder.state() );  
+	        if(mRecorder.state() == 2){
+		  mRecorder.stopPlayback();
+		}
+	      //return true;
+	      }return true;
+            }
+            default:{
+		//Log.e(TAG, "PEDRO Key Event is " + event.getKeyCode() ); 
                 break;
+ 	    }
+	    
         }
 
         return super.dispatchKeyEvent(event);
