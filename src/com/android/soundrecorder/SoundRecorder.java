@@ -43,8 +43,12 @@ import android.os.StatFs;
 import android.os.PowerManager.WakeLock;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -55,6 +59,9 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.media.AudioManager;
 import android.view.inputmethod.InputMethodManager;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 /**
  * Calculates remaining recording time based on available disk space and
@@ -216,6 +223,7 @@ public class SoundRecorder extends Activity
     static final String AUDIO_QCELP = "audio/qcelp";
     static final String AUDIO_AAC_MP4 = "audio/aac_mp4";
     static final String AUDIO_WAVE_6CH_LPCM = "audio/wave_6ch_lpcm";
+    static final String AUDIO_WAVE_2CH_LPCM = "audio/wave_2ch_lpcm";
     static final String AUDIO_AAC_5POINT1_CHANNEL = "audio/aac_5point1_channel";
     static final String AUDIO_AMR_WB = "audio/amr-wb";
     static final String AUDIO_ANY = "audio/*";
@@ -272,6 +280,7 @@ public class SoundRecorder extends Activity
     private BroadcastReceiver mSDCardMountEventReceiver = null;
     private TelephonyManager mTelephonyManager;
     private PhoneStateListener mPhoneStateListener;
+    private int mFileType = 0;
 
     private PhoneStateListener getPhoneStateListener() {
         PhoneStateListener phoneStateListener = new PhoneStateListener() {
@@ -520,6 +529,14 @@ public class SoundRecorder extends Activity
                         } else {
                           throw new IllegalArgumentException("Invalid output file type requested");
                         }
+                    } else if (AUDIO_WAVE_2CH_LPCM.equals(mRequestedType)) {
+                        //WAVE LPCM  2-channel recording
+                        mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
+                        mRecorder.setChannels(2);
+                        mRecorder.setSamplingRate(SAMPLERATE_MULTI_CH);
+                        mAudioSourceType = MediaRecorder.AudioSource.MIC;
+                        mRecorder.startRecording(MediaRecorder.OutputFormat.WAVE,
+                                ".wav", this, mAudioSourceType, MediaRecorder.AudioEncoder.LPCM);
                     } else if (AUDIO_AMR_WB.equals(mRequestedType)) {
                         mRemainingTimeCalculator.setBitRate(BITRATE_AMR_WB);
                         mRecorder.setSamplingRate(BITRATE_AMR_WB);
@@ -569,19 +586,102 @@ public class SoundRecorder extends Activity
         }
     }
 
-    /*
-     *Handle the "menu" hardware key.
-     */
+    private void openOptionDialog() {
+        final Context dialogContext = new ContextThemeWrapper(this,
+                android.R.style.Theme_Holo_Dialog);
+        final Resources res = dialogContext.getResources();
+        final LayoutInflater dialogInflater = (LayoutInflater) dialogContext
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        final ArrayAdapter<Integer> adapter = new ArrayAdapter<Integer>(this,
+                android.R.layout.simple_list_item_single_choice) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                if (convertView == null) {
+                    convertView = dialogInflater.inflate(
+                            android.R.layout.simple_list_item_single_choice, parent, false);
+                }
+
+                final int resId = this.getItem(position);
+                ((TextView)convertView).setText(resId);
+                return convertView;
+            }
+        };
+
+        adapter.add(R.string.format_setting_amr_item);
+        adapter.add(R.string.format_setting_3gpp_item);
+        adapter.add(R.string.format_setting_wav_item);
+
+        final DialogInterface.OnClickListener clickListener =
+                new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                final int resId = adapter.getItem(which);
+                switch (resId) {
+                    case R.string.format_setting_amr_item:
+                        mRequestedType = AUDIO_AMR;
+                        mFileType = 0;
+                        break;
+                    case R.string.format_setting_3gpp_item:
+                        mRequestedType = AUDIO_3GPP;
+                        mFileType = 1;
+                        break;
+                    case R.string.format_setting_wav_item:
+                        mRequestedType = AUDIO_WAVE_2CH_LPCM;
+                        mFileType = 2;
+                        break;
+
+                    default: {
+                        Log.e(TAG, "Unexpected resource: "
+                                + getResources().getResourceEntryName(resId));
+                    }
+                }
+            }
+        };
+
+        AlertDialog ad = null;
+        ad = new AlertDialog.Builder(this)
+                .setTitle(R.string.format_setting)
+                .setSingleChoiceItems(adapter, mFileType, clickListener)
+                .create();
+        ad.setCanceledOnTouchOutside(true);
+        ad.show();
+    }
+
     @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        //show softkeyboard after the "menu" key is pressed and released(key up)
-        if(keyCode == KeyEvent.KEYCODE_MENU) {
-            InputMethodManager inputMgr = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputMgr.toggleSoftInput(0, 0);
-            return true;
-        } else {
-            return super.onKeyUp(keyCode, event);
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // TODO Auto-generated method stub
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        menu.findItem(R.id.menu_item_keyboard).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);
+        menu.findItem(R.id.menu_item_filetype).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // TODO Auto-generated method stub
+        switch (item.getItemId()) {
+            case R.id.menu_item_keyboard:
+                if(mRecorder.state() == Recorder.IDLE_STATE) {
+                    InputMethodManager inputMgr =
+                            (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMgr.toggleSoftInput(0, 0);
+                }
+                break;
+            case R.id.menu_item_filetype:
+                if(mRecorder.state() == Recorder.IDLE_STATE) {
+                    openOptionDialog();
+                }
+                break;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     /*
