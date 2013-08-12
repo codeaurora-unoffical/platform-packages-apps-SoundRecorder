@@ -40,6 +40,8 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.StatFs;
+import android.os.storage.StorageManager;
+import android.os.storage.StorageVolume;
 import android.os.PowerManager.WakeLock;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -80,13 +82,14 @@ class RemainingTimeCalculator {
     private int mCurrentLowerLimit = UNKNOWN_LIMIT;
     
     private File mSDCardDirectory;
-    
+    private File mPhoneCardDirectory;
      // State for tracking file size of recording.
     private File mRecordingFile;
     private long mMaxBytes;
     
     // Rate at which the file grows
     private int mBytesPerSecond;
+    private int mPath = 0;
     
     // time at which number of free blocks last changed
     private long mBlocksChangedTime;
@@ -98,9 +101,10 @@ class RemainingTimeCalculator {
     // size of the file at that time
     private long mLastFileSize;
     
-    public RemainingTimeCalculator() {
-        mSDCardDirectory = Environment.getExternalStorageDirectory();
-    }    
+    public RemainingTimeCalculator(Context context) {
+        mSDCardDirectory = new File(SoundRecorder.getSDPath(context));
+        mPhoneCardDirectory = Environment.getExternalStorageDirectory();
+    }
     
     /**
      * If called, the calculator will return the minimum of two estimates:
@@ -131,8 +135,15 @@ class RemainingTimeCalculator {
     public long timeRemaining() {
         // Calculate how long we can record based on free disk space
         
-        StatFs fs = new StatFs(mSDCardDirectory.getAbsolutePath());
-        long blocks = fs.getAvailableBlocks();
+        long blocks;
+        StatFs fs;
+        if (mPath == 1) {
+            fs = new StatFs(mSDCardDirectory.getAbsolutePath());
+            blocks = fs.getAvailableBlocks();
+        } else {
+            fs = new StatFs(mPhoneCardDirectory.getAbsolutePath());
+            blocks = fs.getAvailableBlocks() - fs.getBlockCount() * 5 / 100;
+        }
         long blockSize = fs.getBlockSize();
         long now = System.currentTimeMillis();
         
@@ -189,9 +200,16 @@ class RemainingTimeCalculator {
      * Is there any point of trying to start recording?
      */
     public boolean diskSpaceAvailable() {
-        StatFs fs = new StatFs(mSDCardDirectory.getAbsolutePath());
+        boolean result;
+        if (mPath == 1) {
+            StatFs fs = new StatFs(mSDCardDirectory.getAbsolutePath());
+            result = fs.getAvailableBlocks() > 1;
+        } else {
+            StatFs fs = new StatFs(mPhoneCardDirectory.getAbsolutePath());
+            result = fs.getAvailableBlocks() > fs.getBlockCount() * 5 / 100;
+        }
         // keep one free block
-        return fs.getAvailableBlocks() > 1;
+        return result;
     }
 
     /**
@@ -201,6 +219,10 @@ class RemainingTimeCalculator {
      */
     public void setBitRate(int bitRate) {
         mBytesPerSecond = bitRate/8;
+    }
+
+    public void setStoragePath(int path) {
+        mPath = path;
     }
 }
 
@@ -229,11 +251,15 @@ public class SoundRecorder extends Activity
     static final String AUDIO_ANY = "audio/*";
     static final String ANY_ANY = "*/*";
 
-    
-    static final int BITRATE_AMR =  5900; // bits/sec
+    static final int SETTING_TYPE_STORAGE_LOCATION = 0;
+    static final int SETTING_TYPE_FILE_TYPE = 1;
+    static final String STORAGE_PATH_LOCAL_PHONE = Environment.getExternalStorageDirectory()
+            .toString() + "/SoundRecorder";
+
+    static final int BITRATE_AMR =  12800; // bits/sec
     static final int BITRATE_EVRC = 8500;
     static final int BITRATE_QCELP = 13300;
-    static final int BITRATE_3GPP = 5900;
+    static final int BITRATE_3GPP = 12800;
     static final int SAMPLERATE_MULTI_CH = 48000;
     static final int BITRATE_AMR_WB = 16000;
     static final int SAMPLERATE_AMR_WB = 16000;
@@ -282,6 +308,8 @@ public class SoundRecorder extends Activity
     private TelephonyManager mTelephonyManager;
     private PhoneStateListener mPhoneStateListener;
     private int mFileType = 0;
+    private int mPath = 0;
+    private String mStoragePath = STORAGE_PATH_LOCAL_PHONE;
 
     private PhoneStateListener getPhoneStateListener() {
         PhoneStateListener phoneStateListener = new PhoneStateListener() {
@@ -340,7 +368,7 @@ public class SoundRecorder extends Activity
 
         mRecorder = new Recorder();
         mRecorder.setOnStateChangedListener(this);
-        mRemainingTimeCalculator = new RemainingTimeCalculator();
+        mRemainingTimeCalculator = new RemainingTimeCalculator(SoundRecorder.this);
 
         PowerManager pm 
             = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -473,7 +501,15 @@ public class SoundRecorder extends Activity
         switch (button.getId()) {
             case R.id.recordButton:
                 mRemainingTimeCalculator.reset();
-                if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+                mRemainingTimeCalculator.setStoragePath(mPath);
+                mRecorder.setStoragePath(mStoragePath);
+                if (mPath == 0 &&
+                        !Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+                    mSampleInterrupted = true;
+                    mErrorUiMessage = getResources().getString(R.string.no_phonestorage);
+                    updateUi();
+                } else if (mPath ==1 &&
+                        !getSDState(SoundRecorder.this).equals(Environment.MEDIA_MOUNTED)) {
                     mSampleInterrupted = true;
                     mErrorUiMessage = getResources().getString(R.string.insert_sd_card);
                     updateUi();
@@ -588,7 +624,7 @@ public class SoundRecorder extends Activity
         }
     }
 
-    private void openOptionDialog() {
+    private void openOptionDialog(int optionType) {
         final Context dialogContext = new ContextThemeWrapper(this,
                 android.R.style.Theme_Holo_Dialog);
         final Resources res = dialogContext.getResources();
@@ -609,10 +645,14 @@ public class SoundRecorder extends Activity
                 return convertView;
             }
         };
-
-        adapter.add(R.string.format_setting_amr_item);
-        adapter.add(R.string.format_setting_3gpp_item);
-        adapter.add(R.string.format_setting_wav_item);
+        if (optionType == SETTING_TYPE_FILE_TYPE) {
+            adapter.add(R.string.format_setting_amr_item);
+            adapter.add(R.string.format_setting_3gpp_item);
+            adapter.add(R.string.format_setting_wav_item);
+        } else if (optionType == SETTING_TYPE_STORAGE_LOCATION) {
+            adapter.add(R.string.storage_setting_local_item);
+            adapter.add(R.string.storage_setting_sdcard_item);
+        }
 
         final DialogInterface.OnClickListener clickListener =
                 new DialogInterface.OnClickListener() {
@@ -632,6 +672,14 @@ public class SoundRecorder extends Activity
                         mRequestedType = AUDIO_WAVE_2CH_LPCM;
                         mFileType = 2;
                         break;
+                    case R.string.storage_setting_sdcard_item:
+                        mStoragePath = getSDPath(SoundRecorder.this) + "/SoundRecorder";
+                        mPath = 1;
+                        break;
+                    case R.string.storage_setting_local_item:
+                        mStoragePath = STORAGE_PATH_LOCAL_PHONE;
+                        mPath = 0;
+                        break;
 
                     default: {
                         Log.e(TAG, "Unexpected resource: "
@@ -642,10 +690,17 @@ public class SoundRecorder extends Activity
         };
 
         AlertDialog ad = null;
-        ad = new AlertDialog.Builder(this)
-                .setTitle(R.string.format_setting)
-                .setSingleChoiceItems(adapter, mFileType, clickListener)
-                .create();
+        if (optionType == SETTING_TYPE_STORAGE_LOCATION) {
+            ad = new AlertDialog.Builder(this)
+                    .setTitle(R.string.storage_setting)
+                    .setSingleChoiceItems(adapter, mPath, clickListener)
+                    .create();
+        } else if (optionType == SETTING_TYPE_FILE_TYPE) {
+            ad = new AlertDialog.Builder(this)
+                    .setTitle(R.string.format_setting)
+                    .setSingleChoiceItems(adapter, mFileType, clickListener)
+                    .create();
+        }
         ad.setCanceledOnTouchOutside(true);
         ad.show();
     }
@@ -663,6 +718,7 @@ public class SoundRecorder extends Activity
         super.onPrepareOptionsMenu(menu);
         menu.findItem(R.id.menu_item_keyboard).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);
         menu.findItem(R.id.menu_item_filetype).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);
+        menu.findItem(R.id.menu_item_storage).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);
         return true;
     }
 
@@ -679,7 +735,12 @@ public class SoundRecorder extends Activity
                 break;
             case R.id.menu_item_filetype:
                 if(mRecorder.state() == Recorder.IDLE_STATE) {
-                    openOptionDialog();
+                    openOptionDialog(SETTING_TYPE_FILE_TYPE);
+                }
+                break;
+            case R.id.menu_item_storage:
+                if(mRecorder.state() == Recorder.IDLE_STATE) {
+                    openOptionDialog(SETTING_TYPE_STORAGE_LOCATION);
                 }
                 break;
         }
@@ -1337,5 +1398,24 @@ public class SoundRecorder extends Activity
                 .setCancelable(false)
                 .show();
         }
+    }
+
+    static String getSDPath(Context context) {
+        String sd = null;
+        StorageManager mStorageManager = (StorageManager) context
+                .getSystemService(Context.STORAGE_SERVICE);
+        StorageVolume[] volumes = mStorageManager.getVolumeList();
+        for (int i = 0; i < volumes.length; i++) {
+            if (volumes[i].isRemovable() && volumes[i].allowMassStorage()) {
+                sd = volumes[i].getPath();
+            }
+        }
+        return sd;
+    }
+
+    private String getSDState(Context context) {
+        StorageManager mStorageManager = (StorageManager) context
+                .getSystemService(Context.STORAGE_SERVICE);
+        return mStorageManager.getVolumeState(getSDPath(context));
     }
 }
