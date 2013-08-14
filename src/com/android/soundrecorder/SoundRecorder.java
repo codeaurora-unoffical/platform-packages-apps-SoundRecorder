@@ -256,7 +256,7 @@ public class SoundRecorder extends Activity
     static final String STORAGE_PATH_LOCAL_PHONE = Environment.getExternalStorageDirectory()
             .toString() + "/SoundRecorder";
 
-    static final int BITRATE_AMR =  12800; // bits/sec
+    static final int BITRATE_AMR =  12200; // bits/sec
     static final int BITRATE_EVRC = 8500;
     static final int BITRATE_QCELP = 13300;
     static final int BITRATE_3GPP = 12800;
