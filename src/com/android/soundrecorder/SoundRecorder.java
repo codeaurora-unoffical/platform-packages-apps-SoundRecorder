@@ -529,6 +529,7 @@ public class SoundRecorder extends Activity
                     }
                     if (AUDIO_AMR.equals(mRequestedType)) {
                         mRemainingTimeCalculator.setBitRate(BITRATE_AMR);
+                        mRecorder.setChannels(1);
                         mRecorder.setSamplingRate(SAMPLERATE_8000);
                         mRecorder.startRecording(MediaRecorder.OutputFormat.RAW_AMR, ".amr", this, audioSourceType, MediaRecorder.AudioEncoder.AMR_NB);
                     } else if (AUDIO_EVRC.equals(mRequestedType)) {
@@ -541,6 +542,7 @@ public class SoundRecorder extends Activity
                         mRecorder.startRecording(MediaRecorder.OutputFormat.QCP, ".qcp", this, audioSourceType, MediaRecorder.AudioEncoder.QCELP);
                     } else if (AUDIO_3GPP.equals(mRequestedType)) {
                         mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
+                        mRecorder.setChannels(1);
                         mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", this, audioSourceType, MediaRecorder.AudioEncoder.AMR_NB);
                     } else if (AUDIO_AAC_MP4.equals(mRequestedType)) {
                         mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
