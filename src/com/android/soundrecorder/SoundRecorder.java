@@ -256,7 +256,7 @@ public class SoundRecorder extends Activity
     static final String STORAGE_PATH_LOCAL_PHONE = Environment.getExternalStorageDirectory()
             .toString() + "/SoundRecorder";
 
-    static final int BITRATE_AMR =  12200; // bits/sec
+    static final int BITRATE_AMR =  12800; // bits/sec
     static final int BITRATE_EVRC = 8500;
     static final int BITRATE_QCELP = 13300;
     static final int BITRATE_3GPP = 12800;
@@ -1222,11 +1222,12 @@ public class SoundRecorder extends Activity
             
         Resources res = getResources();
         String timeStr = "";
-        
-        if (t < 60)
-            timeStr = String.format(res.getString(R.string.sec_available), t);
-        else if (t < 540)
-            timeStr = String.format(res.getString(R.string.min_available), t/60 + 1);
+
+        // display available time, if less than 10 minutes
+        if (t < 599)
+        {
+            timeStr = String.format(mTimerFormat, t/60, t%60);
+        }
         
         mStateMessage1.setText(timeStr);
     }
