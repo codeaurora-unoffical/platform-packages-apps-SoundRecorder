@@ -228,6 +228,7 @@ public class SoundRecorder extends Activity
     static final long STOP_WAIT = 300;
     int mAudioOutputFormat = MediaRecorder.OutputFormat.AMR_WB;
     String mAmrWidebandExtension = ".awb";
+    private AudioManager mAudioManager;
 
     int mAudioSourceType = MediaRecorder.AudioSource.MIC;
     static int mOldCallState = TelephonyManager.CALL_STATE_IDLE;
@@ -321,7 +322,7 @@ public class SoundRecorder extends Activity
         mRequestedType = AUDIO_AMR; // Default type
 
         setContentView(R.layout.main);
-
+        mAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
         mRecorder = new Recorder();
         mRecorder.setOnStateChangedListener(this);
         mRemainingTimeCalculator = new RemainingTimeCalculator();
@@ -345,9 +346,7 @@ public class SoundRecorder extends Activity
         }
         mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         mPhoneStateListener = getPhoneStateListener();
-
-        AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-        String ssrRet = audioManager.getParameters("ssr");
+        String ssrRet = mAudioManager.getParameters("ssr");
         if (ssrRet.contains("=true")) {
             Log.d(TAG,"Surround sound recording is supported");
             bSSRSupported = true;
@@ -430,9 +429,8 @@ public class SoundRecorder extends Activity
         // should be public, but isn't.
         Intent i = new Intent("com.android.music.musicservicecommand");
         i.putExtra("command", "pause");
-        ((AudioManager) getSystemService(AUDIO_SERVICE))
-                .requestAudioFocus(null, AudioManager.STREAM_MUSIC,
-                AudioManager.AUDIOFOCUS_GAIN);
+        mAudioManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC,
+                    AudioManager.AUDIOFOCUS_GAIN);
         sendBroadcast(i);
         try{
            Thread.sleep(STOP_WAIT);
@@ -463,8 +461,7 @@ public class SoundRecorder extends Activity
                     stopAudioPlayback();
 
                     int audioSourceType = mAudioSourceType;
-                    AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-                    if ((audioManager.getMode() == AudioManager.MODE_IN_CALL) &&
+                    if ((mAudioManager.getMode() == AudioManager.MODE_IN_CALL) &&
                         (mAudioSourceType == MediaRecorder.AudioSource.MIC)) {
                         audioSourceType = MediaRecorder.AudioSource.VOICE_UPLINK;
                         Log.e(TAG, "Selected Voice Tx only Source: sourcetype" + audioSourceType);
@@ -587,14 +584,14 @@ public class SoundRecorder extends Activity
     public boolean dispatchKeyEvent(KeyEvent event) {
          Log.v(TAG, "dispatchKeyEvent with key event" + event);
 
-    AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-    if(event.getKeyCode() == KeyEvent.KEYCODE_6 && event.getAction() == event.ACTION_UP){
+
+       if(event.getKeyCode() == KeyEvent.KEYCODE_6 && event.getAction() == event.ACTION_UP){
        //Ignore ACTION_DOWN to avoid showing error dialog twice
        if((mAudioSourceType == MediaRecorder.AudioSource.VOICE_CALL) ||
           (mAudioSourceType == MediaRecorder.AudioSource.VOICE_DOWNLINK)||
           (mAudioSourceType == MediaRecorder.AudioSource.VOICE_UPLINK ) ||
           ((mAudioSourceType == MediaRecorder.AudioSource.MIC) &&
-           (audioManager.getMode() == AudioManager.MODE_IN_CALL))) {
+           (mAudioManager.getMode() == AudioManager.MODE_IN_CALL))) {
           mAudioSourceType = MediaRecorder.AudioSource.MIC;//Default type
           Resources res = getResources();
           String message = null;
@@ -612,12 +609,12 @@ public class SoundRecorder extends Activity
     if((event.getKeyCode() == KeyEvent.KEYCODE_1 || event.getKeyCode() == KeyEvent.KEYCODE_2)
        && (event.getAction() == event.ACTION_UP)){
        //Ignore ACTION_DOWN to avoid showing error dialog twice
-       if((audioManager.getMode() != AudioManager.MODE_IN_CALL) ||
+       if((mAudioManager.getMode() != AudioManager.MODE_IN_CALL) ||
          (mRequestedType == AUDIO_AAC_MP4)) {
           mAudioSourceType = MediaRecorder.AudioSource.MIC;//Default type
           Resources res = getResources();
           String message = null;
-          if(audioManager.getMode() != AudioManager.MODE_IN_CALL) {
+          if(mAudioManager.getMode() != AudioManager.MODE_IN_CALL) {
             message = res.getString(R.string.error_mediadb_incall);
           } else {
             message = res.getString(R.string.error_mediadb_aacincall);
@@ -637,7 +634,7 @@ public class SoundRecorder extends Activity
             {
               Log.e(TAG, "Selected MIC Source: Key Event" + KeyEvent.KEYCODE_0);
               mAudioSourceType = MediaRecorder.AudioSource.MIC;
-              if ((audioManager.getMode() == AudioManager.MODE_IN_CALL) &&
+              if ((mAudioManager.getMode() == AudioManager.MODE_IN_CALL) &&
                   (event.getAction() == event.ACTION_UP)) {
                   mAudioSourceType = MediaRecorder.AudioSource.VOICE_UPLINK;
                   Log.e(TAG, "Selected Voice Tx only Source: sourcetype" + mAudioSourceType);
@@ -739,7 +736,7 @@ public class SoundRecorder extends Activity
         mTelephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_NONE);
         mSampleInterrupted = mRecorder.state() == Recorder.RECORDING_STATE;
         mRecorder.stop();
-        
+        mAudioManager.abandonAudioFocus(null);
         super.onPause();
     }
 
