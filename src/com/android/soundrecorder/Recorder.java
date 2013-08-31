@@ -50,6 +50,7 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
 
     public int mChannels = 0;
     public int mSamplingRate = 0;
+    public String mStoragePath = SoundRecorder.STORAGE_PATH_LOCAL_PHONE;
 
     public interface OnStateChangedListener {
         public void onStateChanged(int state);
@@ -161,7 +162,10 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
         stop();
         
         if (mSampleFile == null) {
-            File sampleDir = Environment.getExternalStorageDirectory();
+            File sampleDir = new File(mStoragePath);
+            if (!sampleDir.exists()) {
+                sampleDir.mkdirs();
+            }
             if (!sampleDir.canWrite()) // Workaround for broken sdcard support on the device.
                 sampleDir = new File("/sdcard/sdcard");
             
@@ -315,5 +319,9 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     private void setError(int error) {
         if (mOnStateChangedListener != null)
             mOnStateChangedListener.onError(error);
+    }
+
+    public void setStoragePath(String path) {
+        mStoragePath = path;
     }
 }
