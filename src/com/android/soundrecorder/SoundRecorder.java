@@ -57,6 +57,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.media.AudioManager;
@@ -605,6 +606,11 @@ public class SoundRecorder extends Activity
                 mStateLED.setVisibility(View.VISIBLE);
                 break;
             case R.id.acceptButton:
+                if (!mRecorder.sampleFile().exists()) {
+                    Toast.makeText(SoundRecorder.this, R.string.file_deleted,
+                            Toast.LENGTH_SHORT).show();
+                    finish();
+                }
                 mRecorder.stop();
                 saveSampleAndExit(true);
                 break;

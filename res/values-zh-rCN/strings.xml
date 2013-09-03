@@ -54,4 +54,5 @@
     <string name="storage_setting_local_item">"话机U盘"</string>
     <string name="no_phonestorage">"手机内存储被卸载"</string>
     <string name="keyboard">键盘</string>
+    <string name="file_deleted">文件已经被删除 ！</string>
 </resources>
