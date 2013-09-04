@@ -55,4 +55,5 @@
     <string name="no_phonestorage">"手机内存储被卸载"</string>
     <string name="keyboard">键盘</string>
     <string name="file_deleted">文件已经被删除 ！</string>
+    <string name="in_call_record_error">通话中录音失败.</string>
 </resources>

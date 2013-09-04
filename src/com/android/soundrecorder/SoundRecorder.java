@@ -1413,6 +1413,9 @@ public class SoundRecorder extends Activity
             case Recorder.IN_CALL_RECORD_ERROR:
                 // TODO: update error message to reflect that the recording could not be
                 //       performed during a call.
+                message = res.getString(R.string.in_call_record_error);
+                isExit = true;
+                break;
             case Recorder.INTERNAL_ERROR:
                 message = res.getString(R.string.error_app_internal);
                 isExit = true;
