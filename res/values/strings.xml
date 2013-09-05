@@ -93,4 +93,6 @@
     <string name="storage_setting_local_item">Phone storage</string>
     <string name="no_phonestorage">Phone storage unmounted</string>
     <string name="keyboard">Keyboard</string>
+    <string name="file_deleted">File has been deleted!</string>
+    <string name="in_call_record_error">In call record error.</string>
 </resources>

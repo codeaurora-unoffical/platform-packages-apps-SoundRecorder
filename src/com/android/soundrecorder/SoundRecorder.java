@@ -57,6 +57,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.media.AudioManager;
@@ -605,6 +606,11 @@ public class SoundRecorder extends Activity
                 mStateLED.setVisibility(View.VISIBLE);
                 break;
             case R.id.acceptButton:
+                if (!mRecorder.sampleFile().exists()) {
+                    Toast.makeText(SoundRecorder.this, R.string.file_deleted,
+                            Toast.LENGTH_SHORT).show();
+                    finish();
+                }
                 mRecorder.stop();
                 saveSampleAndExit(true);
                 break;
@@ -1149,9 +1155,9 @@ public class SoundRecorder extends Activity
         long sampleLengthMillis = mRecorder.sampleLength() * 1000L;
         mLastFileName = file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf("/")+1,file.getAbsolutePath().length());
 
-        // Lets label the recorded audio file as NON-MUSIC so that the file
-        // won't be displayed automatically, except for in the playlist.
-        cv.put(MediaStore.Audio.Media.IS_MUSIC, "0");
+        // Label the recorded audio file as MUSIC so that the file
+        // will be displayed automatically
+        cv.put(MediaStore.Audio.Media.IS_MUSIC, "1");
 
         cv.put(MediaStore.Audio.Media.TITLE, title);
         cv.put(MediaStore.Audio.Media.DATA, file.getAbsolutePath());
@@ -1407,6 +1413,9 @@ public class SoundRecorder extends Activity
             case Recorder.IN_CALL_RECORD_ERROR:
                 // TODO: update error message to reflect that the recording could not be
                 //       performed during a call.
+                message = res.getString(R.string.in_call_record_error);
+                isExit = true;
+                break;
             case Recorder.INTERNAL_ERROR:
                 message = res.getString(R.string.error_app_internal);
                 isExit = true;
