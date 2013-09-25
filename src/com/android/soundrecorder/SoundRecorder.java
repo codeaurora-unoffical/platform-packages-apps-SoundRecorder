@@ -592,6 +592,11 @@ public class SoundRecorder extends Activity
                 }
                 break;
             case R.id.playButton:
+                if (!mRecorder.sampleFile().exists()) {
+                    Toast.makeText(SoundRecorder.this, R.string.file_deleted,
+                            Toast.LENGTH_SHORT).show();
+                    finish();
+                }
                 stopAudioPlayback();
                 mRecorder.startPlayback();
                 break;
