@@ -679,6 +679,9 @@ public class SoundRecorder extends Activity
                     case R.string.format_setting_3gpp_item:
                         mRequestedType = AUDIO_3GPP;
                         mFileType = 1;
+                        //Keep 40KB size in the Recording file for Mpeg4Writer to write Moov.
+                        if((mMaxFileSize !=-1)&&(mMaxFileSize>40*1024))
+                            mMaxFileSize =mMaxFileSize-40*1024;
                         break;
                     case R.string.format_setting_wav_item:
                         mRequestedType = AUDIO_WAVE_2CH_LPCM;
