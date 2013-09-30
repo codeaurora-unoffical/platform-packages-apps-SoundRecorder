@@ -270,6 +270,7 @@ public class SoundRecorder extends Activity
     int mAudioOutputFormat = MediaRecorder.OutputFormat.AMR_WB;
     String mAmrWidebandExtension = ".awb";
     private AudioManager mAudioManager;
+    private boolean mRecorderStop = false;
 
     int mAudioSourceType = MediaRecorder.AudioSource.MIC;
     static int mOldCallState = TelephonyManager.CALL_STATE_IDLE;
@@ -379,7 +380,8 @@ public class SoundRecorder extends Activity
                                     "SoundRecorder");
 
         initResourceRefs();
-        
+        mRecorderStop = false;
+
         setResult(RESULT_CANCELED);
         registerExternalStorageListener();
         registerPowerOffListener();
@@ -606,6 +608,7 @@ public class SoundRecorder extends Activity
                 mStateMessage2.setVisibility(View.VISIBLE);
                 mStateMessage2.setText(getResources().getString(R.string.recording_stopped));
                 mStateLED.setVisibility(View.VISIBLE);
+                mRecorderStop = true;
                 break;
             case R.id.acceptButton:
                 if (!mRecorder.sampleFile().exists()) {
@@ -734,6 +737,11 @@ public class SoundRecorder extends Activity
         menu.findItem(R.id.menu_item_keyboard).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);
         menu.findItem(R.id.menu_item_filetype).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);
         menu.findItem(R.id.menu_item_storage).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);
+        if (mRecorderStop) {
+            menu.findItem(R.id.menu_item_keyboard).setEnabled(false);
+            menu.findItem(R.id.menu_item_filetype).setEnabled(false);
+            menu.findItem(R.id.menu_item_storage).setEnabled(false);
+        }
         return true;
     }
 
