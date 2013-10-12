@@ -30,6 +30,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.IntentFilter;
 import android.content.BroadcastReceiver;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -314,6 +316,8 @@ public class SoundRecorder extends Activity
     private int mFileType = 0;
     private int mPath = 0;
     private String mStoragePath = STORAGE_PATH_LOCAL_PHONE;
+    private SharedPreferences mSharedPreferences;
+    private Editor mPrefsStoragePathEditor;
 
     private PhoneStateListener getPhoneStateListener() {
         PhoneStateListener phoneStateListener = new PhoneStateListener() {
@@ -343,6 +347,8 @@ public class SoundRecorder extends Activity
     @Override
     public void onCreate(Bundle icycle) {
         super.onCreate(icycle);
+        mSharedPreferences = getSharedPreferences("storage_Path", Context.MODE_PRIVATE);
+        mPrefsStoragePathEditor = mSharedPreferences.edit();
 
         Intent i = getIntent();
         if (i != null) {
@@ -363,11 +369,13 @@ public class SoundRecorder extends Activity
         }
         
         if (AUDIO_ANY.equals(mRequestedType) || ANY_ANY.equals(mRequestedType)) {
-            mRequestedType = AUDIO_3GPP;
+            mRequestedType = AUDIO_AMR;
         }
-        
-        mRequestedType = AUDIO_AMR; // Default type
 
+        mPath = mSharedPreferences.getInt("path", mPath);
+        mRequestedType = mSharedPreferences.getString("requestedType", mRequestedType);
+        mFileType = mSharedPreferences.getInt("fileType", mFileType);
+        mStoragePath = mSharedPreferences.getString("storagePath", mStoragePath);
         setContentView(R.layout.main);
         mAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
         mRecorder = new Recorder();
@@ -678,10 +686,16 @@ public class SoundRecorder extends Activity
                     case R.string.format_setting_amr_item:
                         mRequestedType = AUDIO_AMR;
                         mFileType = 0;
+                        mPrefsStoragePathEditor.putString("requestedType", mRequestedType);
+                        mPrefsStoragePathEditor.putInt("fileType", mFileType);
+                        mPrefsStoragePathEditor.commit();
                         break;
                     case R.string.format_setting_3gpp_item:
                         mRequestedType = AUDIO_3GPP;
                         mFileType = 1;
+                        mPrefsStoragePathEditor.putString("requestedType", mRequestedType);
+                        mPrefsStoragePathEditor.putInt("fileType", mFileType);
+                        mPrefsStoragePathEditor.commit();
                         //Keep 40KB size in the Recording file for Mpeg4Writer to write Moov.
                         if((mMaxFileSize !=-1)&&(mMaxFileSize>40*1024))
                             mMaxFileSize =mMaxFileSize-40*1024;
@@ -689,14 +703,23 @@ public class SoundRecorder extends Activity
                     case R.string.format_setting_wav_item:
                         mRequestedType = AUDIO_WAVE_2CH_LPCM;
                         mFileType = 2;
+                        mPrefsStoragePathEditor.putString("requestedType", mRequestedType);
+                        mPrefsStoragePathEditor.putInt("fileType", mFileType);
+                        mPrefsStoragePathEditor.commit();
                         break;
                     case R.string.storage_setting_sdcard_item:
                         mStoragePath = getSDPath(SoundRecorder.this) + "/SoundRecorder";
                         mPath = 1;
+                        mPrefsStoragePathEditor.putString("storagePath", mStoragePath);
+                        mPrefsStoragePathEditor.putInt("path", mPath);
+                        mPrefsStoragePathEditor.commit();
                         break;
                     case R.string.storage_setting_local_item:
                         mStoragePath = STORAGE_PATH_LOCAL_PHONE;
                         mPath = 0;
+                        mPrefsStoragePathEditor.putString("storagePath", mStoragePath);
+                        mPrefsStoragePathEditor.putInt("path", mPath);
+                        mPrefsStoragePathEditor.commit();
                         break;
 
                     default: {
