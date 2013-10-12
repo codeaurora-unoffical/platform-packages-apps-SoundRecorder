@@ -1166,7 +1166,8 @@ public class SoundRecorder extends Activity
                 res.getString(R.string.audio_db_title_format));
         String title = formatter.format(date);
         long sampleLengthMillis = mRecorder.sampleLength() * 1000L;
-        mLastFileName = file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf("/")+1,file.getAbsolutePath().length());
+        mLastFileName = file.getAbsolutePath().substring(
+                file.getAbsolutePath().lastIndexOf("/")+1, file.getAbsolutePath().length()).replace("-", "");
 
         // Label the recorded audio file as MUSIC so that the file
         // will be displayed automatically
