@@ -50,7 +50,8 @@
     <!-- Do not translate. Format of the timer that shows how much has been recorded so far -->
     <string name="timer_format" translatable="false"><xliff:g id="format">%02d:%02d</xliff:g></string>
     <!-- label shown before the user has recorded anything -->
-    <string name="press_record">Press record</string>
+    <string name="press_record">Press: 0-MIC 1-Rx 2-Tx+Rx 3-AMR 4-EVRC 5-QCELP 6-AAC_MP4 9-AMR-WB A-AMR-WB-3GPP and Press record</string>
+    <string name="press_record2">Press record</string>
     <!-- label shown before the user has recorded anything -SSR support added-->
     <string name="press_record_ssr">Press: 0-MIC 1-Rx 2-Tx+Rx 3-AMR 4-EVRC 5-QCELP 6-AAC_MP4 7-AAC_SSR 8-LPCM_SSR 9-AMR-WB A-AMR-WB-3GPP and Press record</string>
    

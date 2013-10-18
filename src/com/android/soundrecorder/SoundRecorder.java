@@ -42,6 +42,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.StatFs;
+import android.os.SystemProperties;
 import android.os.storage.StorageManager;
 import android.os.storage.StorageVolume;
 import android.os.PowerManager.WakeLock;
@@ -760,6 +761,12 @@ public class SoundRecorder extends Activity
         menu.findItem(R.id.menu_item_keyboard).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);
         menu.findItem(R.id.menu_item_filetype).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);
         menu.findItem(R.id.menu_item_storage).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);
+        if (SystemProperties.getBoolean("debug.soundrecorder.enable", false)) {
+            menu.findItem(R.id.menu_item_keyboard).setVisible(true);
+        } else {
+            menu.findItem(R.id.menu_item_keyboard).setVisible(false);
+        }
+
         if (mRecorderStop) {
             menu.findItem(R.id.menu_item_keyboard).setEnabled(false);
             menu.findItem(R.id.menu_item_filetype).setEnabled(false);
@@ -1326,7 +1333,11 @@ public class SoundRecorder extends Activity
                     if (true == bSSRSupported) {
                         mStateMessage2.setText(res.getString(R.string.press_record_ssr));
                     } else {
-                        mStateMessage2.setText(res.getString(R.string.press_record));
+                        if (SystemProperties.getBoolean("debug.soundrecorder.enable", false)) {
+                            mStateMessage2.setText(res.getString(R.string.press_record));
+                        } else {
+                            mStateMessage2.setText(res.getString(R.string.press_record2));
+                        }
                     }
                     mExitButtons.setVisibility(View.INVISIBLE);
                     mVUMeter.setVisibility(View.VISIBLE);
