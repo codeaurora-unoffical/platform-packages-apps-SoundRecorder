@@ -1085,6 +1085,7 @@ public class SoundRecorder extends Activity
                     if (action.equals(Intent.ACTION_SHUTDOWN)) {
                         if (mRecorder != null) {
                             mRecorder.stop();
+                            mRecorder.delete();
                         }
                     }
                 }
