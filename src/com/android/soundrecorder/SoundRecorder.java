@@ -30,6 +30,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.IntentFilter;
 import android.content.BroadcastReceiver;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -40,6 +42,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.StatFs;
+import android.os.SystemProperties;
 import android.os.storage.StorageManager;
 import android.os.storage.StorageVolume;
 import android.os.PowerManager.WakeLock;
@@ -270,6 +273,9 @@ public class SoundRecorder extends Activity
     int mAudioOutputFormat = MediaRecorder.OutputFormat.AMR_WB;
     String mAmrWidebandExtension = ".awb";
     private AudioManager mAudioManager;
+    private boolean mRecorderStop = false;
+    private boolean mDataExist = false;
+    private boolean mWAVSupport = true;
 
     int mAudioSourceType = MediaRecorder.AudioSource.MIC;
     static int mOldCallState = TelephonyManager.CALL_STATE_IDLE;
@@ -313,6 +319,8 @@ public class SoundRecorder extends Activity
     private int mFileType = 0;
     private int mPath = 0;
     private String mStoragePath = STORAGE_PATH_LOCAL_PHONE;
+    private SharedPreferences mSharedPreferences;
+    private Editor mPrefsStoragePathEditor;
 
     private PhoneStateListener getPhoneStateListener() {
         PhoneStateListener phoneStateListener = new PhoneStateListener() {
@@ -342,6 +350,8 @@ public class SoundRecorder extends Activity
     @Override
     public void onCreate(Bundle icycle) {
         super.onCreate(icycle);
+        mSharedPreferences = getSharedPreferences("storage_Path", Context.MODE_PRIVATE);
+        mPrefsStoragePathEditor = mSharedPreferences.edit();
 
         Intent i = getIntent();
         if (i != null) {
@@ -349,6 +359,7 @@ public class SoundRecorder extends Activity
             if (AUDIO_AMR.equals(s) || AUDIO_3GPP.equals(s) || AUDIO_ANY.equals(s)
                     || ANY_ANY.equals(s)) {
                 mRequestedType = s;
+                mWAVSupport = false;
             } else if (s != null) {
                 // we only support amr and 3gpp formats right now 
                 setResult(RESULT_CANCELED);
@@ -362,10 +373,17 @@ public class SoundRecorder extends Activity
         }
         
         if (AUDIO_ANY.equals(mRequestedType) || ANY_ANY.equals(mRequestedType)) {
-            mRequestedType = AUDIO_3GPP;
+            mRequestedType = AUDIO_AMR;
         }
-        
-        mRequestedType = AUDIO_AMR; // Default type
+
+        mPath = mSharedPreferences.getInt("path", mPath);
+        mRequestedType = mSharedPreferences.getString("requestedType", mRequestedType);
+        mFileType = mSharedPreferences.getInt("fileType", mFileType);
+        mStoragePath = mSharedPreferences.getString("storagePath", mStoragePath);
+        if (!mWAVSupport && mRequestedType == AUDIO_WAVE_2CH_LPCM) {
+            mRequestedType = AUDIO_AMR;
+            mFileType = 0;
+        }
 
         setContentView(R.layout.main);
         mAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
@@ -379,7 +397,9 @@ public class SoundRecorder extends Activity
                                     "SoundRecorder");
 
         initResourceRefs();
-        
+        mRecorderStop = false;
+        mDataExist = false;
+
         setResult(RESULT_CANCELED);
         registerExternalStorageListener();
         registerPowerOffListener();
@@ -590,8 +610,14 @@ public class SoundRecorder extends Activity
                                 mRecorder.sampleFile(), mMaxFileSize);
                     }
                 }
+                invalidateOptionsMenu();
                 break;
             case R.id.playButton:
+                if (!mRecorder.sampleFile().exists()) {
+                    Toast.makeText(SoundRecorder.this, R.string.file_deleted,
+                            Toast.LENGTH_SHORT).show();
+                    finish();
+                }
                 stopAudioPlayback();
                 mRecorder.startPlayback();
                 break;
@@ -601,6 +627,8 @@ public class SoundRecorder extends Activity
                 mStateMessage2.setVisibility(View.VISIBLE);
                 mStateMessage2.setText(getResources().getString(R.string.recording_stopped));
                 mStateLED.setVisibility(View.VISIBLE);
+                mRecorderStop = true;
+                invalidateOptionsMenu();
                 break;
             case R.id.acceptButton:
                 if (!mRecorder.sampleFile().exists()) {
@@ -655,7 +683,9 @@ public class SoundRecorder extends Activity
         if (optionType == SETTING_TYPE_FILE_TYPE) {
             adapter.add(R.string.format_setting_amr_item);
             adapter.add(R.string.format_setting_3gpp_item);
-            adapter.add(R.string.format_setting_wav_item);
+            if (mWAVSupport) {
+                adapter.add(R.string.format_setting_wav_item);
+            }
         } else if (optionType == SETTING_TYPE_STORAGE_LOCATION) {
             adapter.add(R.string.storage_setting_local_item);
             adapter.add(R.string.storage_setting_sdcard_item);
@@ -670,22 +700,40 @@ public class SoundRecorder extends Activity
                     case R.string.format_setting_amr_item:
                         mRequestedType = AUDIO_AMR;
                         mFileType = 0;
+                        mPrefsStoragePathEditor.putString("requestedType", mRequestedType);
+                        mPrefsStoragePathEditor.putInt("fileType", mFileType);
+                        mPrefsStoragePathEditor.commit();
                         break;
                     case R.string.format_setting_3gpp_item:
                         mRequestedType = AUDIO_3GPP;
                         mFileType = 1;
+                        mPrefsStoragePathEditor.putString("requestedType", mRequestedType);
+                        mPrefsStoragePathEditor.putInt("fileType", mFileType);
+                        mPrefsStoragePathEditor.commit();
+                        //Keep 40KB size in the Recording file for Mpeg4Writer to write Moov.
+                        if((mMaxFileSize !=-1)&&(mMaxFileSize>40*1024))
+                            mMaxFileSize =mMaxFileSize-40*1024;
                         break;
                     case R.string.format_setting_wav_item:
                         mRequestedType = AUDIO_WAVE_2CH_LPCM;
                         mFileType = 2;
+                        mPrefsStoragePathEditor.putString("requestedType", mRequestedType);
+                        mPrefsStoragePathEditor.putInt("fileType", mFileType);
+                        mPrefsStoragePathEditor.commit();
                         break;
                     case R.string.storage_setting_sdcard_item:
                         mStoragePath = getSDPath(SoundRecorder.this) + "/SoundRecorder";
                         mPath = 1;
+                        mPrefsStoragePathEditor.putString("storagePath", mStoragePath);
+                        mPrefsStoragePathEditor.putInt("path", mPath);
+                        mPrefsStoragePathEditor.commit();
                         break;
                     case R.string.storage_setting_local_item:
                         mStoragePath = STORAGE_PATH_LOCAL_PHONE;
                         mPath = 0;
+                        mPrefsStoragePathEditor.putString("storagePath", mStoragePath);
+                        mPrefsStoragePathEditor.putInt("path", mPath);
+                        mPrefsStoragePathEditor.commit();
                         break;
 
                     default: {
@@ -726,6 +774,17 @@ public class SoundRecorder extends Activity
         menu.findItem(R.id.menu_item_keyboard).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);
         menu.findItem(R.id.menu_item_filetype).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);
         menu.findItem(R.id.menu_item_storage).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);
+        if (SystemProperties.getBoolean("debug.soundrecorder.enable", false)) {
+            menu.findItem(R.id.menu_item_keyboard).setVisible(true);
+        } else {
+            menu.findItem(R.id.menu_item_keyboard).setVisible(false);
+        }
+
+        if (mRecorderStop) {
+            menu.findItem(R.id.menu_item_keyboard).setEnabled(false);
+            menu.findItem(R.id.menu_item_filetype).setEnabled(false);
+            menu.findItem(R.id.menu_item_storage).setEnabled(false);
+        }
         return true;
     }
 
@@ -973,7 +1032,7 @@ public class SoundRecorder extends Activity
         } catch(UnsupportedOperationException ex) {  // Database manipulation failure
             return false;
         } finally {
-            if (uri == null) {
+            if (uri == null && !mDataExist) {
                 return false;
             }
         }
@@ -1026,6 +1085,7 @@ public class SoundRecorder extends Activity
                     if (action.equals(Intent.ACTION_SHUTDOWN)) {
                         if (mRecorder != null) {
                             mRecorder.stop();
+                            mRecorder.delete();
                         }
                     }
                 }
@@ -1150,7 +1210,20 @@ public class SoundRecorder extends Activity
                 res.getString(R.string.audio_db_title_format));
         String title = formatter.format(date);
         long sampleLengthMillis = mRecorder.sampleLength() * 1000L;
-        mLastFileName = file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf("/")+1,file.getAbsolutePath().length());
+        mLastFileName = file.getAbsolutePath().substring(
+                file.getAbsolutePath().lastIndexOf("/")+1, file.getAbsolutePath().length()).replace("-", "");
+
+        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        final String[] ids = new String[] { MediaStore.Audio.Playlists._ID };
+        final String where = MediaStore.Audio.Playlists.DATA + "=?";
+        final String[] args = new String[] { file.getAbsolutePath() };
+        Cursor cursor = query(uri, ids, where, args, null);
+
+        if (cursor != null && cursor.getCount() > 0) {
+            mDataExist = true;
+            cursor.close();
+            return null;
+        }
 
         // Label the recorded audio file as MUSIC so that the file
         // will be displayed automatically
@@ -1286,7 +1359,11 @@ public class SoundRecorder extends Activity
                     if (true == bSSRSupported) {
                         mStateMessage2.setText(res.getString(R.string.press_record_ssr));
                     } else {
-                        mStateMessage2.setText(res.getString(R.string.press_record));
+                        if (SystemProperties.getBoolean("debug.soundrecorder.enable", false)) {
+                            mStateMessage2.setText(res.getString(R.string.press_record));
+                        } else {
+                            mStateMessage2.setText(res.getString(R.string.press_record2));
+                        }
                     }
                     mExitButtons.setVisibility(View.INVISIBLE);
                     mVUMeter.setVisibility(View.VISIBLE);
