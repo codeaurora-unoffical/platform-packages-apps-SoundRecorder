@@ -34,18 +34,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="115dip"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_marginTop="-4dip"
-            android:layout_marginRight="10dip"
+            android:layout_marginEnd="10dip"
             style="@android:style/TextAppearance.Large" />
 
         <LinearLayout android:id="@+id/stateMessage2Layout"
             android:orientation="horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:baselineAligned="false"
-            android:layout_marginLeft="10dip"
+            android:layout_marginStart="10dip"
             android:layout_marginTop="20dip">
             
             <ImageView android:id="@+id/stateLED"
@@ -58,7 +58,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/recording"
                 android:layout_gravity="center_vertical" 
-                android:layout_marginLeft="5px"
+                android:layout_marginStart="5px"
                 style="@android:style/TextAppearance.Medium"/>
 
         </LinearLayout>
@@ -67,7 +67,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/stateMessage2Layout"
-            android:layout_marginLeft="30dip"
+            android:layout_marginStart="30dip"
             style="@android:style/TextAppearance.Small" />                
 
         <ProgressBar android:id="@+id/stateProgressBar"
@@ -76,8 +76,8 @@
             android:layout_height="wrap_content" 
             android:max="100"
             android:progress="0"
-            android:layout_alignParentLeft="true"
-            android:layout_marginLeft="10dip"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="10dip"
             android:layout_marginTop="20dip"
             style="?android:attr/progressBarStyleHorizontal" />
 
@@ -107,16 +107,16 @@
                     android:layout_height="wrap_content"
                     android:text="@string/discard"
                     android:layout_weight="1"
-                    android:layout_marginLeft="2dip" 
-                    android:layout_marginRight="50dip" />
+                    android:layout_marginStart="2dip"
+                    android:layout_marginEnd="50dip" />
 
                 <Button android:id="@+id/acceptButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/accept"
                     android:layout_weight="1"
-                    android:layout_marginRight="2dip"
-                    android:layout_marginLeft="50dip" />
+                    android:layout_marginStart="2dip"
+                    android:layout_marginEnd="50dip" />
             </LinearLayout>
     
         <RelativeLayout
@@ -150,7 +150,8 @@
             android:layout_marginBottom="4dip"
             android:orientation="horizontal"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent" >
+            android:layout_height="match_parent"
+            android:layoutDirection="ltr">
 
             <ImageButton android:id="@+id/recordButton"
                 android:layout_height="match_parent" 
