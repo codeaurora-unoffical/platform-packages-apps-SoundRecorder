@@ -377,8 +377,8 @@ public class SoundRecorder extends Activity
         }
 
         mPath = mSharedPreferences.getInt("path", mPath);
-        mRequestedType = mSharedPreferences.getString("requestedType", mRequestedType);
-        mFileType = mSharedPreferences.getInt("fileType", mFileType);
+        mRequestedType = mSharedPreferences.getString("requestedType", getResources().getString(R.string.def_save_mimetype));
+        mFileType = mSharedPreferences.getInt("fileType", getResources().getInteger(R.integer.def_save_type));
         mStoragePath = mSharedPreferences.getString("storagePath", mStoragePath);
         if (!mWAVSupport && mRequestedType == AUDIO_WAVE_2CH_LPCM) {
             mRequestedType = AUDIO_AMR;
