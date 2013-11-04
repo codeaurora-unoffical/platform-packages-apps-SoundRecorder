@@ -29,6 +29,7 @@ import android.media.MediaPlayer.OnErrorListener;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import java.text.SimpleDateFormat;
 
 public class Recorder implements OnCompletionListener, OnErrorListener {
     static final String TAG = "Recorder";
@@ -173,7 +174,11 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
             sampleDir = new File("/sdcard/sdcard");
 
         try {
-            mSampleFile = File.createTempFile(SAMPLE_PREFIX, extension, sampleDir);
+            if (!"".equals(context.getResources().getString(R.string.def_save_name_prefix))){
+                mSampleFile = createTempFile(context,SAMPLE_PREFIX, extension, sampleDir);
+            }else {
+                mSampleFile = File.createTempFile(SAMPLE_PREFIX, extension, sampleDir);
+            }
         } catch (IOException e) {
             setError(SDCARD_ACCESS_ERROR);
             return;
@@ -329,5 +334,32 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
 
     public void setStoragePath(String path) {
         mStoragePath = path;
+    }
+
+    public static File createTempFile(Context context,String prefix, String suffix, File directory)
+            throws IOException {
+        prefix = context.getResources().getString(R.string.def_save_name_prefix) + '-';
+        // Force a prefix null check first
+        if (prefix.length() < 3) {
+            throw new IllegalArgumentException("prefix must be at least 3 characters");
+        }
+        if (suffix == null) {
+            suffix = ".tmp";
+        }
+        File tmpDirFile = directory;
+        if (tmpDirFile == null) {
+            String tmpDir = System.getProperty("java.io.tmpdir", ".");
+            tmpDirFile = new File(tmpDir);
+        }
+
+        String nameFormat = context.getResources().getString(R.string.def_save_name_format);
+        SimpleDateFormat df = new SimpleDateFormat(nameFormat);
+        String currentTime = df.format(System.currentTimeMillis());
+
+        File result;
+        do {
+            result = new File(tmpDirFile, prefix + currentTime + suffix);
+        } while (!result.createNewFile());
+        return result;
     }
 }
