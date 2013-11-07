@@ -1210,8 +1210,13 @@ public class SoundRecorder extends Activity
                 res.getString(R.string.audio_db_title_format));
         String title = formatter.format(date);
         long sampleLengthMillis = mRecorder.sampleLength() * 1000L;
-        mLastFileName = file.getAbsolutePath().substring(
-                file.getAbsolutePath().lastIndexOf("/")+1, file.getAbsolutePath().length()).replace("-", "");
+        if (!"".equals(res.getString(R.string.def_save_name_prefix))){
+            mLastFileName = file.getAbsolutePath().substring(
+                    file.getAbsolutePath().lastIndexOf("/")+1, file.getAbsolutePath().length());
+        }else {
+            mLastFileName = file.getAbsolutePath().substring(
+                    file.getAbsolutePath().lastIndexOf("/")+1, file.getAbsolutePath().length()).replace("-", "");
+        }
 
         Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         final String[] ids = new String[] { MediaStore.Audio.Playlists._ID };
