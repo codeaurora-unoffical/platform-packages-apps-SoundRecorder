@@ -19,6 +19,8 @@ package com.android.soundrecorder;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import android.content.Context;
 import android.media.AudioManager;
@@ -36,6 +38,7 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     static final String SAMPLE_PREFIX = "recording";
     static final String SAMPLE_PATH_KEY = "sample_path";
     static final String SAMPLE_LENGTH_KEY = "sample_length";
+    static final String DATE_FORMAT = "yyyyMMddHHmmss";
 
     public static final int IDLE_STATE = 0;
     public static final int RECORDING_STATE = 1;
@@ -174,9 +177,18 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
             sampleDir = new File("/sdcard/sdcard");
 
         try {
-            if (!"".equals(context.getResources().getString(R.string.def_save_name_prefix))){
-                mSampleFile = createTempFile(context,SAMPLE_PREFIX, extension, sampleDir);
-            }else {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT);
+            String time = simpleDateFormat.format(new Date(System.currentTimeMillis()));
+            if (extension == null) {
+                extension = ".tmp";
+            }
+
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(SAMPLE_PREFIX).append(time).append(extension);
+            String name = stringBuilder.toString();
+            mSampleFile = new File(sampleDir, name);
+
+            if (!mSampleFile.createNewFile()) {
                 mSampleFile = File.createTempFile(SAMPLE_PREFIX, extension, sampleDir);
             }
         } catch (IOException e) {
