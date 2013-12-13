@@ -181,19 +181,23 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
             sampleDir = new File("/sdcard/sdcard");
 
         try {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT);
-            String time = simpleDateFormat.format(new Date(System.currentTimeMillis()));
-            if (extension == null) {
-                extension = ".tmp";
-            }
+            if (!"".equals(context.getResources().getString(R.string.def_save_name_prefix))){
+                mSampleFile = createTempFile(context,SAMPLE_PREFIX, extension, sampleDir);
+            }else {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT);
+                String time = simpleDateFormat.format(new Date(System.currentTimeMillis()));
+                if (extension == null) {
+                    extension = ".tmp";
+                }
 
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append(SAMPLE_PREFIX).append(time).append(extension);
-            String name = stringBuilder.toString();
-            mSampleFile = new File(sampleDir, name);
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append(SAMPLE_PREFIX).append(time).append(extension);
+                String name = stringBuilder.toString();
+                mSampleFile = new File(sampleDir, name);
 
-            if (!mSampleFile.createNewFile()) {
-                mSampleFile = File.createTempFile(SAMPLE_PREFIX, extension, sampleDir);
+                if (!mSampleFile.createNewFile()) {
+                    mSampleFile = File.createTempFile(SAMPLE_PREFIX, extension, sampleDir);
+                }
             }
         } catch (IOException e) {
             setError(SDCARD_ACCESS_ERROR);
