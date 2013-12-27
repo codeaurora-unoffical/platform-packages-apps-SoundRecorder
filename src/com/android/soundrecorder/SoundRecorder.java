@@ -1394,6 +1394,7 @@ public class SoundRecorder extends Activity
         }
         
         updateUi();
+        invalidateOptionsMenu();
     }
     
     /*
