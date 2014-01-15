@@ -274,6 +274,7 @@ public class SoundRecorder extends Activity
     String mAmrWidebandExtension = ".awb";
     private AudioManager mAudioManager;
     private boolean mRecorderStop = false;
+    private boolean mRecorderProcessed = false;
     private boolean mDataExist = false;
     private boolean mWAVSupport = true;
 
@@ -398,6 +399,7 @@ public class SoundRecorder extends Activity
 
         initResourceRefs();
         mRecorderStop = false;
+        mRecorderProcessed = false;
         mDataExist = false;
 
         setResult(RESULT_CANCELED);
@@ -609,6 +611,8 @@ public class SoundRecorder extends Activity
                         mRemainingTimeCalculator.setFileSizeLimit(
                                 mRecorder.sampleFile(), mMaxFileSize);
                     }
+                    mRecorderStop = false;
+                    mRecorderProcessed = false;
                 }
                 invalidateOptionsMenu();
                 break;
@@ -637,7 +641,8 @@ public class SoundRecorder extends Activity
                     finish();
                 }
                 mRecorder.stop();
-                saveSampleAndExit(true);
+                mRecorderProcessed = true;
+                saveSampleAndExit(false);
                 break;
             case R.id.discardButton:
                 mRecorder.delete();
@@ -780,7 +785,7 @@ public class SoundRecorder extends Activity
             menu.findItem(R.id.menu_item_keyboard).setVisible(false);
         }
 
-        if (mRecorderStop) {
+        if (mRecorderStop && !mRecorderProcessed) {
             menu.findItem(R.id.menu_item_keyboard).setEnabled(false);
             menu.findItem(R.id.menu_item_filetype).setEnabled(false);
             menu.findItem(R.id.menu_item_storage).setEnabled(false);
@@ -821,8 +826,10 @@ public class SoundRecorder extends Activity
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             switch (mRecorder.state()) {
                 case Recorder.IDLE_STATE:
-                    if (!saveSampleAndExit(true)) {
+                    if (mRecorderProcessed) {
                         finish();
+                    } else {
+                        saveSampleAndExit(true);
                     }
                     break;
                 case Recorder.PLAYING_STATE:
@@ -1037,6 +1044,10 @@ public class SoundRecorder extends Activity
             }
         }
         showDialogAndExit(exit);
+
+        // reset mRecorder and restore UI.
+        mRecorder.clear();
+        updateUi();
         setResult(RESULT_OK, new Intent().setData(uri));
         return true;
     }

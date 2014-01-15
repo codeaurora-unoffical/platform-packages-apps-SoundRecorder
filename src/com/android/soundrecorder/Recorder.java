@@ -156,6 +156,7 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     public void clear() {
         stop();
         
+        mSampleFile = null;
         mSampleLength = 0;
         
         signalStateChanged(IDLE_STATE);
