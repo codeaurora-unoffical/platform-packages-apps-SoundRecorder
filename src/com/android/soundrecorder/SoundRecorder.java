@@ -521,6 +521,15 @@ public class SoundRecorder extends Activity
 
         switch (button.getId()) {
             case R.id.recordButton:
+                if (mRecorder.state() == Recorder.PAUSE_STATE) {
+                    mRecorder.resumeRecording();
+                    updateUi();
+                    return;
+                } else if (mRecorder.state() == Recorder.RECORDING_STATE) {
+                    mRecorder.pauseRecording();
+                    updateUi();
+                    return;
+                }
                 mRemainingTimeCalculator.reset();
                 mRemainingTimeCalculator.setStoragePath(mPath);
                 mRecorder.setStoragePath(mStoragePath);
@@ -1345,6 +1354,7 @@ public class SoundRecorder extends Activity
         switch (mRecorder.state()) {
             case Recorder.IDLE_STATE:
                 if (mRecorder.sampleLength() == 0) {
+                    mRecordButton.setImageResource(R.drawable.record);
                     mRecordButton.setEnabled(true);
                     mRecordButton.setFocusable(false);
                     mPlayButton.setEnabled(false);
@@ -1372,6 +1382,7 @@ public class SoundRecorder extends Activity
                     
                     setTitle(res.getString(R.string.record_your_message));                    
                 } else {
+                    mRecordButton.setImageResource(R.drawable.record);
                     mRecordButton.setEnabled(true);
                     mRecordButton.setFocusable(true);
                     mPlayButton.setEnabled(true);
@@ -1405,8 +1416,15 @@ public class SoundRecorder extends Activity
                 
                 break;
             case Recorder.RECORDING_STATE: 
-                mRecordButton.setEnabled(false);
-                mRecordButton.setFocusable(false);
+                boolean b = SystemProperties.getBoolean("persist.env.soundrecorder.pause", false);
+                if (b) {
+                    mRecordButton.setImageResource(R.drawable.pause);
+                    mRecordButton.setEnabled(true);
+                    mRecordButton.setFocusable(true);
+                } else {
+                    mRecordButton.setEnabled(false);
+                    mRecordButton.setFocusable(false);
+                }
                 mPlayButton.setEnabled(false);
                 mPlayButton.setFocusable(false);
                 mStopButton.setEnabled(true);
@@ -1445,6 +1463,28 @@ public class SoundRecorder extends Activity
                 mStateProgressBar.setVisibility(View.VISIBLE);
 
                 setTitle(res.getString(R.string.review_message));
+                break;
+            case Recorder.PAUSE_STATE:
+                mRecordButton.setImageResource(R.drawable.record);
+                mRecordButton.setEnabled(true);
+                mRecordButton.setFocusable(true);
+                mPlayButton.setEnabled(false);
+                mPlayButton.setFocusable(false);
+                mStopButton.setEnabled(true);
+                mStopButton.setFocusable(true);
+
+                mStateMessage1.setVisibility(View.VISIBLE);
+                mStateLED.setVisibility(View.VISIBLE);
+                mStateLED.setImageResource(R.drawable.recording_led);
+                mStateMessage2.setVisibility(View.VISIBLE);
+                mStateMessage2.setText(res.getString(R.string.recording_paused));
+
+                mExitButtons.setVisibility(View.INVISIBLE);
+                mVUMeter.setVisibility(View.VISIBLE);
+
+                mStateProgressBar.setVisibility(View.INVISIBLE);
+
+                setTitle(res.getString(R.string.record_your_message));
 
                 break;
         }
