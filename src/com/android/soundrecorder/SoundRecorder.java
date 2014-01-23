@@ -826,7 +826,7 @@ public class SoundRecorder extends Activity
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             switch (mRecorder.state()) {
                 case Recorder.IDLE_STATE:
-                    if (mRecorderProcessed) {
+                    if (mRecorderProcessed || !mRecorderStop) {
                         finish();
                     } else {
                         saveSampleAndExit(true);
