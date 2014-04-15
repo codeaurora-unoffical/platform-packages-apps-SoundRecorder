@@ -278,6 +278,7 @@ public class SoundRecorder extends Activity
                       if ((sOldCallState == TelephonyManager.CALL_STATE_OFFHOOK)
                                && !(mAudioSourceType == MediaRecorder.AudioSource.MIC)){
                          mRecorder.stop();
+                         mAudioSourceType = MediaRecorder.AudioSource.MIC;
                       }
                       break;
 
