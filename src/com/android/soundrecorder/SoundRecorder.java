@@ -332,6 +332,7 @@ public class SoundRecorder extends Activity
                       if ((sOldCallState == TelephonyManager.CALL_STATE_OFFHOOK)
                                && !(mAudioSourceType == MediaRecorder.AudioSource.MIC)){
                          mRecorder.stop();
+                         mAudioSourceType = MediaRecorder.AudioSource.MIC;
                       }
                       break;
 
@@ -657,10 +658,12 @@ public class SoundRecorder extends Activity
                 mRecorder.stop();
                 mRecorderProcessed = true;
                 saveSampleAndExit(mExitAfterRecord);
+                mVUMeter.resetAngle();
                 break;
             case R.id.discardButton:
                 mRecorder.delete();
                 mRecorderProcessed = true;
+                mVUMeter.resetAngle();
                 //prompt before exit
                 new AlertDialog.Builder(this)
                     .setTitle(R.string.app_name)
