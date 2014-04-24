@@ -1037,6 +1037,9 @@ public class SoundRecorder extends Activity
         mTelephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_NONE);
         mSampleInterrupted = mRecorder.state() == Recorder.RECORDING_STATE;
         mRecorder.stop();
+        if (mRecorder.sampleLength() > 0) {
+            mRecorderStop = true;
+        }
         mAudioManager.abandonAudioFocus(null);
         super.onPause();
     }
@@ -1575,7 +1578,8 @@ public class SoundRecorder extends Activity
                 .getSystemService(Context.STORAGE_SERVICE);
         StorageVolume[] volumes = mStorageManager.getVolumeList();
         for (int i = 0; i < volumes.length; i++) {
-            if (volumes[i].isRemovable() && volumes[i].allowMassStorage()) {
+            if (volumes[i].isRemovable() && volumes[i].allowMassStorage()
+                    && volumes[i].getDescription(context).contains("SD")) {
                 sd = volumes[i].getPath();
             }
         }
