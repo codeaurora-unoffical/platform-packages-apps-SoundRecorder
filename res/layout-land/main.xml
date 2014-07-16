@@ -124,8 +124,8 @@
             android:layout_height="match_parent">
             
             <com.android.soundrecorder.VUMeter android:id="@+id/uvMeter"
-                android:layout_width="150px"
-                android:layout_height="60px"
+                android:layout_width="101dip"
+                android:layout_height="41dip"
                 android:layout_centerInParent="true" />
         </RelativeLayout>
 
