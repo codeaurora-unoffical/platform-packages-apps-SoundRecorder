@@ -668,7 +668,7 @@ public class SoundRecorder extends Activity
                 invalidateOptionsMenu();
                 break;
             case R.id.playButton:
-                if (!mRecorder.sampleFile().exists()) {
+                if (mRecorder.sampleFile() == null || !mRecorder.sampleFile().exists()) {
                     Toast.makeText(SoundRecorder.this, R.string.file_deleted,
                             Toast.LENGTH_SHORT).show();
                     finish();
@@ -685,7 +685,7 @@ public class SoundRecorder extends Activity
                 invalidateOptionsMenu();
                 break;
             case R.id.acceptButton:
-                if (!mRecorder.sampleFile().exists()) {
+                if (mRecorder.sampleFile() == null || !mRecorder.sampleFile().exists()) {
                     Toast.makeText(SoundRecorder.this, R.string.file_deleted,
                             Toast.LENGTH_SHORT).show();
                     finish();
@@ -782,11 +782,16 @@ public class SoundRecorder extends Activity
                         mPrefsStoragePathEditor.commit();
                         break;
                     case R.string.storage_setting_sdcard_item:
-                        mStoragePath = getSDPath(SoundRecorder.this) + "/SoundRecorder";
-                        mPath = 1;
-                        mPrefsStoragePathEditor.putString("storagePath", mStoragePath);
-                        mPrefsStoragePathEditor.putInt("path", mPath);
-                        mPrefsStoragePathEditor.commit();
+                        if (getSDState(SoundRecorder.this).equals(Environment.MEDIA_MOUNTED)) {
+                            mStoragePath = getSDPath(SoundRecorder.this) + "/SoundRecorder";
+                            mPath = 1;
+                            mPrefsStoragePathEditor.putString("storagePath", mStoragePath);
+                            mPrefsStoragePathEditor.putInt("path", mPath);
+                            mPrefsStoragePathEditor.commit();
+                        } else {
+                            Toast.makeText(SoundRecorder.this, R.string.insert_sd_card,
+                                    Toast.LENGTH_SHORT).show();
+                        }
                         break;
                     case R.string.storage_setting_local_item:
                         mStoragePath = STORAGE_PATH_LOCAL_PHONE;
