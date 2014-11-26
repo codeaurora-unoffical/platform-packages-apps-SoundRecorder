@@ -48,6 +48,7 @@
     <string name="file_discard">放弃录音</string>
     <!-- shown as the dialog title when user selects recording format -->
     <string name="format_setting">"文件类型"</string>
+    <string name="format_setting_aac_item">"AAC"</string>
     <string name="format_setting_amr_item">"AMR"</string>
     <string name="format_setting_3gpp_item">"3GPP"</string>
     <string name="format_setting_wav_item">"WAV"</string>
