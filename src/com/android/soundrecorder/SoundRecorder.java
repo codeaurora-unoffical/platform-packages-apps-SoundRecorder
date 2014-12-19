@@ -343,6 +343,12 @@ public class SoundRecorder extends Activity
                       sOldCallState = TelephonyManager.CALL_STATE_OFFHOOK;
                       break;
 
+                      case TelephonyManager.CALL_STATE_RINGING:
+                      sOldCallState = TelephonyManager.CALL_STATE_RINGING;
+                      mRecorder.stop();
+                      Log.v(TAG,"call Ringing");
+                      break;
+
                       default:
                       // The control should not come here
                       Log.e(TAG,"Unknown call state");
