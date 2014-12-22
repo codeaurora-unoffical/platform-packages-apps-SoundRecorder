@@ -391,7 +391,10 @@ public class SoundRecorder extends Activity
         }
 
         mPath = mSharedPreferences.getInt("path", mPath);
-        mRequestedType = mSharedPreferences.getString("requestedType", mRequestedType);
+        if (!mExitAfterRecord) {
+            // Don't reload cached encoding type,if it's assigned by external intent.
+            mRequestedType = mSharedPreferences.getString("requestedType", mRequestedType);
+        }
         mFileType = mSharedPreferences.getInt("fileType", mFileType);
         mStoragePath = mSharedPreferences.getString("storagePath", mStoragePath);
         if (!mWAVSupport && mRequestedType == AUDIO_WAVE_2CH_LPCM) {
@@ -851,7 +854,8 @@ public class SoundRecorder extends Activity
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         menu.findItem(R.id.menu_item_keyboard).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);
-        menu.findItem(R.id.menu_item_filetype).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);
+        menu.findItem(R.id.menu_item_filetype).setEnabled(
+                (mRecorder.state() == Recorder.IDLE_STATE) && (!mExitAfterRecord));
         menu.findItem(R.id.menu_item_storage).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);
         if (SystemProperties.getBoolean("debug.soundrecorder.enable", false)) {
             menu.findItem(R.id.menu_item_keyboard).setVisible(true);
