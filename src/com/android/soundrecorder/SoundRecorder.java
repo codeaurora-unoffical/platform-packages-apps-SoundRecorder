@@ -19,6 +19,7 @@ package com.android.soundrecorder;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Hashtable;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -284,7 +285,8 @@ public class SoundRecorder extends Activity
 
     int mAudioSourceType = MediaRecorder.AudioSource.MIC;
     int mPhoneCount = 0;
-    static int sOldCallState = TelephonyManager.CALL_STATE_IDLE;
+    static Hashtable<Long, Integer> mCallStateMap = new Hashtable<Long, Integer>();
+    static int mCallState = TelephonyManager.CALL_STATE_IDLE;
     WakeLock mWakeLock;
     String mRequestedType = AUDIO_ANY;
     Recorder mRecorder;
@@ -333,18 +335,27 @@ public class SoundRecorder extends Activity
         PhoneStateListener phoneStateListener = new PhoneStateListener(subId) {
             @Override
             public void onCallStateChanged(int state, String ignored) {
+               mCallStateMap.put(this.mSubId, state);
+
                switch (state) {
                       case TelephonyManager.CALL_STATE_IDLE:
-                      if ((sOldCallState == TelephonyManager.CALL_STATE_OFFHOOK)
+                      if ((mCallState == TelephonyManager.CALL_STATE_OFFHOOK)
                                && !(mAudioSourceType == MediaRecorder.AudioSource.MIC)){
                          mRecorder.stop();
-                         sOldCallState = TelephonyManager.CALL_STATE_IDLE;
                          mAudioSourceType = MediaRecorder.AudioSource.MIC;
                       }
-                      break;
 
+                      case TelephonyManager.CALL_STATE_RINGING:
                       case TelephonyManager.CALL_STATE_OFFHOOK:
-                      sOldCallState = TelephonyManager.CALL_STATE_OFFHOOK;
+
+                      if (mCallStateMap.containsValue(TelephonyManager.CALL_STATE_OFFHOOK)) {
+                          mCallState = TelephonyManager.CALL_STATE_OFFHOOK;
+                      } else if(mCallStateMap.containsValue(TelephonyManager.CALL_STATE_RINGING)) {
+                          mCallState = TelephonyManager.CALL_STATE_RINGING;
+                      } else {
+                          mCallState = TelephonyManager.CALL_STATE_IDLE;
+                      }
+
                       break;
 
                       default:
@@ -590,7 +601,7 @@ public class SoundRecorder extends Activity
                 } else {
                     stopAudioPlayback();
 
-                    if ((sOldCallState == TelephonyManager.CALL_STATE_OFFHOOK) &&
+                    if ((mCallState == TelephonyManager.CALL_STATE_OFFHOOK) &&
                         (mAudioSourceType == MediaRecorder.AudioSource.MIC)) {
                         mAudioSourceType = MediaRecorder.AudioSource.VOICE_UPLINK;
                         Log.e(TAG, "Selected Voice Tx only Source: sourcetype" + mAudioSourceType);
