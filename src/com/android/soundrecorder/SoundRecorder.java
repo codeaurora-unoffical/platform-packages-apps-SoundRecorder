@@ -238,7 +238,7 @@ public class SoundRecorder extends Activity
 
     int mAudioSourceType = MediaRecorder.AudioSource.MIC;
     int mPhoneCount = 0;
-    static Hashtable<Long, Integer> mCallStateMap = new Hashtable<Long, Integer>();
+    static Hashtable<Integer, Integer> mCallStateMap = new Hashtable<Integer, Integer>();
     static int mCallState = TelephonyManager.CALL_STATE_IDLE;
     WakeLock mWakeLock;
     String mRequestedType = AUDIO_ANY;
@@ -276,7 +276,7 @@ public class SoundRecorder extends Activity
     private TelephonyManager mTelephonyManager;
     private PhoneStateListener[] mPhoneStateListener;
 
-    private PhoneStateListener getPhoneStateListener(long subId) {
+    private PhoneStateListener getPhoneStateListener(int subId) {
 
         PhoneStateListener phoneStateListener = new PhoneStateListener(subId) {
             @Override
@@ -368,7 +368,7 @@ public class SoundRecorder extends Activity
         mPhoneCount = mTelephonyManager.getPhoneCount();
         mPhoneStateListener = new PhoneStateListener[mPhoneCount];
         for(int j = 0; j < mPhoneCount; j++) {
-            long[] subId = SubscriptionManager.getSubId(j);
+            int[] subId = SubscriptionManager.getSubId(j);
             mPhoneStateListener[j] = getPhoneStateListener(subId[0]);
         }
 
