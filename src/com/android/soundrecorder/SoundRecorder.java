@@ -368,9 +368,19 @@ public class SoundRecorder extends Activity
         return phoneStateListener;
     }
 
+    public static String applyCustomStoragePath(Context context) {
+        return Environment.getExternalStorageDirectory()
+                .toString() + "/" + context.getResources()
+                .getString(R.string.folder_name);
+    }
+
     @Override
     public void onCreate(Bundle icycle) {
         super.onCreate(icycle);
+        if (getResources().getBoolean(R.bool.config_storage_path)) {
+            mStoragePath = applyCustomStoragePath(this);
+        }
+
         mSharedPreferences = getSharedPreferences("storage_Path", Context.MODE_PRIVATE);
         mPrefsStoragePathEditor = mSharedPreferences.edit();
 
@@ -413,7 +423,7 @@ public class SoundRecorder extends Activity
 
         setContentView(R.layout.main);
         mAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-        mRecorder = new Recorder();
+        mRecorder = new Recorder(this);
         mRecorder.setOnStateChangedListener(this);
         mRemainingTimeCalculator = new RemainingTimeCalculator(SoundRecorder.this);
 
@@ -802,7 +812,12 @@ public class SoundRecorder extends Activity
                         break;
                     case R.string.storage_setting_sdcard_item:
                         if (getSDState(SoundRecorder.this).equals(Environment.MEDIA_MOUNTED)) {
-                            mStoragePath = getSDPath(SoundRecorder.this) + "/SoundRecorder";
+                            if (getResources().getBoolean(R.bool.config_storage_path)) {
+                                mStoragePath = getSDPath(SoundRecorder.this) +
+                                    "/" + getResources().getString(R.string.folder_name);
+                            } else {
+                                mStoragePath = getSDPath(SoundRecorder.this) + "/SoundRecorder";
+                            }
                             mPath = 1;
                             mPrefsStoragePathEditor.putString("storagePath", mStoragePath);
                             mPrefsStoragePathEditor.putInt("path", mPath);
@@ -813,7 +828,11 @@ public class SoundRecorder extends Activity
                         }
                         break;
                     case R.string.storage_setting_local_item:
-                        mStoragePath = STORAGE_PATH_LOCAL_PHONE;
+                        if (getResources().getBoolean(R.bool.config_storage_path)) {
+                            mStoragePath = applyCustomStoragePath(SoundRecorder.this);
+                        } else {
+                            mStoragePath = STORAGE_PATH_LOCAL_PHONE;
+                        }
                         mPath = 0;
                         mPrefsStoragePathEditor.putString("storagePath", mStoragePath);
                         mPrefsStoragePathEditor.putInt("path", mPath);

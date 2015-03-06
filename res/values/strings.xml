@@ -17,7 +17,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- application name and title of error dialogs-->
     <string name="app_name">Sound Recorder</string>
-
+    <string name="folder_name">Recording</string>
     <!-- Screen title before and during recording -->
     <string name="record_your_message">Record your message</string>
     <!-- Screen title after recording -->
