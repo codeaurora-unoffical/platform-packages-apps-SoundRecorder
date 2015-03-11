@@ -51,4 +51,5 @@
             "audio/wave_2ch_lpcm".Default is "audio/amr".
     -->
     <string name="def_save_mimetype" translatable="false">audio/amr</string>
+    <bool name= "config_storage_path">false</bool>
 </resources>

@@ -54,7 +54,7 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     public int mChannels = 0;
     public int mSamplingRate = 0;
 
-    public String mStoragePath = SoundRecorder.STORAGE_PATH_LOCAL_PHONE;
+    public String mStoragePath = null;
     public String mTime;
 
     public interface OnStateChangedListener {
@@ -69,6 +69,14 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
 
     MediaRecorder mRecorder = null;
     MediaPlayer mPlayer = null;
+
+    public Recorder(Context context) {
+        if (context.getResources().getBoolean(R.bool.config_storage_path)) {
+            mStoragePath = SoundRecorder.applyCustomStoragePath(context);
+        } else {
+            mStoragePath = SoundRecorder.STORAGE_PATH_LOCAL_PHONE;
+        }
+    }
 
     public Recorder() {
     }
