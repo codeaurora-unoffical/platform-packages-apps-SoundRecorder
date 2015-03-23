@@ -285,7 +285,7 @@ public class SoundRecorder extends Activity
 
     int mAudioSourceType = MediaRecorder.AudioSource.MIC;
     int mPhoneCount = 0;
-    static Hashtable<Long, Integer> mCallStateMap = new Hashtable<Long, Integer>();
+    static Hashtable<Integer, Integer> mCallStateMap = new Hashtable<Integer, Integer>();
     static int mCallState = TelephonyManager.CALL_STATE_IDLE;
     WakeLock mWakeLock;
     String mRequestedType = AUDIO_ANY;
@@ -330,7 +330,7 @@ public class SoundRecorder extends Activity
     private SharedPreferences mSharedPreferences;
     private Editor mPrefsStoragePathEditor;
 
-    private PhoneStateListener getPhoneStateListener(long subId) {
+    private PhoneStateListener getPhoneStateListener(int subId) {
 
         PhoneStateListener phoneStateListener = new PhoneStateListener(subId) {
             @Override
@@ -412,9 +412,11 @@ public class SoundRecorder extends Activity
         mPath = mSharedPreferences.getInt("path", mPath);
         if (!mExitAfterRecord) {
             // Don't reload cached encoding type,if it's assigned by external intent.
-            mRequestedType = mSharedPreferences.getString("requestedType", mRequestedType);
+            mRequestedType = mSharedPreferences.getString("requestedType",
+                    getResources().getString(R.string.def_save_mimetype));
         }
-        mFileType = mSharedPreferences.getInt("fileType", mFileType);
+        mFileType = mSharedPreferences.getInt("fileType",
+                getResources().getInteger(R.integer.def_save_type));
         mStoragePath = mSharedPreferences.getString("storagePath", mStoragePath);
         if (!mWAVSupport && mRequestedType == AUDIO_WAVE_2CH_LPCM) {
             mRequestedType = AUDIO_AMR;
@@ -454,7 +456,7 @@ public class SoundRecorder extends Activity
         mPhoneCount = mTelephonyManager.getPhoneCount();
         mPhoneStateListener = new PhoneStateListener[mPhoneCount];
         for(int j = 0; j < mPhoneCount; j++) {
-            long[] subId = SubscriptionManager.getSubId(j);
+            int[] subId = SubscriptionManager.getSubId(j);
             mPhoneStateListener[j] = getPhoneStateListener(subId[0]);
         }
 
