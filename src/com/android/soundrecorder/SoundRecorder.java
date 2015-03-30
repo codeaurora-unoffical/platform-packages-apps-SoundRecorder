@@ -19,6 +19,7 @@ package com.android.soundrecorder;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Hashtable;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -238,6 +239,8 @@ public class SoundRecorder extends Activity
     int mAudioSourceType = MediaRecorder.AudioSource.MIC;
     int mPhoneCount = 0;
     static int sOldCallState = TelephonyManager.CALL_STATE_IDLE;
+    static Hashtable<Integer, Integer> mCallStateMap = new Hashtable<Integer, Integer>();
+    static int mCallState = TelephonyManager.CALL_STATE_IDLE;
     WakeLock mWakeLock;
     String mRequestedType = AUDIO_ANY;
     Recorder mRecorder;
@@ -274,7 +277,7 @@ public class SoundRecorder extends Activity
     private TelephonyManager mTelephonyManager;
     private PhoneStateListener[] mPhoneStateListener;
 
-    private PhoneStateListener getPhoneStateListener(long subId) {
+    private PhoneStateListener getPhoneStateListener(int subId) {
 
         PhoneStateListener phoneStateListener = new PhoneStateListener(subId) {
             @Override
@@ -357,7 +360,7 @@ public class SoundRecorder extends Activity
         mPhoneCount = mTelephonyManager.getPhoneCount();
         mPhoneStateListener = new PhoneStateListener[mPhoneCount];
         for(int j = 0; j < mPhoneCount; j++) {
-            long[] subId = SubscriptionManager.getSubId(j);
+            int[] subId = SubscriptionManager.getSubId(j);
             mPhoneStateListener[j] = getPhoneStateListener(subId[0]);
         }
 
