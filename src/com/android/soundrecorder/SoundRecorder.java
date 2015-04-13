@@ -713,12 +713,14 @@ public class SoundRecorder extends Activity
                             Toast.LENGTH_SHORT).show();
                     finish();
                 }
+                mSampleInterrupted = false;
                 mRecorder.stop();
                 mRecorderProcessed = true;
                 saveSampleAndExit(mExitAfterRecord);
                 mVUMeter.resetAngle();
                 break;
             case R.id.discardButton:
+                mSampleInterrupted = false;
                 mRecorder.delete();
                 mRecorderProcessed = true;
                 mVUMeter.resetAngle();
