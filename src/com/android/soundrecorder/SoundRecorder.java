@@ -1200,16 +1200,19 @@ public class SoundRecorder extends Activity
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     String action = intent.getAction();
+
+                    if (mRecorder != null) {
+                        mRecorder.stop();
+                    }
+
                     if (action.equals(Intent.ACTION_SHUTDOWN)) {
-                        if (mRecorder != null) {
-                            mRecorder.stop();
-                            mRecorder.delete();
-                        }
+                        mRecorder.delete();
                     }
                 }
             };
             IntentFilter iFilter = new IntentFilter();
             iFilter.addAction(Intent.ACTION_SHUTDOWN);
+            iFilter.addAction(Intent.ACTION_SCREEN_OFF);
             registerReceiver(mPowerOffReceiver, iFilter);
         }
     }
