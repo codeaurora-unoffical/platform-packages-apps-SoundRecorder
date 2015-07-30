@@ -24,12 +24,11 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.media.MediaPlayer.OnCompletionListener;
-import android.media.MediaPlayer.OnErrorListener;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 
-public class Recorder implements OnCompletionListener, OnErrorListener {
+public class Recorder implements OnCompletionListener {
     static final String TAG = "Recorder";
     static final String SAMPLE_PREFIX = "recording";
     static final String SAMPLE_PATH_KEY = "sample_path";
@@ -46,6 +45,7 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     public static final int INTERNAL_ERROR = 2;
     public static final int IN_CALL_RECORD_ERROR = 3;
     public static final int UNSUPPORTED_FORMAT = 4;
+    public static final int RECORD_INTERRUPTED = 5;
 
     public int mChannels = 0;
     public int mSamplingRate = 0;
@@ -55,6 +55,21 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
         public void onError(int error);
     }
     OnStateChangedListener mOnStateChangedListener = null;
+
+    MediaPlayer.OnErrorListener mMPErrorListener = new MediaPlayer.OnErrorListener() {
+        public boolean onError(MediaPlayer mp, int what, int extra) {
+            stop();
+            setError(SDCARD_ACCESS_ERROR);
+            return true;
+        }
+    };
+
+    MediaRecorder.OnErrorListener mMRErrorListener = new MediaRecorder.OnErrorListener() {
+        public void onError(MediaRecorder mr, int what, int extra) {
+            stop();
+            setError(RECORD_INTERRUPTED);
+        }
+    };
     
     long mSampleStart = 0;       // time at which latest record or play operation started
     int mSampleLength = 0;      // length of current sample
@@ -186,6 +201,7 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
         }
 
         mRecorder.setOutputFormat(outputfileformat);
+        mRecorder.setOnErrorListener(mMRErrorListener);
 
         try {
             mRecorder.setAudioEncoder(codectype);
@@ -262,7 +278,7 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
         try {
             mPlayer.setDataSource(mSampleFile.getAbsolutePath());
             mPlayer.setOnCompletionListener(this);
-            mPlayer.setOnErrorListener(this);
+            mPlayer.setOnErrorListener(mMPErrorListener);
             mPlayer.prepare();
             mPlayer.start();
         } catch (IllegalArgumentException e) {
@@ -292,12 +308,6 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     public void stop() {
         stopRecording();
         stopPlayback();
-    }
-
-    public boolean onError(MediaPlayer mp, int what, int extra) {
-        stop();
-        setError(SDCARD_ACCESS_ERROR);
-        return true;
     }
 
     public void onCompletion(MediaPlayer mp) {
