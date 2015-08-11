@@ -1635,6 +1635,9 @@ public class SoundRecorder extends Activity
 
         String message = null;
         switch (error) {
+            case Recorder.RECORD_INTERRUPTED:
+                message = res.getString(R.string.error_record_interrupted);
+                break;
             case Recorder.SDCARD_ACCESS_ERROR:
                 message = res.getString(R.string.error_sdcard_access);
                 break;
