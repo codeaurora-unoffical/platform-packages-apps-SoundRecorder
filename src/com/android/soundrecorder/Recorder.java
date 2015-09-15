@@ -50,6 +50,8 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     public int mChannels = 0;
     public int mSamplingRate = 0;
 
+    public String mStoragePath = SoundRecorder.STORAGE_PATH_LOCAL_PHONE;
+
     public interface OnStateChangedListener {
         public void onStateChanged(int state);
         public void onError(int error);
@@ -159,20 +161,22 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     public void startRecording(int outputfileformat, String extension, 
                    Context context, int audiosourcetype, int codectype) {
         stop();
-        if (mSampleFile != null) {
-            mSampleFile.delete();
-            mSampleFile = null;
-            mSampleLength = 0;
-        }
+        if (mSampleFile == null) {
+            File sampleDir = new File(mStoragePath);
 
-        File sampleDir = Environment.getExternalStorageDirectory();
-        if (!sampleDir.canWrite()) // Workaround for broken sdcard support on the device.
-            sampleDir = new File("/sdcard/sdcard");
-        try {
-            mSampleFile = File.createTempFile(SAMPLE_PREFIX, extension, sampleDir);
-        } catch (IOException e) {
-            setError(SDCARD_ACCESS_ERROR);
-            return;
+            if (!sampleDir.exists()) {
+                sampleDir.mkdirs();
+            }
+
+            if (!sampleDir.canWrite()) // Workaround for broken sdcard support on the device.
+                sampleDir = new File("/storage/sdcard1/SoundRecorder/");
+
+            try {
+                mSampleFile = File.createTempFile(SAMPLE_PREFIX, extension, sampleDir);
+            } catch (IOException e) {
+                setError(SDCARD_ACCESS_ERROR);
+                return;
+            }
         }
 
         mRecorder = new MediaRecorder();
@@ -320,5 +324,9 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     private void setError(int error) {
         if (mOnStateChangedListener != null)
             mOnStateChangedListener.onError(error);
+    }
+
+    public void setStoragePath(String path) {
+        mStoragePath = path;
     }
 }
