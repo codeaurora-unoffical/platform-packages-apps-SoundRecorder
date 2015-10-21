@@ -377,8 +377,10 @@ public class SoundRecorder extends Activity
         }
 
         mPath = mSharedPreferences.getInt("path", mPath);
-        mRequestedType = mSharedPreferences.getString("requestedType", mRequestedType);
-        mFileType = mSharedPreferences.getInt("fileType", mFileType);
+        mRequestedType = mSharedPreferences.getString("requestedType",
+                getResources().getString(R.string.def_save_mimetype));
+        mFileType = mSharedPreferences.getInt("fileType",
+                getResources().getInteger(R.integer.def_save_type));
         mStoragePath = mSharedPreferences.getString("storagePath", mStoragePath);
 
         setContentView(R.layout.main);
@@ -1176,9 +1178,14 @@ public class SoundRecorder extends Activity
                 res.getString(R.string.audio_db_title_format));
         String title = formatter.format(date);
         long sampleLengthMillis = mRecorder.sampleLength() * 1000L;
-        mLastFileName = file.getAbsolutePath().substring(
-                file.getAbsolutePath().lastIndexOf("/") + 1, file.getAbsolutePath().length())
-                .replace("-", "");
+        if (!"".equals(res.getString(R.string.def_save_name_prefix))) {
+            mLastFileName = file.getAbsolutePath().substring(
+                    file.getAbsolutePath().lastIndexOf("/") + 1, file.getAbsolutePath().length());
+        } else {
+            mLastFileName = file.getAbsolutePath().substring(
+                    file.getAbsolutePath().lastIndexOf("/") + 1,
+                    file.getAbsolutePath().length()).replace("-", "");
+        }
 
         // Lets label the recorded audio file as NON-MUSIC so that the file
         // won't be displayed automatically, except for in the playlist.
