@@ -110,7 +110,10 @@ class RemainingTimeCalculator {
     private long mLastFileSize;
 
     public RemainingTimeCalculator(Context context) {
-        mSDCardDirectory = new File(SoundRecorder.getSDPath(context));
+        String sdpath = SoundRecorder.getSDPath(context);
+        if (null != sdpath) {
+            mSDCardDirectory = new File(sdpath);
+        }
         mPhoneCardDirectory = Environment.getExternalStorageDirectory();
     }
     
