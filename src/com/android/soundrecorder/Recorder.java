@@ -18,6 +18,7 @@ package com.android.soundrecorder;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 
 import android.content.Context;
 import android.media.AudioManager;
@@ -27,6 +28,7 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class Recorder implements OnCompletionListener, OnErrorListener {
@@ -172,7 +174,13 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
                 sampleDir = new File("/storage/sdcard1/SoundRecorder/");
 
             try {
-                mSampleFile = File.createTempFile(SAMPLE_PREFIX, extension, sampleDir);
+                if (!"".equals(context.getResources().getString(R.string.def_save_name_prefix))) {
+                    String prefix = context.getResources().
+                            getString(R.string.def_save_name_prefix) + '-';
+                    mSampleFile = createTempFile(context, prefix, extension, sampleDir);
+                } else {
+                    mSampleFile = File.createTempFile(SAMPLE_PREFIX, extension, sampleDir);
+                }
             } catch (IOException e) {
                 setError(SDCARD_ACCESS_ERROR);
                 return;
@@ -328,5 +336,35 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
 
     public void setStoragePath(String path) {
         mStoragePath = path;
+    }
+
+    public File createTempFile(Context context, String prefix, String suffix, File directory)
+            throws IOException {
+        // Force a prefix null check first
+        if (prefix.length() < 3) {
+            throw new IllegalArgumentException("prefix must be at least 3 characters");
+        }
+        if (suffix == null) {
+            suffix = ".tmp";
+        }
+        File tmpDirFile = directory;
+        if (tmpDirFile == null) {
+            String tmpDir = System.getProperty("java.io.tmpdir", ".");
+            tmpDirFile = new File(tmpDir);
+        }
+
+        String nameFormat = context.getResources().getString(R.string.def_save_name_format);
+        SimpleDateFormat df = new SimpleDateFormat(nameFormat);
+        String currentTime = df.format(System.currentTimeMillis());
+        if (!TextUtils.isEmpty(currentTime)) {
+            currentTime = currentTime.replaceAll("[\\\\*|\":<>/?]", "_").replaceAll(" ",
+                    "\\\\" + " ");
+        }
+
+        File result;
+        do {
+            result = new File(tmpDirFile, prefix + currentTime + suffix);
+        } while (!result.createNewFile());
+        return result;
     }
 }
