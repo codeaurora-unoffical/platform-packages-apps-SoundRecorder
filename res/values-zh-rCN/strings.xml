@@ -55,4 +55,7 @@
     <string name="keyboard">键盘</string>
     <string name="file_deleted">文件已经被删除 ！</string>
     <string name="in_call_record_error">通话中录音失败.</string>
+    <string name="recording_now">正在录音 ...</string>
+    <string name="file_saved">文件保存成功</string>
+    <string name="file_discard">放弃录音</string>
 </resources>
