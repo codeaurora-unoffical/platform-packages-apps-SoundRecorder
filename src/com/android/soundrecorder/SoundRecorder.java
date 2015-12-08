@@ -271,11 +271,13 @@ public class SoundRecorder extends Activity
             .toString() + "/SoundRecorder";
 
     static final int BITRATE_AMR = 12800; // bits/sec
+    static final int BITRATE_AAC = 156000;
     static final int BITRATE_EVRC = 8500;
+    static final int BITRATE_LPCM = 4608000;
     static final int BITRATE_QCELP = 13300;
     static final int BITRATE_3GPP = 12800;
     static final int SAMPLERATE_MULTI_CH = 48000;
-    static final int BITRATE_AMR_WB = 16000;
+    static final int BITRATE_AMR_WB = 23850;
     static final int SAMPLERATE_AMR_WB = 16000;
     static final int SAMPLERATE_8000 = 8000;
     static final long STOP_WAIT = 300;
@@ -590,6 +592,7 @@ public class SoundRecorder extends Activity
                     } else if (AUDIO_QCELP.equals(mRequestedType)) {
                         mRemainingTimeCalculator.setBitRate(BITRATE_QCELP);
                         mRecorder.setSamplingRate(SAMPLERATE_8000);
+                        mRecorder.setChannels(1);
                         mRecorder.startRecording(MediaRecorder.OutputFormat.QCP, ".qcp", this,
                                              mAudioSourceType, MediaRecorder.AudioEncoder.QCELP);
                     } else if (AUDIO_3GPP.equals(mRequestedType)) {
@@ -597,14 +600,15 @@ public class SoundRecorder extends Activity
                         mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", this,
                                                    mAudioSourceType, MediaRecorder.AudioEncoder.AMR_NB);
                     } else if (AUDIO_AAC_MP4.equals(mRequestedType)) {
-                        mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
+                        mRemainingTimeCalculator.setBitRate(BITRATE_AAC);
                         mRecorder.setSamplingRate(SAMPLERATE_MULTI_CH);
+                        mRecorder.setChannels(2);
                         mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", this,
                                                       mAudioSourceType, MediaRecorder.AudioEncoder.AAC);
-                    } else if (AUDIO_AAC_5POINT1_CHANNEL.equals(mRequestedType)) {//AAC  6-channel recording
+                    } else if (AUDIO_AAC_5POINT1_CHANNEL.equals(mRequestedType)) {//AAC  2-channel recording
                         if (true == bSSRSupported) {
-                          mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
-                          mRecorder.setChannels(6);
+                          mRemainingTimeCalculator.setBitRate(BITRATE_AAC);
+                          mRecorder.setChannels(2);
                           mRecorder.setSamplingRate(SAMPLERATE_MULTI_CH);
                           mAudioSourceType = MediaRecorder.AudioSource.MIC;
                           mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", this,
@@ -614,7 +618,7 @@ public class SoundRecorder extends Activity
                         }
                     } else if (AUDIO_WAVE_6CH_LPCM.equals(mRequestedType)) {//WAVE LPCM  6-channel recording
                         if (true == bSSRSupported) {
-                          mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
+                          mRemainingTimeCalculator.setBitRate(BITRATE_LPCM);
                           mRecorder.setChannels(6);
                           mRecorder.setSamplingRate(SAMPLERATE_MULTI_CH);
                           mAudioSourceType = MediaRecorder.AudioSource.MIC;
@@ -624,7 +628,7 @@ public class SoundRecorder extends Activity
                         }
                     } else if (AUDIO_WAVE_2CH_LPCM.equals(mRequestedType)) {
                         // WAVE LPCM 2-channel recording
-                        mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
+                        mRemainingTimeCalculator.setBitRate(BITRATE_LPCM);
                         mRecorder.setChannels(2);
                         mRecorder.setSamplingRate(SAMPLERATE_MULTI_CH);
                         mAudioSourceType = MediaRecorder.AudioSource.MIC;
