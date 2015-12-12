@@ -92,4 +92,10 @@
     <string name="keyboard">Keyboard</string>
     <string name="file_deleted">File has been deleted!</string>
     <string name="in_call_record_error">In call record error.</string>
+    <!-- Label shown during recording -->
+    <string name="recording_now">Recording now ...</string>
+    <!-- shown as the message in a dialog when the recording file is saved successfully -->
+    <string name="file_saved">File has been saved</string>
+    <!-- shown as the message in a dialog when the recording file is discarded -->
+    <string name="file_discard">File has been discarded</string>
 </resources>
