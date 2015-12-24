@@ -745,7 +745,9 @@ public class SoundRecorder extends Activity
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
                                         dialog.dismiss();
-                                        finish();
+                                        if (mExitAfterRecord) {
+                                            finish();
+                                        }
                                     }
                                 }
                         )
