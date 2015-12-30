@@ -393,6 +393,7 @@ public class SoundRecorder extends Activity
         mSharedPreferences = getSharedPreferences("storage_Path", Context.MODE_PRIVATE);
         mPrefsStoragePathEditor = mSharedPreferences.edit();
 
+        int maxDuration = 0;
         Intent i = getIntent();
         if (i != null) {
             String s = i.getType();
@@ -412,6 +413,7 @@ public class SoundRecorder extends Activity
             mMaxFileSize = i.getLongExtra(EXTRA_MAX_BYTES, -1);
 
             mExitAfterRecord = i.getBooleanExtra(EXIT_AFTER_RECORD, false);
+            maxDuration = i.getIntExtra(MediaStore.Audio.Media.DURATION, 0);
         }
 
         if (AUDIO_ANY.equals(mRequestedType) || ANY_ANY.equals(mRequestedType)) {
@@ -436,6 +438,7 @@ public class SoundRecorder extends Activity
         mAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
         mRecorder = new Recorder(this);
         mRecorder.setOnStateChangedListener(this);
+        mRecorder.setMaxDuration(maxDuration);
 
         PowerManager pm
             = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -1706,5 +1709,16 @@ public class SoundRecorder extends Activity
             return Environment.MEDIA_UNMOUNTED;
         }
 
+    }
+
+    public void onInfo(int what, int extra) {
+        if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
+            mRecorder.stop();
+            if (mRecorder.sampleLength() > 0) {
+                mRecorderStop = true;
+            }
+            mVUMeter.resetAngle();
+            invalidateOptionsMenu();
+        }
     }
 }
