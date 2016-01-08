@@ -655,7 +655,7 @@ public class SoundRecorder extends Activity
                         mRemainingTimeCalculator.setBitRate(BITRATE_AAC);
                         mRecorder.setSamplingRate(SAMPLERATE_MULTI_CH);
                         mRecorder.setChannels(2);
-                        mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", this,
+                        mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".aac", this,
                                                       mAudioSourceType, MediaRecorder.AudioEncoder.AAC);
                     } else if (AUDIO_AAC_5POINT1_CHANNEL.equals(mRequestedType)) {//AAC  2-channel recording
                         if (true == bSSRSupported) {
@@ -817,6 +817,13 @@ public class SoundRecorder extends Activity
                             case R.string.format_setting_wav_item:
                                 mRequestedType = AUDIO_WAVE_2CH_LPCM;
                                 mFileType = 2;
+                                mPrefsStoragePathEditor.putString("requestedType", mRequestedType);
+                                mPrefsStoragePathEditor.putInt("fileType", mFileType);
+                                mPrefsStoragePathEditor.commit();
+                                break;
+                            case R.string.format_setting_aac_item:
+                                mRequestedType = AUDIO_AAC_MP4;
+                                mFileType = 3;
                                 mPrefsStoragePathEditor.putString("requestedType", mRequestedType);
                                 mPrefsStoragePathEditor.putInt("fileType", mFileType);
                                 mPrefsStoragePathEditor.commit();
