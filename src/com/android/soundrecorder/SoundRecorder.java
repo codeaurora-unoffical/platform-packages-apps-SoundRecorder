@@ -246,6 +246,7 @@ public class SoundRecorder extends Activity
     static final String MAX_FILE_SIZE_KEY = "max_file_size";
     private final String DIALOG_STATE_KEY = "dialog_state";
     private static final String EXIT_AFTER_RECORD = "exit_after_record";
+    private static final int VOLUME_SDCARD_INDEX = 1;
 
     // State of file saved dialog. -1:not show, 0:show, 1:show and exit.
     static final int NOT_SHOW_DIALOG = -1;
@@ -292,6 +293,7 @@ public class SoundRecorder extends Activity
     private boolean mDataExist = false;
     private boolean mWAVSupport = true;
     private boolean mExitAfterRecord = false;
+    private boolean mSdExist = true;
 
     int mAudioSourceType = MediaRecorder.AudioSource.MIC;
     int mPhoneCount = 0;
@@ -827,13 +829,24 @@ public class SoundRecorder extends Activity
                                 mPrefsStoragePathEditor.putString("storagePath", mStoragePath);
                                 mPrefsStoragePathEditor.putInt("path", mPath);
                                 mPrefsStoragePathEditor.commit();
+                                if (mPath == 1 && !getSDState(SoundRecorder.this)
+                                        .equals(Environment.MEDIA_MOUNTED)) {
+                                    mSdExist = false;
+                                    mSampleInterrupted = true;
+                                    mErrorUiMessage = getResources()
+                                            .getString(R.string.insert_sd_card);
+                                    updateUi();
+                                }
                                 break;
                             case R.string.storage_setting_local_item:
+                                mSdExist = true;
                                 mStoragePath = STORAGE_PATH_LOCAL_PHONE;
                                 mPath = 0;
                                 mPrefsStoragePathEditor.putString("storagePath", mStoragePath);
                                 mPrefsStoragePathEditor.putInt("path", mPath);
                                 mPrefsStoragePathEditor.commit();
+                                mSampleInterrupted = false;
+                                updateUi();
                                 break;
 
                             default: {
@@ -1613,6 +1626,14 @@ public class SoundRecorder extends Activity
                 break;
         }
 
+        // If the SD card does not exist and mPath is SD card, disable the record button.
+        if (mPath == 1 && !mSdExist) {
+            mStateMessage2.setText("");
+            mRecordButton.setEnabled(false);
+            mRecordButton.setFocusable(false);
+        } else {
+            mStateMessage1.setText("");
+        }
         updateTimerView();
         mVUMeter.invalidate();
     }
@@ -1683,14 +1704,18 @@ public class SoundRecorder extends Activity
 
     static String getSDPath(Context context) {
         String sd = null;
-        StorageManager mStorageManager = (StorageManager) context
-                .getSystemService(Context.STORAGE_SERVICE);
-        StorageVolume[] volumes = mStorageManager.getVolumeList();
-        for (int i = 0; i < volumes.length; i++) {
-            if (volumes[i].isRemovable() && volumes[i].allowMassStorage()
-                    && volumes[i].getDescription(context).contains("SD")) {
-                sd = volumes[i].getPath();
+        try {
+            StorageManager mStorageManager =
+                    (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
+            final StorageVolume[] volumes = mStorageManager.getVolumeList();
+            if (volumes.length > VOLUME_SDCARD_INDEX) {
+                StorageVolume volume = volumes[VOLUME_SDCARD_INDEX];
+                if (volume.isRemovable()) {
+                    sd = volume.getPath();
+                }
             }
+        } catch (Exception e) {
+            Log.e(TAG, "couldn't talk to MountService", e);
         }
         return sd;
     }
