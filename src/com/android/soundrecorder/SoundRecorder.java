@@ -819,15 +819,15 @@ public class SoundRecorder extends Activity
                                 if ((mMaxFileSize != -1) && (mMaxFileSize > 40 * 1024))
                                     mMaxFileSize = mMaxFileSize - 40 * 1024;
                                 break;
-                            case R.string.format_setting_wav_item:
-                                mRequestedType = AUDIO_WAVE_2CH_LPCM;
+                            case R.string.format_setting_aac_item:
+                                mRequestedType = AUDIO_AAC_MP4;
                                 mFileType = 2;
                                 mPrefsStoragePathEditor.putString("requestedType", mRequestedType);
                                 mPrefsStoragePathEditor.putInt("fileType", mFileType);
                                 mPrefsStoragePathEditor.commit();
                                 break;
-                            case R.string.format_setting_aac_item:
-                                mRequestedType = AUDIO_AAC_MP4;
+                            case R.string.format_setting_wav_item:
+                                mRequestedType = AUDIO_WAVE_2CH_LPCM;
                                 mFileType = 3;
                                 mPrefsStoragePathEditor.putString("requestedType", mRequestedType);
                                 mPrefsStoragePathEditor.putInt("fileType", mFileType);
