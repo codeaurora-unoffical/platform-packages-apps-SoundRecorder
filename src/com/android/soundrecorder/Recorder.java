@@ -30,7 +30,7 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
-public class Recorder implements OnCompletionListener {
+public class Recorder implements OnCompletionListener, MediaRecorder.OnInfoListener {
     static final String TAG = "Recorder";
     static final String SAMPLE_PREFIX = "recording";
     static final String SAMPLE_PATH_KEY = "sample_path";
@@ -56,9 +56,12 @@ public class Recorder implements OnCompletionListener {
     public String mStoragePath = null;
     public String mTime;
 
+    private int mMaxDuration;
+
     public interface OnStateChangedListener {
         public void onStateChanged(int state);
         public void onError(int error);
+        public void onInfo(int what, int extra);
     }
     OnStateChangedListener mOnStateChangedListener = null;
 
@@ -233,6 +236,9 @@ public class Recorder implements OnCompletionListener {
 
         mRecorder.setOutputFormat(outputfileformat);
         mRecorder.setOnErrorListener(mMRErrorListener);
+
+        mRecorder.setMaxDuration(mMaxDuration);
+        mRecorder.setOnInfoListener(this);
 
         try {
             mRecorder.setAudioEncoder(codectype);
@@ -425,5 +431,16 @@ public class Recorder implements OnCompletionListener {
             result = new File(tmpDirFile, prefix + currentTime + suffix);
         } while (!result.createNewFile());
         return result;
+    }
+
+    public void setMaxDuration(int duration) {
+        mMaxDuration = duration;
+    }
+
+    @Override
+    public void onInfo(MediaRecorder mr, int what, int extra) {
+        if (mOnStateChangedListener != null) {
+            mOnStateChangedListener.onInfo(what, extra);
+        }
     }
 }
