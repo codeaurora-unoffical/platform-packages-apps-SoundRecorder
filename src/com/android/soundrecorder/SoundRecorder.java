@@ -18,8 +18,12 @@ package com.android.soundrecorder;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
@@ -29,6 +33,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.IntentFilter;
 import android.content.BroadcastReceiver;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -36,6 +43,7 @@ import android.media.AudioManager;
 import android.media.MediaRecorder;
 import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -144,6 +152,9 @@ class RemainingTimeCalculator {
            we won't run out of disk. */
         
         // at mBlocksChangedTime we had this much time
+        if (mBytesPerSecond == 0) {
+           mBytesPerSecond = 1;
+        }
         long result = mLastBlocks*blockSize/mBytesPerSecond;
         // so now we have this much time
         result -= (now - mBlocksChangedTime)/1000;
@@ -473,14 +484,66 @@ public class SoundRecorder extends Activity
         }
     };
 
+    private boolean checkOperationPermission(String[] permissionName, int operationHandle) {
+        boolean isPermissionGranted = true;
+        List needRequestPermission = new ArrayList<String>();
+        for (String tmp : permissionName) {
+            isPermissionGranted = (PackageManager.PERMISSION_GRANTED == checkSelfPermission(tmp));
+            if (!isPermissionGranted) {
+                needRequestPermission.add(tmp);
+            }
+        }
+        if (isPermissionGranted) {
+            return true;
+        } else {
+            String[] needRequestPermissionArray = new String[needRequestPermission.size()];
+            needRequestPermission.toArray(needRequestPermissionArray);
+            requestPermissions(needRequestPermissionArray, operationHandle);
+            return false;
+        }
+    }
+
+    private String[] getOperationPermissionName(int operation) {
+        switch (operation) {
+        case R.id.recordButton:
+            return new String[]{Manifest.permission.READ_PHONE_STATE,
+                                Manifest.permission.RECORD_AUDIO};
+        case R.id.acceptButton:
+            return new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                Manifest.permission.READ_EXTERNAL_STORAGE,};
+        default:
+            return null;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                int[] grantResults) {
+        for (int i : grantResults) {
+            if (i != PackageManager.PERMISSION_GRANTED)
+               return;
+        }
+        processClickEvent(requestCode);
+    }
+
     /*
      * Handle the buttons.
      */
     public void onClick(View button) {
         if (!button.isEnabled())
             return;
+        if (Build.VERSION.SDK_INT >= 23) {
+            String[] operationPermissionNames = getOperationPermissionName(button.getId());
+            if (operationPermissionNames == null ||
+                checkOperationPermission(operationPermissionNames, button.getId()))
+                processClickEvent(button.getId());
+        } else {
+            processClickEvent(button.getId());
+        }
+    }
 
-        switch (button.getId()) {
+    private void processClickEvent(int viewId) {
+        switch (viewId) {
             case R.id.recordButton:
                 mRemainingTimeCalculator.reset();
                 if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
@@ -552,7 +615,7 @@ public class SoundRecorder extends Activity
                     } else {
                         throw new IllegalArgumentException("Invalid output file type requested");
                     }
-                    
+
                     if (mMaxFileSize != -1) {
                         mRemainingTimeCalculator.setFileSizeLimit(
                                 mRecorder.sampleFile(), mMaxFileSize);
