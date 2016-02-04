@@ -717,7 +717,7 @@ public class SoundRecorder extends Activity
                     mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", this,
                               mAudioSourceType, MediaRecorder.AudioEncoder.AMR_NB);
                 } else if (AUDIO_AAC_MP4.equals(mRequestedType)) {
-                    mRemainingTimeCalculator.setBitRate(BITRATE_AAC);
+                    setBitRate(BITRATE_AAC);
                     mRecorder.setSamplingRate(SAMPLERATE_MULTI_CH);
                     mRecorder.setChannels(2);
                     mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".aac", this,
@@ -824,6 +824,11 @@ public class SoundRecorder extends Activity
                     .show();
             break;
         }
+    }
+
+    private void setBitRate(int bitRate) {
+        mRemainingTimeCalculator.setBitRate(bitRate);
+        mRecorder.setAudioEncodingBitRate(bitRate);
     }
 
     private void openOptionDialog(int optionType) {
