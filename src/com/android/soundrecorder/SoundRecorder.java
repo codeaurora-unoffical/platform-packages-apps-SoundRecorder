@@ -1252,7 +1252,8 @@ public class SoundRecorder extends Activity
         // reset mRecorder and restore UI.
         mRecorder.clear();
         updateUi();
-        setResult(RESULT_OK, new Intent().setData(uri));
+        setResult(RESULT_OK, new Intent().setData(uri)
+                .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION));
 
         showDialogAndExit(exit);
         return true;
