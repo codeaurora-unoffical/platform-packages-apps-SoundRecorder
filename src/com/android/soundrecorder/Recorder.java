@@ -52,6 +52,7 @@ public class Recorder implements OnCompletionListener, MediaRecorder.OnInfoListe
 
     public int mChannels = 0;
     public int mSamplingRate = 0;
+    private int mBitRate = 0;
 
     public String mStoragePath = null;
     public String mTime;
@@ -143,6 +144,10 @@ public class Recorder implements OnCompletionListener, MediaRecorder.OnInfoListe
         mSamplingRate = samplingRate;
     }
 
+    public void setAudioEncodingBitRate(int bitRate) {
+        mBitRate = bitRate;
+    }
+
     public int state() {
         return mState;
     }
@@ -232,6 +237,9 @@ public class Recorder implements OnCompletionListener, MediaRecorder.OnInfoListe
         }
         if (mSamplingRate > 0) {
             mRecorder.setAudioSamplingRate(mSamplingRate);
+        }
+        if (mBitRate > 0) {
+            mRecorder.setAudioEncodingBitRate(mBitRate);
         }
 
         mRecorder.setOutputFormat(outputfileformat);
