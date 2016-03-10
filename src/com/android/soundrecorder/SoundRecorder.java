@@ -634,6 +634,9 @@ public class SoundRecorder extends Activity
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                 int[] grantResults) {
+        if (permissions == null || grantResults == null) {
+            return;
+        }
         for (int i : grantResults) {
             if (i != PackageManager.PERMISSION_GRANTED)
                return;
