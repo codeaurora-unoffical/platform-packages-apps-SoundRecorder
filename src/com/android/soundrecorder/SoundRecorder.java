@@ -624,7 +624,8 @@ public class SoundRecorder extends Activity
             return new String[]{Manifest.permission.READ_PHONE_STATE,
                                 Manifest.permission.RECORD_AUDIO};
         case R.id.acceptButton:
-            return new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            return new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                Manifest.permission.READ_EXTERNAL_STORAGE};
         default:
             return null;
         }
@@ -633,6 +634,9 @@ public class SoundRecorder extends Activity
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                 int[] grantResults) {
+        if (permissions == null || grantResults == null) {
+            return;
+        }
         for (int i : grantResults) {
             if (i != PackageManager.PERMISSION_GRANTED)
                return;
