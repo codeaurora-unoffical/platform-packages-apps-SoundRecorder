@@ -917,8 +917,10 @@ public class SoundRecorder extends Activity
                                     mSampleInterrupted = true;
                                     mErrorUiMessage = getResources()
                                             .getString(R.string.insert_sd_card);
-                                    updateUi();
+                                } else {
+                                    mErrorUiMessage = null;
                                 }
+                                updateUi();
                                 break;
                             case R.string.storage_setting_local_item:
                                 mSdExist = true;
@@ -928,6 +930,7 @@ public class SoundRecorder extends Activity
                                 mPrefsStoragePathEditor.putInt("path", mPath);
                                 mPrefsStoragePathEditor.commit();
                                 mSampleInterrupted = false;
+                                mErrorUiMessage = null;
                                 updateUi();
                                 break;
 
@@ -1714,7 +1717,8 @@ public class SoundRecorder extends Activity
             mStateMessage2.setText("");
             mRecordButton.setEnabled(false);
             mRecordButton.setFocusable(false);
-        } else {
+        }
+        if (mErrorUiMessage == null) {
             mStateMessage1.setText("");
         }
         updateTimerView();
