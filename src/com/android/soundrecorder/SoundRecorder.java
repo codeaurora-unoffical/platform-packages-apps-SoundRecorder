@@ -624,7 +624,8 @@ public class SoundRecorder extends Activity
             return new String[]{Manifest.permission.READ_PHONE_STATE,
                                 Manifest.permission.RECORD_AUDIO};
         case R.id.acceptButton:
-            return new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            return new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                Manifest.permission.READ_EXTERNAL_STORAGE};
         default:
             return null;
         }
@@ -633,6 +634,9 @@ public class SoundRecorder extends Activity
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                 int[] grantResults) {
+        if (permissions == null || grantResults == null) {
+            return;
+        }
         for (int i : grantResults) {
             if (i != PackageManager.PERMISSION_GRANTED)
                return;
@@ -913,8 +917,10 @@ public class SoundRecorder extends Activity
                                     mSampleInterrupted = true;
                                     mErrorUiMessage = getResources()
                                             .getString(R.string.insert_sd_card);
-                                    updateUi();
+                                } else {
+                                    mErrorUiMessage = null;
                                 }
+                                updateUi();
                                 break;
                             case R.string.storage_setting_local_item:
                                 mSdExist = true;
@@ -924,6 +930,7 @@ public class SoundRecorder extends Activity
                                 mPrefsStoragePathEditor.putInt("path", mPath);
                                 mPrefsStoragePathEditor.commit();
                                 mSampleInterrupted = false;
+                                mErrorUiMessage = null;
                                 updateUi();
                                 break;
 
@@ -1251,7 +1258,8 @@ public class SoundRecorder extends Activity
         // reset mRecorder and restore UI.
         mRecorder.clear();
         updateUi();
-        setResult(RESULT_OK, new Intent().setData(uri));
+        setResult(RESULT_OK, new Intent().setData(uri)
+                .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION));
 
         showDialogAndExit(exit);
         return true;
@@ -1709,7 +1717,8 @@ public class SoundRecorder extends Activity
             mStateMessage2.setText("");
             mRecordButton.setEnabled(false);
             mRecordButton.setFocusable(false);
-        } else {
+        }
+        if (mErrorUiMessage == null) {
             mStateMessage1.setText("");
         }
         updateTimerView();
