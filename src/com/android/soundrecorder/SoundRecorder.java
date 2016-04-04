@@ -350,6 +350,8 @@ public class SoundRecorder extends Activity
     private SharedPreferences mSharedPreferences;
     private Editor mPrefsStoragePathEditor;
 
+    private IntentFilter mMountFilter = new IntentFilter();
+
     private PhoneStateListener getPhoneStateListener(int subId) {
         PhoneStateListener phoneStateListener = new PhoneStateListener(subId) {
             @Override
@@ -386,6 +388,26 @@ public class SoundRecorder extends Activity
         };
         return phoneStateListener;
     }
+
+    private BroadcastReceiver mMountReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (mPath == 0 &&
+                    Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+                mErrorUiMessage = null;
+                updateUi();
+            } else if (mPath == 1 &&
+                    getSDState(SoundRecorder.this).equals(Environment.MEDIA_MOUNTED)) {
+                mErrorUiMessage = null;
+                mSdExist = true;
+                updateUi();
+            } else if (!mRemainingTimeCalculator.diskSpaceAvailable()) {
+                mSampleInterrupted = true;
+                mErrorUiMessage = getResources().getString(R.string.storage_is_full);
+                updateUi();
+            }
+        }
+    };
 
     public static String applyCustomStoragePath(Context context) {
         return Environment.getExternalStorageDirectory()
@@ -491,6 +513,10 @@ public class SoundRecorder extends Activity
             bSSRSupported = false;
         }
 
+        mMountFilter.addAction(Intent.ACTION_MEDIA_MOUNTED);
+        mMountFilter.addAction(Intent.ACTION_MEDIA_UNMOUNTED);
+        mMountFilter.addDataScheme("file");
+        registerReceiver(mMountReceiver, mMountFilter);
         updateUi();
     }
 
@@ -634,9 +660,11 @@ public class SoundRecorder extends Activity
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                 int[] grantResults) {
-        if (permissions == null || grantResults == null) {
+        if (permissions == null || grantResults == null ||
+            permissions.length == 0 || grantResults.length == 0) {
             return;
         }
+
         for (int i : grantResults) {
             if (i != PackageManager.PERMISSION_GRANTED)
                return;
@@ -1295,6 +1323,7 @@ public class SoundRecorder extends Activity
             unregisterReceiver(mPowerOffReceiver);
             mPowerOffReceiver = null;
         }
+        unregisterReceiver(mMountReceiver);
         super.onDestroy();
     }
 
