@@ -55,7 +55,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/recording"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="5px"
+                android:layout_marginStart="5px"
                 style="@android:style/TextAppearance.Medium"/>
 
         </LinearLayout>
@@ -74,8 +74,8 @@
             android:layout_above="@+id/timerView"
             android:max="100"
             android:progress="0"
-            android:layout_marginLeft="20dip"
-            android:layout_marginRight="20dip"
+            android:layout_marginStart="20dip"
+            android:layout_marginEnd="20dip"
             style="?android:attr/progressBarStyleHorizontal" />
 
     </RelativeLayout>
@@ -104,16 +104,16 @@
                     android:layout_height="wrap_content"
                     android:text="@string/discard"
                     android:layout_weight="1"
-                    android:layout_marginLeft="2dip"
-                    android:layout_marginRight="15dip" />
+                    android:layout_marginStart="2dip"
+                    android:layout_marginEnd="15dip" />
 
                 <Button android:id="@+id/acceptButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/accept"
                     android:layout_weight="1"
-                    android:layout_marginLeft="15dip"
-                    android:layout_marginRight="2dip" />
+                    android:layout_marginStart="15dip"
+                    android:layout_marginEnd="2dip" />
             </LinearLayout>
 
         <RelativeLayout
@@ -121,8 +121,8 @@
             android:layout_height="match_parent">
 
             <com.android.soundrecorder.VUMeter android:id="@+id/uvMeter"
-                android:layout_width="200px"
-                android:layout_height="80px"
+                android:layout_width="134dip"
+                android:layout_height="54dip"
                 android:layout_centerInParent="true" />
         </RelativeLayout>
 
@@ -147,7 +147,8 @@
             android:layout_marginBottom="4dip"
             android:orientation="horizontal"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent" >
+            android:layout_height="match_parent"
+            android:layoutDirection="ltr">
 
             <ImageButton android:id="@+id/recordButton"
                 android:layout_height="match_parent"
