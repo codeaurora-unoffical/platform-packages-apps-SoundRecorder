@@ -735,14 +735,14 @@ public class SoundRecorder extends Activity
                     mRemainingTimeCalculator.setBitRate(BITRATE_EVRC);
                     mRecorder.setChannels(1);
                     mRecorder.setSamplingRate(SAMPLERATE_8000);
-//                    mRecorder.startRecording(MediaRecorder.OutputFormat.QCP, ".qcp", this,
-//                                          mAudioSourceType, MediaRecorder.AudioEncoder.EVRC);
+                    mRecorder.startRecording(MediaRecorder.OutputFormat.QCP, ".qcp", this,
+                                          mAudioSourceType, MediaRecorder.AudioEncoder.EVRC);
                 } else if (AUDIO_QCELP.equals(mRequestedType)) {
                     mRemainingTimeCalculator.setBitRate(BITRATE_QCELP);
                     mRecorder.setSamplingRate(SAMPLERATE_8000);
                     mRecorder.setChannels(1);
-//                    mRecorder.startRecording(MediaRecorder.OutputFormat.QCP, ".qcp", this,
-//                                         mAudioSourceType, MediaRecorder.AudioEncoder.QCELP);
+                    mRecorder.startRecording(MediaRecorder.OutputFormat.QCP, ".qcp", this,
+                                         mAudioSourceType, MediaRecorder.AudioEncoder.QCELP);
                 } else if (AUDIO_3GPP.equals(mRequestedType)) {
                     mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
                     mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", this,
@@ -772,8 +772,8 @@ public class SoundRecorder extends Activity
                       mRecorder.setChannels(6);
                       mRecorder.setSamplingRate(SAMPLERATE_MULTI_CH);
                       mAudioSourceType = MediaRecorder.AudioSource.MIC;
-//                      mRecorder.startRecording(MediaRecorder.OutputFormat.WAVE, ".wav", this,
-//                                mAudioSourceType, MediaRecorder.AudioEncoder.LPCM);
+                      mRecorder.startRecording(MediaRecorder.OutputFormat.WAVE, ".wav", this,
+                                mAudioSourceType, MediaRecorder.AudioEncoder.LPCM);
                     } else {
                       throw new IllegalArgumentException("Invalid output file type requested");
                     }
@@ -782,8 +782,8 @@ public class SoundRecorder extends Activity
                     mRemainingTimeCalculator.setBitRate(BITRATE_LPCM);
                     mRecorder.setChannels(2);
                     mRecorder.setSamplingRate(SAMPLERATE_MULTI_CH);
-//                    mRecorder.startRecording(MediaRecorder.OutputFormat.WAVE,
-//                            ".wav", this, mAudioSourceType, MediaRecorder.AudioEncoder.LPCM);
+                    mRecorder.startRecording(MediaRecorder.OutputFormat.WAVE,
+                            ".wav", this, mAudioSourceType, MediaRecorder.AudioEncoder.LPCM);
                 } else if (AUDIO_AMR_WB.equals(mRequestedType)) {
                     mRemainingTimeCalculator.setBitRate(BITRATE_AMR_WB);
                     mRecorder.setSamplingRate(BITRATE_AMR_WB);
