@@ -401,7 +401,8 @@ public class SoundRecorder extends Activity
                 mErrorUiMessage = null;
                 mSdExist = true;
                 updateUi();
-            } else if (!mRemainingTimeCalculator.diskSpaceAvailable()) {
+            } else if (!getSDState(SoundRecorder.this).equals(Environment.MEDIA_UNMOUNTED) &&
+                    !mRemainingTimeCalculator.diskSpaceAvailable()) {
                 mSampleInterrupted = true;
                 mErrorUiMessage = getResources().getString(R.string.storage_is_full);
                 updateUi();
