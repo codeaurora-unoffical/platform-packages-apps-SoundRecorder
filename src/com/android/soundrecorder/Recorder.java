@@ -26,6 +26,7 @@ import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
+import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -317,7 +318,11 @@ public class Recorder implements OnCompletionListener, MediaRecorder.OnInfoListe
             return;
         }
         try {
-            mRecorder.start();
+            if(Build.VERSION.SDK_INT >= 23){
+                mRecorder.resume();
+            }else{
+                mRecorder.start();
+            }
         } catch (RuntimeException exception) {
             setError(INTERNAL_ERROR);
             Log.e(TAG, "Resume Failed");
@@ -330,6 +335,10 @@ public class Recorder implements OnCompletionListener, MediaRecorder.OnInfoListe
         if (mRecorder == null)
             return;
         try {
+            if ((PAUSE_STATE == mState) && (Build.VERSION.SDK_INT >= 23)){
+                resumeRecording();
+                setState(RECORDING_STATE);
+            }
             mRecorder.stop();
         }catch (RuntimeException exception){
             setError(INTERNAL_ERROR);
