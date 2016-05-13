@@ -68,7 +68,6 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -281,6 +280,9 @@ public class SoundRecorder extends Activity
     static final String STORAGE_PATH_LOCAL_PHONE = Environment.getExternalStorageDirectory()
             .toString() + "/SoundRecorder";
 
+    static final int SECOND_PER_MINUTES = 60;
+    static final int SECOND_PER_HOUR = 60 * SECOND_PER_MINUTES;
+
     static final int BITRATE_AMR = 12800; // bits/sec
     static final int BITRATE_AAC = 156000;
     static final int BITRATE_EVRC = 8500;
@@ -323,14 +325,16 @@ public class SoundRecorder extends Activity
     String mTimerFormat;
     final Handler mHandler = new Handler();
     Runnable mUpdateTimer = new Runnable() {
-        public void run() { updateTimerView(); }
+        public void run() {
+            updateTimerView();
+        }
     };
 
     ImageButton mRecordButton;
     ImageButton mPlayButton;
     ImageButton mStopButton;
+    ImageButton mListButton;
 
-    ImageView mStateLED;
     TextView mStateMessage1;
     TextView mStateMessage2;
     ProgressBar mStateProgressBar;
@@ -567,8 +571,9 @@ public class SoundRecorder extends Activity
         mRecordButton = (ImageButton) findViewById(R.id.recordButton);
         mPlayButton = (ImageButton) findViewById(R.id.playButton);
         mStopButton = (ImageButton) findViewById(R.id.stopButton);
+        mListButton = (ImageButton) findViewById(R.id.listButton);
+        mListButton.setEnabled(false);
 
-        mStateLED = (ImageView) findViewById(R.id.stateLED);
         mStateMessage1 = (TextView) findViewById(R.id.stateMessage1);
         mStateMessage2 = (TextView) findViewById(R.id.stateMessage2);
         mStateProgressBar = (ProgressBar) findViewById(R.id.stateProgressBar);
@@ -865,7 +870,7 @@ public class SoundRecorder extends Activity
 
     private void openOptionDialog(int optionType) {
         final Context dialogContext = new ContextThemeWrapper(this,
-                android.R.style.Theme_Holo_Dialog);
+                android.R.style.Theme_DeviceDefault_Light_Dialog_Alert);
         final Resources res = dialogContext.getResources();
         final LayoutInflater dialogInflater = (LayoutInflater) dialogContext
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -1545,7 +1550,17 @@ public class SoundRecorder extends Activity
         boolean ongoing = state == Recorder.RECORDING_STATE || state == Recorder.PLAYING_STATE;
 
         long time = ongoing ? mRecorder.progress() : mRecorder.sampleLength();
-        String timeStr = String.format(mTimerFormat, time/60, time%60);
+        String timeStr;
+        long hour = time / SECOND_PER_HOUR;
+        long minutes = time / SECOND_PER_MINUTES - hour * SECOND_PER_MINUTES;
+        long second = time % SECOND_PER_MINUTES;
+        if (hour > 0) {
+            mTimerFormat = getResources().getString(R.string.timer_format_hour);
+            timeStr = String.format(mTimerFormat, hour, minutes, second);
+        } else {
+            mTimerFormat = getResources().getString(R.string.timer_format);
+            timeStr = String.format(mTimerFormat, minutes, second);
+        }
         mTimerView.setText(timeStr);
 
         if (state == Recorder.PLAYING_STATE) {
@@ -1618,9 +1633,6 @@ public class SoundRecorder extends Activity
                     mStopButton.setFocusable(false);
 
                     mStateMessage1.setVisibility(View.INVISIBLE);
-                    // No idle led res available, so just inactive mStateLED.
-                    mStateLED.setVisibility(View.INVISIBLE);
-                    //mStateLED.setImageResource(R.drawable.idle_led);
                     mStateMessage2.setVisibility(View.VISIBLE);
                     if (true == bSSRSupported) {
                         mStateMessage2.setText(res.getString(R.string.press_record_ssr));
@@ -1647,9 +1659,6 @@ public class SoundRecorder extends Activity
                     mStopButton.setFocusable(false);
 
                     mStateMessage1.setVisibility(View.INVISIBLE);
-                    // No idle led res available, so just inactive mStateLED.
-                    mStateLED.setVisibility(View.INVISIBLE);
-                    //mStateLED.setImageResource(R.drawable.idle_led);
                     mStateMessage2.setVisibility(View.VISIBLE);
                     mStateMessage2.setText(res.getString(R.string.recording_stopped));
 
@@ -1683,8 +1692,6 @@ public class SoundRecorder extends Activity
                 mStopButton.setFocusable(true);
 
                 mStateMessage1.setVisibility(View.VISIBLE);
-                mStateLED.setVisibility(View.VISIBLE);
-                mStateLED.setImageResource(R.drawable.recording_led);
                 mStateMessage2.setVisibility(View.VISIBLE);
                 mStateMessage2.setText(res.getString(R.string.recording));
 
@@ -1706,7 +1713,6 @@ public class SoundRecorder extends Activity
                 mStopButton.setFocusable(true);
 
                 mStateMessage1.setVisibility(View.INVISIBLE);
-                mStateLED.setVisibility(View.INVISIBLE);
                 mStateMessage2.setVisibility(View.INVISIBLE);
 
                 mExitButtons.setVisibility(View.VISIBLE);
@@ -1726,8 +1732,6 @@ public class SoundRecorder extends Activity
                 mStopButton.setFocusable(true);
 
                 mStateMessage1.setVisibility(View.VISIBLE);
-                mStateLED.setVisibility(View.VISIBLE);
-                mStateLED.setImageResource(R.drawable.recording_led);
                 mStateMessage2.setVisibility(View.VISIBLE);
                 mStateMessage2.setText(res.getString(R.string.recording_paused));
 

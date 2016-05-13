@@ -14,10 +14,28 @@
      limitations under the License.
 -->
 <resources>
-    <style name="Theme.SoundRecorder" parent="@android:style/Theme.Holo">
+    <style name="Theme.SoundRecorder" parent="@android:style/Theme.DeviceDefault.Light.NoActionBar">
         <item name="android:windowCloseOnTouchOutside">true</item>
+        <item name="android:colorPrimaryDark">@color/color_primary_dark</item>
+        <item name="android:colorAccent">@color/color_accent</item>
     </style>
-    <style name="MediaButton" parent="@android:style/MediaButton">
-        <item name="android:background">@android:drawable/btn_default</item>
+    <style name="MediaButton">
+        <item name="android:layout_width">@dimen/media_button_size</item>
+        <item name="android:layout_height">@dimen/media_button_size</item>
+        <item name="android:background">@drawable/media_button_background</item>
+    </style>
+    <style name="MediaButtonSmall" parent="MediaButton">
+        <item name="android:layout_width">@dimen/media_button_size_small</item>
+        <item name="android:layout_height">@dimen/media_button_size_small</item>
+    </style>
+    <style name="TimerTextStyle">
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">@dimen/timer_text_margin_top</item>
+        <item name="android:layout_marginBottom">@dimen/timer_text_margin_bottom</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:textSize">@dimen/timer_text_size</item>
+        <item name="android:textColor">@color/text_font_color</item>
     </style>
 </resources>

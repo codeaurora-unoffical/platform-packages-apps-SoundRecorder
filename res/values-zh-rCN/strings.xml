@@ -20,7 +20,7 @@
     <string name="record_your_message" msgid="1583671906691662148">"录下您的留言"</string>
     <string name="message_recorded" msgid="381539460921872233">"信息已录制"</string>
     <string name="review_message" msgid="201616012287839474">"查看信息"</string>
-    <string name="recording" msgid="4426791467211376099">"录音"</string>
+    <string name="recording" msgid="4426791467211376099">"录音中"</string>
     <string name="recording_paused">暂停</string>
     <string name="recording_stopped" msgid="1580278719585249612">"录音停止"</string>
     <string name="storage_is_full" msgid="416039755956726221">"存储空间已满"</string>
@@ -33,7 +33,7 @@
     <string name="discard" msgid="761613433029406319">"放弃"</string>
     <string name="button_ok" msgid="3004911343723076226">"确定"</string>
     <string name="press_record">点击开始录音: 0-MIC 1-Rx 2-Tx+Rx 3-AMR 4-EVRC 5-QCELP 6-AAC_MP4 9-AMR-WB A-AMR-WB-3GPP</string>
-    <string name="press_record2">点击开始录音</string>
+    <string name="press_record2">点击按键录音</string>
 
     <!-- no translation found for audio_db_title_format (7912182366970749312) -->
     <skip />
