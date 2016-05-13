@@ -45,12 +45,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.android.soundrecorder.RenameDialogBuilder;
 import com.android.soundrecorder.actionmode.ActionModeHandler;
 import com.android.soundrecorder.R;
 import com.android.soundrecorder.filelist.listitem.BaseListItem;
+import com.android.soundrecorder.filelist.listitem.MediaItem;
+import com.android.soundrecorder.filelist.player.Player;
+import com.android.soundrecorder.filelist.player.PlayerPanel;
 import com.android.soundrecorder.util.DatabaseUtils;
 import com.android.soundrecorder.util.FileUtils;
 import com.android.soundrecorder.util.PermissionUtils;
@@ -99,7 +103,8 @@ public class FileListFragment extends Fragment {
             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.file_list_fragment, container, false);
 
-        mRecyclerView = (FileListRecyclerView) rootView.findViewById(R.id.recycler_view);
+        final View recyclerView = rootView.findViewById(R.id.recycler_view);
+        mRecyclerView = (FileListRecyclerView) recyclerView;
         mRecyclerView.setEmptyView(rootView.findViewById(R.id.list_empty));
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
@@ -107,7 +112,37 @@ public class FileListFragment extends Fragment {
 
         mRecyclerView.setAdapter(mAdapter);
 
+        getPlayer().setPlayerPanelLayoutListener(new PlayerPanel.LayoutChangedListener() {
+            @Override
+            public void onLayoutChanged(View view) {
+                updateRecyclerViewLayout(view);
+            }
+        });
+
+        updateRecyclerViewLayout(getPlayer().getPlayerPanel());
+
         return rootView;
+    }
+
+    private void updateRecyclerViewLayout(View anchor) {
+        final RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mRecyclerView
+                .getLayoutParams();
+        boolean isPlayerShown = getPlayer().isPlayShown();
+        if (isPlayerShown) {
+            params.bottomMargin = anchor.getMeasuredHeight();
+        } else {
+            params.bottomMargin = 0;
+        }
+        mRecyclerView.post(new Runnable() {
+            @Override
+            public void run() {
+                mRecyclerView.setLayoutParams(params);
+            }
+        });
+    }
+
+    private Player getPlayer() {
+        return ((FileListActivity) getActivity()).getPlayer();
     }
 
     private void initArguments(Bundle arguments) {
@@ -140,8 +175,32 @@ public class FileListFragment extends Fragment {
                 if (item.getItemType() == BaseListItem.TYPE_FOLDER) {
                     startFragment(item.getPath());
                 } else {
-                    // TODO play item.
-                    Toast.makeText(getContext(), item.getPath(), Toast.LENGTH_SHORT).show();
+                    if (getPlayer() != null) {
+                        getPlayer().setItem((MediaItem) item);
+                        getPlayer().startPlayer();
+                    }
+                }
+            }
+
+            @Override
+            public void closeItem() {
+                if (getPlayer() != null) {
+                    getPlayer().destroyPlayer();
+                }
+            }
+
+            @Override
+            public MediaItem getPlayingItem() {
+                if (getPlayer() != null) {
+                    return getPlayer().getMediaItem();
+                }
+                return null;
+            }
+
+            @Override
+            public void updatePlayerItem(MediaItem item) {
+                if (getPlayer() != null) {
+                    getPlayer().onItemChanged(item);
                 }
             }
         });
@@ -254,6 +313,9 @@ public class FileListFragment extends Fragment {
                         if (mAdapter != null) {
                             mAdapter.notifyItemChanged(item);
                         }
+                        if (getPlayer() != null && getPlayer().isItemUsing(item)) {
+                            getPlayer().onItemChanged((MediaItem) item);
+                        }
                     }
                 });
         builder.setEditTextContent(FileUtils.getLastFileName(file, false));
@@ -273,6 +335,9 @@ public class FileListFragment extends Fragment {
                             public void onClick(DialogInterface dialog, int which) {
                                 for (BaseListItem item : items) {
                                     deleteItem(item);
+                                    if (getPlayer() != null && getPlayer().isItemUsing(item)) {
+                                        getPlayer().onItemDeleted();
+                                    }
                                 }
                             }
                         })
@@ -322,5 +387,4 @@ public class FileListFragment extends Fragment {
         String shareTitle = getResources().getString(R.string.share_title);
         getActivity().startActivity(Intent.createChooser(shareIntent, shareTitle));
     }
-
 }

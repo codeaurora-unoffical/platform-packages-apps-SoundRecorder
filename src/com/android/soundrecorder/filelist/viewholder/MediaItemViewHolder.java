@@ -35,6 +35,7 @@ import android.widget.TextView;
 import com.android.soundrecorder.R;
 import com.android.soundrecorder.filelist.listitem.BaseListItem;
 import com.android.soundrecorder.filelist.listitem.MediaItem;
+import com.android.soundrecorder.filelist.ui.WaveIndicator;
 import com.android.soundrecorder.util.Utils;
 
 import java.text.SimpleDateFormat;
@@ -43,12 +44,14 @@ import java.util.Date;
 public class MediaItemViewHolder extends BaseViewHolder {
     private TextView mDateModifiedView;
     private TextView mDurationView;
+    private WaveIndicator mWaveIndicator;
     private SimpleDateFormat mDateFormatter;
 
     public MediaItemViewHolder(View itemView, int rootLayoutId) {
         super(itemView, rootLayoutId);
         mDateModifiedView = (TextView)itemView.findViewById(R.id.list_item_date_modified);
         mDurationView = (TextView)itemView.findViewById(R.id.list_item_duration);
+        mWaveIndicator = (WaveIndicator) itemView.findViewById(R.id.list_wave_indicator);
 
         mDateFormatter = new SimpleDateFormat(itemView.getResources().getString(
                 R.string.list_item_date_modified_format), java.util.Locale.US);
@@ -64,6 +67,27 @@ public class MediaItemViewHolder extends BaseViewHolder {
 
             long duration = ((MediaItem)item).getDuration() / 1000; // millisecond to second
             mDurationView.setText(Utils.timeToString(mDurationView.getContext(), duration));
+
+            updateWaveIndicator(((MediaItem) item).getPlayStatus());
+            ((MediaItem) item).setItemPlayStatusListener(new MediaItem.ItemPlayStatusListener() {
+                @Override
+                public void onPlayStatusChanged(MediaItem.PlayStatus status) {
+                    updateWaveIndicator(status);
+                }
+            });
+        }
+    }
+
+    private void updateWaveIndicator(MediaItem.PlayStatus status) {
+        if (status == MediaItem.PlayStatus.PLAYING) {
+            mWaveIndicator.setVisibility(View.VISIBLE);
+            mWaveIndicator.animate(true);
+        } else if (status == MediaItem.PlayStatus.PAUSE) {
+            mWaveIndicator.setVisibility(View.VISIBLE);
+            mWaveIndicator.animate(false);
+        } else {
+            mWaveIndicator.setVisibility(View.GONE);
+            mWaveIndicator.animate(false);
         }
     }
 }

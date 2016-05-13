@@ -34,13 +34,18 @@ import android.app.Fragment;
 import android.os.Bundle;
 import android.view.MenuItem;
 import com.android.soundrecorder.R;
+import com.android.soundrecorder.filelist.player.Player;
+import com.android.soundrecorder.filelist.player.PlayerPanel;
 import com.android.soundrecorder.util.PermissionUtils;
 
 public class FileListActivity extends Activity {
+    private Player mPlayer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.file_list_activity);
+        PlayerPanel playerPanel = (PlayerPanel) findViewById(R.id.player_panel);
+        mPlayer = new Player(playerPanel);
 
         FileListFragment fragment = new FileListFragment();
         getFragmentManager().beginTransaction()
@@ -72,6 +77,26 @@ public class FileListActivity extends Activity {
         Fragment fragment = getFragmentManager().findFragmentByTag(FileListFragment.FRAGMENT_TAG);
         if (fragment != null && fragment instanceof FileListFragment) {
             ((FileListFragment) fragment).reloadAdapter();
+        }
+    }
+
+    public Player getPlayer() {
+        return mPlayer;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (getPlayer() != null) {
+            getPlayer().pausePlayer();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (getPlayer() != null) {
+            getPlayer().stopPlayer();
         }
     }
 }

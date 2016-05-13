@@ -52,6 +52,7 @@
         parent="android:TextAppearance.DeviceDefault.Widget.ActionBar.Title.Inverse">
         <item name="android:textSize">@dimen/action_bar_title_font_size</item>
     </style>
+
     <style name="PlayerPanelLayout">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>

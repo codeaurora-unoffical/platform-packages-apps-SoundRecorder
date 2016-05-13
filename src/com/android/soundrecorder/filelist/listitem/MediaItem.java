@@ -35,6 +35,20 @@ import android.provider.MediaStore;
 public class MediaItem extends BaseListItem {
     private long mDateModified;
     private long mDuration;
+    public enum PlayStatus {
+        NONE, PLAYING, PAUSE
+    }
+    private PlayStatus mPlayStatus = PlayStatus.NONE;
+
+    public interface ItemPlayStatusListener {
+        void onPlayStatusChanged(MediaItem.PlayStatus status);
+    }
+
+    protected ItemPlayStatusListener mPlayStatusListener;
+
+    public void setItemPlayStatusListener(ItemPlayStatusListener listener) {
+        mPlayStatusListener = listener;
+    }
 
     public MediaItem(Cursor cursor) {
         int idIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID);
@@ -60,12 +74,26 @@ public class MediaItem extends BaseListItem {
         return mDuration;
     }
 
+    public PlayStatus getPlayStatus() {
+        return mPlayStatus;
+    }
+
+    public void setPlayStatus(PlayStatus status) {
+        if (mPlayStatus != status) {
+            mPlayStatus = status;
+            if (mPlayStatusListener != null) {
+                mPlayStatusListener.onPlayStatusChanged(status);
+            }
+        }
+    }
+
     @Override
     public void copyFrom(BaseListItem item) {
         super.copyFrom(item);
         if (item instanceof MediaItem) {
             mDateModified = ((MediaItem) item).getDateModified();
             mDuration = ((MediaItem) item).getDuration();
+            setPlayStatus(((MediaItem) item).getPlayStatus());
         }
     }
 }

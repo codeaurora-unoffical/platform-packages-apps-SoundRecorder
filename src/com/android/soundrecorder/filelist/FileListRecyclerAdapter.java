@@ -48,6 +48,7 @@ import com.android.soundrecorder.filelist.viewholder.MediaItemViewHolder;
 import com.android.soundrecorder.util.DatabaseUtils;
 import com.android.soundrecorder.util.FileUtils;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +66,9 @@ public class FileListRecyclerAdapter extends RecyclerView.Adapter {
 
     public interface ItemListener {
         void openItem(BaseListItem item);
+        void closeItem();
+        MediaItem getPlayingItem();
+        void updatePlayerItem(MediaItem item);
     }
 
     private ItemListener mItemListener;
@@ -226,13 +230,36 @@ public class FileListRecyclerAdapter extends RecyclerView.Adapter {
         mItemsList.clear();
         mItemsList.addAll(resultList);
 
+        updatePlayerItem();
+
         updateSelectedCountInActionMode();
 
         notifyDataSetChanged();
     }
 
+    private void updatePlayerItem() {
+        if (mItemListener == null) return;
+        MediaItem playingItem = mItemListener.getPlayingItem();
+        if (playingItem == null || !FileUtils.exists(new File(playingItem.getPath()))) {
+            mItemListener.closeItem();
+        } else {
+            int index = mItemsList.indexOf(playingItem);
+            if (index > 0) {
+                BaseListItem item = mItemsList.get(index);
+                if (item instanceof MediaItem) {
+                    mItemListener.updatePlayerItem((MediaItem) item);
+                }
+            }
+        }
+    }
+
     private void enterSelectionMode(int startPosition) {
         if (mInSelectionMode) return;
+
+        if (mItemListener != null) {
+            mItemListener.closeItem();
+        }
+
         if (mActionModeListener != null) {
             mActionModeListener.showActionMode();
         }

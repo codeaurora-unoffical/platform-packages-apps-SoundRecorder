@@ -60,8 +60,15 @@
             style="@android:style/Widget.DeviceDefault.CompoundButton.CheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_gravity="center"
             android:visibility="invisible" />
+
+        <com.android.soundrecorder.filelist.ui.WaveIndicator
+            android:id="@+id/list_wave_indicator"
+            android:layout_width="@dimen/player_indicator_width"
+            android:layout_height="@dimen/player_indicator_height"
+            android:layout_gravity="center"
+            android:visibility="gone" />
     </FrameLayout>
 
     <LinearLayout
