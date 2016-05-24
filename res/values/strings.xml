@@ -105,6 +105,7 @@
     <string name="recording_now">Recording now ...</string>
     <!-- shown as the message in a dialog when the recording file is saved successfully -->
     <string name="file_saved">File has been saved</string>
+    <string name="file_saved_interrupt">Recording has been stopped and saved</string>
     <!-- shown as the message in a dialog when the recording file is discarded -->
     <string name="file_discard">File has been discarded</string>
 </resources>

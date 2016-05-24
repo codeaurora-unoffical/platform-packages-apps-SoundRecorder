@@ -28,22 +28,9 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/MediaPanelStyle">
-
-    <ImageButton
-        android:id="@+id/listButton"
-        style="@style/MediaButtonSmallLeft"
-        android:src="@drawable/media_list" />
-
-    <ImageButton
-        android:id="@+id/recordButton"
-        style="@style/MediaButton"
-        android:elevation="@dimen/media_record_button_elevation"
-        android:src="@drawable/record" />
-
-    <ImageButton
-        android:id="@+id/stopButton"
-        style="@style/MediaButtonSmallRight"
-        android:src="@drawable/media_stop" />
-</LinearLayout>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="rename_dialog_title">Rename</string>
+    <string name="rename_dialog_info_null">File name can\'t be null.</string>
+    <string name="rename_dialog_info_exists">The name already exists.</string>
+    <string name="rename_dialog_save">Save</string>
+</resources>

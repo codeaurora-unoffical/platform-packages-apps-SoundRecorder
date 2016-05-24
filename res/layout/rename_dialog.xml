@@ -29,21 +29,44 @@
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/MediaPanelStyle">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-    <ImageButton
-        android:id="@+id/listButton"
-        style="@style/MediaButtonSmallLeft"
-        android:src="@drawable/media_list" />
+    <EditText
+        android:id="@+id/rename_edit_text"
+        style="@android:style/Widget.DeviceDefault.EditText"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="@dimen/rename_edit_text_margin"
+        android:layout_marginStart="@dimen/rename_edit_text_margin"
+        android:layout_marginTop="@dimen/rename_edit_text_margin"
+        android:singleLine="true" />
 
-    <ImageButton
-        android:id="@+id/recordButton"
-        style="@style/MediaButton"
-        android:elevation="@dimen/media_record_button_elevation"
-        android:src="@drawable/record" />
+    <FrameLayout
+        android:id="@+id/rename_info_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="@dimen/rename_info_text_margin_horizontal"
+        android:layout_marginStart="@dimen/rename_info_text_margin_horizontal"
+        android:visibility="gone"
+        tools:visibility="visible">
 
-    <ImageButton
-        android:id="@+id/stopButton"
-        style="@style/MediaButtonSmallRight"
-        android:src="@drawable/media_stop" />
+        <TextView
+            android:id="@+id/rename_info_text"
+            style="@android:style/TextAppearance.Material.Caption"
+            android:textColor="?android:attr/colorAccent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:layout_gravity="center_vertical"
+            tools:text="@string/rename_dialog_info_exists"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/dialog_warning"
+            android:layout_gravity="center_vertical|end"/>
+    </FrameLayout>
 </LinearLayout>

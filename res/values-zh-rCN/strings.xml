@@ -60,5 +60,6 @@
     <string name="in_call_record_error">通话中录音失败.</string>
     <string name="recording_now">正在录音 ...</string>
     <string name="file_saved">文件保存成功</string>
+    <string name="file_saved_interrupt">录音已停止并保存</string>
     <string name="file_discard">放弃录音</string>
 </resources>

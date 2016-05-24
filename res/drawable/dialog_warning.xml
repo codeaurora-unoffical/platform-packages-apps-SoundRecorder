@@ -28,22 +28,14 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/MediaPanelStyle">
-
-    <ImageButton
-        android:id="@+id/listButton"
-        style="@style/MediaButtonSmallLeft"
-        android:src="@drawable/media_list" />
-
-    <ImageButton
-        android:id="@+id/recordButton"
-        style="@style/MediaButton"
-        android:elevation="@dimen/media_record_button_elevation"
-        android:src="@drawable/record" />
-
-    <ImageButton
-        android:id="@+id/stopButton"
-        style="@style/MediaButtonSmallRight"
-        android:src="@drawable/media_stop" />
-</LinearLayout>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="18dp"
+    android:height="18dp"
+    android:viewportHeight="18.0"
+    android:viewportWidth="18.0">
+    <path
+        android:fillColor="#EA2928"
+        android:pathData="M0,17L18,17L9,2L0,17L0,17ZM9.818,14.632L8.182,14.632L8.182,13.053L9.818,13.053L9.818,14.632L9.818,14.632ZM9.818,11.474L8.182,11.474L8.182,8.316L9.818,8.316L9.818,11.474L9.818,11.474Z"
+        android:strokeColor="#00000000"
+        android:strokeWidth="1" />
+</vector>

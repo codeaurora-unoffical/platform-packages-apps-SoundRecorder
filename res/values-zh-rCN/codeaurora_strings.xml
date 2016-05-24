@@ -28,22 +28,9 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/MediaPanelStyle">
-
-    <ImageButton
-        android:id="@+id/listButton"
-        style="@style/MediaButtonSmallLeft"
-        android:src="@drawable/media_list" />
-
-    <ImageButton
-        android:id="@+id/recordButton"
-        style="@style/MediaButton"
-        android:elevation="@dimen/media_record_button_elevation"
-        android:src="@drawable/record" />
-
-    <ImageButton
-        android:id="@+id/stopButton"
-        style="@style/MediaButtonSmallRight"
-        android:src="@drawable/media_stop" />
-</LinearLayout>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="rename_dialog_title">重命名</string>
+    <string name="rename_dialog_info_null">文件名不能为空</string>
+    <string name="rename_dialog_info_exists">文件名已经存在</string>
+    <string name="rename_dialog_save">保存</string>
+</resources>
