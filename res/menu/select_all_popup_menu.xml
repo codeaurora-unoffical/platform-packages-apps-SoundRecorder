@@ -28,29 +28,11 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="rename_dialog_title">Rename</string>
-    <string name="rename_dialog_info_null">File name can\'t be null.</string>
-    <string name="rename_dialog_info_exists">The name already exists.</string>
-    <string name="rename_dialog_save">Save</string>
-
-    <string name="delete_dialog_confirm">Delete</string>
-    <plurals name="delete_selection_message">
-        <item quantity="one">Delete selected item?</item>
-        <item quantity="other">Delete selected items?</item>
-    </plurals>
-    <string name="share_title">Share</string>
-    <string name="file_list_activity_label">Recording list</string>
-    <string name="file_list_empty">No recording</string>
-
-    <string name="list_item_date_modified_format" translatable="false">
-        <xliff:g id="format">yy/MM/dd HH:mm:ss</xliff:g>
-    </string>
-
-    <string name="action_mode_menu_edit">Edit</string>
-    <string name="action_mode_menu_share">Share</string>
-    <string name="action_mode_menu_delete">Delete</string>
-    <string name="action_mode_selected">%1$d selected</string>
-    <string name="action_mode_select_all">Select all</string>
-    <string name="action_mode_deselect_all">Deselect all</string>
-</resources>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".filelist.FileListActivity">
+    <item
+        android:id="@+id/action_select_all"
+        android:showAsAction="always"
+        android:title="@string/action_mode_select_all" />
+</menu>

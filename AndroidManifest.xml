@@ -38,7 +38,6 @@
         <activity android:name="SoundRecorder"
                 android:configChanges="orientation|screenSize|keyboardHidden"
                 android:screenOrientation="unspecified"
-                android:clearTaskOnLaunch="true"
                 android:theme="@style/Theme.SoundRecorder">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -56,6 +55,12 @@
                  <action android:name="android.provider.MediaStore.RECORD_SOUND" />
                  <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".filelist.FileListActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/file_list_activity_label"
+            android:theme="@style/FileListActivity">
         </activity>
     </application>
 </manifest>

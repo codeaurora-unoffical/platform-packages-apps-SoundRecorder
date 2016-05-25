@@ -30,8 +30,11 @@
 package com.android.soundrecorder.util;
 
 import android.util.LongArray;
+import android.content.Context;
+import android.net.Uri;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class FileUtils {
     public static final int NOT_FOUND = -1;
@@ -122,5 +125,41 @@ public class FileUtils {
         }
 
         return returnIndex;
+    }
+
+    public static boolean isFolderEmpty(String filePath) {
+        File file = new File(filePath);
+        File[] files = file.listFiles();
+        return files == null || files.length == 0;
+    }
+
+    public static boolean deleteFile(File file, Context context) {
+        boolean ret = false;
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            for (File f : files) {
+                // remove all files in folder.
+                deleteFile(f, context);
+            }
+        }
+        if (file.delete()) {
+            // update database.
+            DatabaseUtils.delete(context, file);
+            ret = true;
+        }
+        return ret;
+    }
+
+    public static ArrayList<Uri> urisFromFolder(File folder) {
+        if (folder == null || !folder.isDirectory()) {
+            return null;
+        }
+
+        ArrayList<Uri> uris = new ArrayList<Uri>();
+        File[] list = folder.listFiles();
+        for (File file : list) {
+            uris.add(Uri.fromFile(file));
+        }
+        return uris;
     }
 }

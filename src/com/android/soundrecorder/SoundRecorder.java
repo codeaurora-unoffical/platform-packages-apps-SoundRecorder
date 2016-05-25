@@ -17,11 +17,8 @@
 package com.android.soundrecorder;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -31,7 +28,6 @@ import android.content.IntentFilter;
 import android.content.BroadcastReceiver;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.media.AudioManager;
@@ -66,8 +62,11 @@ import android.telephony.TelephonyManager;
 import android.telephony.SubscriptionManager;
 
 import com.android.soundrecorder.util.DatabaseUtils;
+import com.android.soundrecorder.filelist.FileListActivity;
 import com.android.soundrecorder.util.FileUtils;
+import com.android.soundrecorder.util.PermissionUtils;
 import com.android.soundrecorder.util.StorageUtils;
+import com.android.soundrecorder.util.Utils;
 
 /**
  * Calculates remaining recording time based on available disk space and
@@ -232,9 +231,6 @@ public class SoundRecorder extends Activity
     static final int SETTING_TYPE_STORAGE_LOCATION = 0;
     static final int SETTING_TYPE_FILE_TYPE = 1;
 
-    static final int SECOND_PER_MINUTES = 60;
-    static final int SECOND_PER_HOUR = 60 * SECOND_PER_MINUTES;
-
     static final int BITRATE_AMR = 12800; // bits/sec
     static final int BITRATE_AAC = 156000;
     static final int BITRATE_EVRC = 8500;
@@ -255,6 +251,7 @@ public class SoundRecorder extends Activity
     private boolean mDataExist = false;
     private boolean mWAVSupport = true;
     private boolean mExitAfterRecord = false;
+    private boolean mIsGetContentAction = false;
     private boolean mSdExist = true;
     private boolean mRenameDialogShown = false;
 
@@ -391,8 +388,9 @@ public class SoundRecorder extends Activity
                 = android.provider.MediaStore.Audio.Media.EXTRA_MAX_BYTES;
             mMaxFileSize = i.getLongExtra(EXTRA_MAX_BYTES, -1);
 
-            mExitAfterRecord = i.getBooleanExtra(EXIT_AFTER_RECORD,
-                    Intent.ACTION_GET_CONTENT.equals(i.getAction()));
+            mIsGetContentAction = Intent.ACTION_GET_CONTENT.equals(i.getAction());
+
+            mExitAfterRecord = i.getBooleanExtra(EXIT_AFTER_RECORD, mIsGetContentAction);
             maxDuration = i.getIntExtra(MediaStore.Audio.Media.DURATION, 0);
         }
 
@@ -511,7 +509,6 @@ public class SoundRecorder extends Activity
         mRecordButton = (ImageButton) findViewById(R.id.recordButton);
         mStopButton = (ImageButton) findViewById(R.id.stopButton);
         mListButton = (ImageButton) findViewById(R.id.listButton);
-        mListButton.setEnabled(false);
 
         mStateMessage1 = (TextView) findViewById(R.id.stateMessage1);
         mStateMessage2 = (TextView) findViewById(R.id.stateMessage2);
@@ -521,6 +518,12 @@ public class SoundRecorder extends Activity
 
         mRecordButton.setOnClickListener(this);
         mStopButton.setOnClickListener(this);
+        mListButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startListActivity();
+            }
+        });
 
         mTimerFormat = getResources().getString(R.string.timer_format);
 
@@ -562,34 +565,10 @@ public class SoundRecorder extends Activity
         }
     };
 
-    private boolean checkOperationPermission(String[] permissionName, int operationHandle) {
-        boolean isPermissionGranted = true;
-        List needRequestPermission = new ArrayList<String>();
-        for (String tmp : permissionName) {
-            if (PackageManager.PERMISSION_GRANTED != checkSelfPermission(tmp)) {
-                needRequestPermission.add(tmp);
-                isPermissionGranted = false;
-            }
-        }
-        if (isPermissionGranted) {
-            return true;
-        } else {
-            String[] needRequestPermissionArray = new String[needRequestPermission.size()];
-            needRequestPermission.toArray(needRequestPermissionArray);
-            requestPermissions(needRequestPermissionArray, operationHandle);
-            return false;
-        }
-    }
-
     private String[] getOperationPermissionName(int operation) {
         switch (operation) {
         case R.id.recordButton:
-            return new String[]{
-                    Manifest.permission.READ_PHONE_STATE,
-                    Manifest.permission.RECORD_AUDIO,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-            };
+            return PermissionUtils.getOperationPermissions(PermissionUtils.PermissionType.RECORD);
         default:
             return null;
         }
@@ -598,16 +577,9 @@ public class SoundRecorder extends Activity
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                 int[] grantResults) {
-        if (permissions == null || grantResults == null ||
-            permissions.length == 0 || grantResults.length == 0) {
-            return;
+        if (PermissionUtils.checkPermissionResult(permissions, grantResults)) {
+            processClickEvent(requestCode);
         }
-
-        for (int i : grantResults) {
-            if (i != PackageManager.PERMISSION_GRANTED)
-               return;
-        }
-        processClickEvent(requestCode);
     }
 
     /*
@@ -617,9 +589,8 @@ public class SoundRecorder extends Activity
         if (!button.isEnabled())
             return;
         if (Build.VERSION.SDK_INT >= 23) {
-            String[] operationPermissionNames = getOperationPermissionName(button.getId());
-            if (operationPermissionNames == null ||
-                    checkOperationPermission(operationPermissionNames, button.getId()))
+            String[] permissions = getOperationPermissionName(button.getId());
+            if (PermissionUtils.checkPermissions(this, permissions, button.getId()))
                 processClickEvent(button.getId());
         } else {
             processClickEvent(button.getId());
@@ -750,7 +721,7 @@ public class SoundRecorder extends Activity
         }
     }
 
-    private void acceptSample(String newName) {
+    private boolean acceptSample(String newName) {
         boolean isExists = FileUtils.exists(mRecorder.sampleFile());
         if (!isExists) {
             Toast.makeText(SoundRecorder.this, R.string.file_deleted,Toast.LENGTH_SHORT).show();
@@ -771,7 +742,9 @@ public class SoundRecorder extends Activity
         mVUMeter.resetAngle();
         if (mExitAfterRecord) {
             finish();
+            return false;
         }
+        return true;
     }
 
     private void discardSample() {
@@ -1229,7 +1202,9 @@ public class SoundRecorder extends Activity
                     new RenameDialogBuilder.OnPositiveListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which, String newName) {
-                            acceptSample(newName);
+                            if (acceptSample(newName)) {
+                                startListActivity();
+                            }
                         }
                     });
             builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -1252,6 +1227,11 @@ public class SoundRecorder extends Activity
         } else {
             mRecorder.delete();
         }
+    }
+
+    private void startListActivity() {
+        Intent intent = new Intent(SoundRecorder.this, FileListActivity.class);
+        startActivity(intent);
     }
 
     private void showSavedToast() {
@@ -1333,24 +1313,12 @@ public class SoundRecorder extends Activity
      * progress bar.
      */
     private void updateTimerView() {
-        Resources res = getResources();
         int state = mRecorder.state();
 
         boolean ongoing = state == Recorder.RECORDING_STATE;
 
         long time = ongoing ? mRecorder.progress() : mRecorder.sampleLength();
-        String timeStr;
-        long hour = time / SECOND_PER_HOUR;
-        long minutes = time / SECOND_PER_MINUTES - hour * SECOND_PER_MINUTES;
-        long second = time % SECOND_PER_MINUTES;
-        if (hour > 0) {
-            mTimerFormat = res.getString(R.string.timer_format_hour);
-            timeStr = String.format(mTimerFormat, hour, minutes, second);
-        } else {
-            mTimerFormat = res.getString(R.string.timer_format);
-            timeStr = String.format(mTimerFormat, minutes, second);
-        }
-        mTimerView.setText(timeStr);
+        mTimerView.setText(Utils.timeToString(mTimerView.getContext(), time));
 
         if (state == Recorder.RECORDING_STATE) {
             updateTimeRemaining();
@@ -1457,6 +1425,14 @@ public class SoundRecorder extends Activity
                     mStateMessage1.setVisibility(View.VISIBLE);
                 }
 
+                // disable list button if start from ACTION_GET_CONTENT
+                if (mIsGetContentAction) {
+                    mListButton.setEnabled(false);
+                    mListButton.setFocusable(false);
+                } else {
+                    mListButton.setEnabled(true);
+                    mListButton.setFocusable(true);
+                }
                 break;
             case Recorder.RECORDING_STATE: 
                 mRecordButton.setImageResource(R.drawable.pause);
@@ -1464,6 +1440,8 @@ public class SoundRecorder extends Activity
                 mRecordButton.setFocusable(true);
                 mStopButton.setEnabled(true);
                 mStopButton.setFocusable(true);
+                mListButton.setEnabled(false);
+                mListButton.setFocusable(false);
 
                 mStateMessage1.setVisibility(View.VISIBLE);
                 mStateMessage2.setVisibility(View.VISIBLE);
@@ -1478,6 +1456,8 @@ public class SoundRecorder extends Activity
                 mRecordButton.setFocusable(true);
                 mStopButton.setEnabled(true);
                 mStopButton.setFocusable(true);
+                mListButton.setEnabled(false);
+                mListButton.setFocusable(false);
 
                 mStateMessage1.setVisibility(View.VISIBLE);
                 mStateMessage2.setVisibility(View.VISIBLE);

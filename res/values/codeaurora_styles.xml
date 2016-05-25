@@ -28,29 +28,28 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="rename_dialog_title">Rename</string>
-    <string name="rename_dialog_info_null">File name can\'t be null.</string>
-    <string name="rename_dialog_info_exists">The name already exists.</string>
-    <string name="rename_dialog_save">Save</string>
+<resources>
+    <style name="FileListActivity" parent="android:Theme.DeviceDefault.Light.NoActionBar">
+        <item name="android:windowActionBar">true</item>
+        <item name="android:windowNoTitle">false</item>
+        <item name="android:actionBarStyle">@style/FileListActionBar</item>
+        <item name="android:colorAccent">@color/list_activity_color_accent</item>
+        <item name="android:colorPrimary">@color/list_activity_color_primary</item>
+        <item name="android:colorPrimaryDark">@color/list_activity_color_primary_dark</item>
 
-    <string name="delete_dialog_confirm">Delete</string>
-    <plurals name="delete_selection_message">
-        <item quantity="one">Delete selected item?</item>
-        <item quantity="other">Delete selected items?</item>
-    </plurals>
-    <string name="share_title">Share</string>
-    <string name="file_list_activity_label">Recording list</string>
-    <string name="file_list_empty">No recording</string>
+        <item name="android:homeAsUpIndicator">@drawable/action_bar_back</item>
 
-    <string name="list_item_date_modified_format" translatable="false">
-        <xliff:g id="format">yy/MM/dd HH:mm:ss</xliff:g>
-    </string>
+        <item name="android:actionModeBackground">@color/action_mode_color_primary</item>
+        <item name="android:actionModeCloseDrawable">@drawable/action_mode_back</item>
+    </style>
 
-    <string name="action_mode_menu_edit">Edit</string>
-    <string name="action_mode_menu_share">Share</string>
-    <string name="action_mode_menu_delete">Delete</string>
-    <string name="action_mode_selected">%1$d selected</string>
-    <string name="action_mode_select_all">Select all</string>
-    <string name="action_mode_deselect_all">Deselect all</string>
+    <style name="FileListActionBar" parent="android:Widget.DeviceDefault.ActionBar.Solid">
+        <item name="android:titleTextStyle">@style/ListActionBarTitle</item>
+        <item name="android:displayOptions">homeAsUp|showTitle</item>
+    </style>
+
+    <style name="ListActionBarTitle"
+        parent="android:TextAppearance.DeviceDefault.Widget.ActionBar.Title.Inverse">
+        <item name="android:textSize">@dimen/action_bar_title_font_size</item>
+    </style>
 </resources>

@@ -46,8 +46,16 @@ public class StorageUtils {
     public static final int STORAGE_PATH_PHONE_INDEX = 0;
     public static final int STORAGE_PATH_SD_INDEX = 1;
     private static final String FOLDER_NAME = "SoundRecorder";
+    public static final String FM_RECORDING_FOLDER_NAME = "FM Recording";
+    public static final String CALL_RECORDING_FOLDER_NAME = "Call Recording";
+    private static final String STORAGE_PATH_EXTERNAL_ROOT = Environment
+            .getExternalStorageDirectory().toString();
     private static final String STORAGE_PATH_LOCAL_PHONE =
-            Environment.getExternalStorageDirectory().toString() + File.separator + FOLDER_NAME;
+            STORAGE_PATH_EXTERNAL_ROOT + File.separator + FOLDER_NAME;
+    private static final String STORAGE_PATH_FM_RECORDING = STORAGE_PATH_EXTERNAL_ROOT
+            + File.separator + FM_RECORDING_FOLDER_NAME;
+    private static final String STORAGE_PATH_CALL_RECORDING = STORAGE_PATH_EXTERNAL_ROOT
+            + File.separator + CALL_RECORDING_FOLDER_NAME;
     private static String sSdDirectory;
 
     private static final int SD_STORAGE_FREE_BLOCK = 1;
@@ -107,6 +115,14 @@ public class StorageUtils {
 
     public static String getSdStoragePath(Context context) {
         return StorageUtils.getSdDirectory(context) + File.separator + FOLDER_NAME;
+    }
+
+    public static String getFmRecordingStoragePath() {
+        return STORAGE_PATH_FM_RECORDING;
+    }
+
+    public static String getCallRecordingStoragePath() {
+        return STORAGE_PATH_CALL_RECORDING;
     }
 
     /**

@@ -37,8 +37,9 @@ import java.io.File;
 public class DatabaseUtils {
     private static final String TAG = "DatabaseUtils";
     private static final String PLAY_LIST_NAME = "My recordings";
-    private static final String VOLUME_NAME = "external";
-    private static final int INDEX_NOT_FOUND = -1;
+    public static final String VOLUME_NAME = "external";
+    public static final int NOT_FOUND = -1;
+    public static final Uri FILE_BASE_URI = Uri.parse("content://media/external/file");
 
     /*
      * A simple utility to do a query into the databases.
@@ -51,6 +52,7 @@ public class DatabaseUtils {
             }
             return resolver.query(uri, projection, selection, selectionArgs, sortOrder);
         } catch (UnsupportedOperationException ex) {
+            ex.printStackTrace();
             return null;
         }
     }
@@ -92,7 +94,7 @@ public class DatabaseUtils {
         if (cursor == null) {
             Log.w(TAG, "query returns null");
         }
-        int id = INDEX_NOT_FOUND;
+        int id = NOT_FOUND;
         if (cursor != null) {
             cursor.moveToFirst();
             if (!cursor.isAfterLast()) {
@@ -180,7 +182,7 @@ public class DatabaseUtils {
                     .show();
             return null;
         }
-        if (getPlaylistId(resolver) == INDEX_NOT_FOUND) {
+        if (getPlaylistId(resolver) == NOT_FOUND) {
             createPlaylist(context, resolver);
         }
         int audioId = Integer.valueOf(result.getLastPathSegment());
@@ -191,4 +193,71 @@ public class DatabaseUtils {
         context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, result));
         return result;
     }
+
+    public static void rename(Context context, File file, File newFile) {
+        ContentResolver resolver = context.getContentResolver();
+        String title = FileUtils.getLastFileName(newFile, false);
+
+        ContentValues cv = new ContentValues();
+        cv.put(MediaStore.Audio.Media.TITLE, title);
+        cv.put(MediaStore.Audio.Media.DATA, newFile.getAbsolutePath());
+
+        Uri base = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        String where = MediaStore.Audio.Media.DATA + " = \'" + file.getAbsolutePath() + "\'";
+        resolver.update(base, cv, where, null);
+    }
+
+    public static void delete(Context context, File file) {
+        ContentResolver resolver = context.getContentResolver();
+        Uri base = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        String where = MediaStore.Audio.Media.DATA + " = \'" + file.getAbsolutePath() + "\'";
+        resolver.delete(base, where, null);
+    }
+
+    public static long getFolderId(ContentResolver resolver, String folderPath) {
+        String[] projection = {
+                MediaStore.Files.FileColumns._ID, MediaStore.Files.FileColumns.DATA
+        };
+        String selection = MediaStore.Files.FileColumns.DATA + " = \'" + folderPath + "\'";
+        Cursor cursor = DatabaseUtils.query(resolver, FILE_BASE_URI, projection, selection, null,
+                MediaStore.Files.FileColumns._ID + " ASC LIMIT 1");
+        if (cursor != null) {
+            int idIndex = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID);
+            if (cursor.getCount() > 0) {
+                cursor.moveToNext();
+                long id = cursor.getInt(idIndex);
+                cursor.close();
+                return id;
+            }
+        }
+        return NOT_FOUND;
+    }
+
+    public static Cursor getFolderCursor(ContentResolver resolver, long folderId) {
+        return getFolderCursor(resolver, new Long[] {folderId});
+    }
+
+    public static Cursor getFolderCursor(ContentResolver resolver, Long[] folderIds) {
+        if (folderIds == null || folderIds.length == 0) {
+            return null;
+        }
+        String[] projection = {
+                MediaStore.Files.FileColumns._ID, MediaStore.Files.FileColumns.DATA,
+                MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.DURATION,
+                MediaStore.Audio.Media.DATE_MODIFIED, MediaStore.Files.FileColumns.PARENT
+        };
+
+        String selection = MediaStore.Audio.Media.IS_MUSIC + "=1" + " AND "
+                + MediaStore.Files.FileColumns.PARENT + "=";
+        StringBuilder allSelection = new StringBuilder();
+        for (int i = 0; i < folderIds.length; i++) {
+            if (i != 0) {
+                allSelection.append(" OR ");
+            }
+            allSelection.append("(" + selection + "\'" + folderIds[i] + "\'" + ")");
+        }
+        return DatabaseUtils.query(resolver, FILE_BASE_URI, projection, allSelection.toString(),
+                null, MediaStore.Audio.Media.DATE_MODIFIED + " DESC");
+    }
+
 }

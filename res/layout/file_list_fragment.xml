@@ -28,29 +28,29 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="rename_dialog_title">Rename</string>
-    <string name="rename_dialog_info_null">File name can\'t be null.</string>
-    <string name="rename_dialog_info_exists">The name already exists.</string>
-    <string name="rename_dialog_save">Save</string>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <string name="delete_dialog_confirm">Delete</string>
-    <plurals name="delete_selection_message">
-        <item quantity="one">Delete selected item?</item>
-        <item quantity="other">Delete selected items?</item>
-    </plurals>
-    <string name="share_title">Share</string>
-    <string name="file_list_activity_label">Recording list</string>
-    <string name="file_list_empty">No recording</string>
+    <com.android.soundrecorder.filelist.FileListRecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingTop="@dimen/file_list_padding_top"
+        android:scrollbars="vertical" />
 
-    <string name="list_item_date_modified_format" translatable="false">
-        <xliff:g id="format">yy/MM/dd HH:mm:ss</xliff:g>
-    </string>
+    <FrameLayout
+        android:id="@+id/list_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center">
 
-    <string name="action_mode_menu_edit">Edit</string>
-    <string name="action_mode_menu_share">Share</string>
-    <string name="action_mode_menu_delete">Delete</string>
-    <string name="action_mode_selected">%1$d selected</string>
-    <string name="action_mode_select_all">Select all</string>
-    <string name="action_mode_deselect_all">Deselect all</string>
-</resources>
+        <TextView
+            style="@android:style/TextAppearance.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/file_list_empty" />
+    </FrameLayout>
+</FrameLayout>

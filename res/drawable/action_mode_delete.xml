@@ -28,29 +28,15 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="rename_dialog_title">Rename</string>
-    <string name="rename_dialog_info_null">File name can\'t be null.</string>
-    <string name="rename_dialog_info_exists">The name already exists.</string>
-    <string name="rename_dialog_save">Save</string>
-
-    <string name="delete_dialog_confirm">Delete</string>
-    <plurals name="delete_selection_message">
-        <item quantity="one">Delete selected item?</item>
-        <item quantity="other">Delete selected items?</item>
-    </plurals>
-    <string name="share_title">Share</string>
-    <string name="file_list_activity_label">Recording list</string>
-    <string name="file_list_empty">No recording</string>
-
-    <string name="list_item_date_modified_format" translatable="false">
-        <xliff:g id="format">yy/MM/dd HH:mm:ss</xliff:g>
-    </string>
-
-    <string name="action_mode_menu_edit">Edit</string>
-    <string name="action_mode_menu_share">Share</string>
-    <string name="action_mode_menu_delete">Delete</string>
-    <string name="action_mode_selected">%1$d selected</string>
-    <string name="action_mode_select_all">Select all</string>
-    <string name="action_mode_deselect_all">Deselect all</string>
-</resources>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="24dp"
+        android:height="24dp"
+        android:viewportWidth="24.0"
+        android:viewportHeight="24.0">
+    <path
+        android:pathData="M6,19C6,20.1 6.9,21 8,21L16,21C17.1,21 18,20.1 18,19L18,7L6,7L6,19L6,19ZM19,4L15.5,4L14.5,3L9.5,3L8.5,4L5,4L5,6L19,6L19,4L19,4Z"
+        android:strokeWidth="1"
+        android:fillAlpha="0.87"
+        android:fillColor="#000000"
+        android:strokeColor="#00000000"/>
+</vector>
