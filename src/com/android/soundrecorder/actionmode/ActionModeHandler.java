@@ -36,13 +36,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.Spinner;
 
 import com.android.soundrecorder.R;
 import com.android.soundrecorder.filelist.FileListRecyclerAdapter;
 import com.android.soundrecorder.filelist.listitem.BaseListItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ActionModeHandler implements FileListRecyclerAdapter.ActionModeListener {
@@ -53,14 +57,25 @@ public class ActionModeHandler implements FileListRecyclerAdapter.ActionModeList
     private ActionMode mActionMode;
     private ActionMode.Callback mCallback;
 
+    private Spinner mSelectionSpinner;
+    private String mSelectedAllString;
+    private String mDeSelectedAllString;
+    private static final int SPINNER_COUNT_INDEX = 0;
+    private static final int SPINNER_SELECT_ALL_INDEX = 1;
+
     public ActionModeHandler(Activity activity, int customViewId, ActionMode.Callback callback) {
         mActivity = activity;
         mCallback = callback;
         mCustomView = LayoutInflater.from(activity).inflate(customViewId, null);
+        mSelectedAllString = mCustomView.getResources().getString(R.string.action_mode_select_all);
+        mDeSelectedAllString = mCustomView.getResources()
+                .getString(R.string.action_mode_deselect_all);
         mSelectionButton = (ButtonWithPopupMenu) mCustomView.findViewById(R.id.selection_button);
         mSelectionButton.loadPopupMenu(R.menu.select_all_popup_menu, mOnSelectAllClickListener);
         mSelectedFormat = mCustomView.getResources().getString(
                 R.string.action_mode_selected);
+
+        mSelectionSpinner = (Spinner) mCustomView.findViewById(R.id.selection_spinner);
 
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -89,10 +104,32 @@ public class ActionModeHandler implements FileListRecyclerAdapter.ActionModeList
     }
 
     private void updateSelectionMenu(int selectedCount, int totalCount) {
+        List<String> list = new ArrayList<String>();
+        list.add(String.format(mSelectedFormat, selectedCount));
+        list.add(selectedCount >= totalCount ? mDeSelectedAllString : mSelectedAllString);
+        ArrayAdapter adapter = new ArrayAdapter<>(mSelectionSpinner.getContext(),
+                R.layout.spinner_dropdown_item, list);
+        mSelectionSpinner.setAdapter(adapter);
+        mSelectionSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == SPINNER_SELECT_ALL_INDEX) {
+                    if (mCallback != null && mActionMode != null) {
+                        MenuItem item = mActionMode.getMenu().findItem(R.id.action_select_all);
+                        mCallback.onActionItemClicked(mActionMode, item);
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+        mSelectionSpinner.setSelection(SPINNER_COUNT_INDEX, true);
+
         mSelectionButton.setText(String.format(mSelectedFormat, selectedCount));
         MenuItem menuItem = mSelectionButton.findPopupMenuItem(R.id.action_select_all);
-        menuItem.setTitle(selectedCount >= totalCount ? R.string.action_mode_deselect_all
-                : R.string.action_mode_select_all);
+        menuItem.setTitle(selectedCount >= totalCount ? mDeSelectedAllString : mSelectedAllString);
     }
 
     private void updateActionModeOperations(int selectedCount, List<BaseListItem> items) {

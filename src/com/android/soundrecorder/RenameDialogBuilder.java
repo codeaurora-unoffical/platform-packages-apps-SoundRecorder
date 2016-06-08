@@ -35,6 +35,7 @@ import android.content.DialogInterface;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -75,6 +76,7 @@ public class RenameDialogBuilder extends AlertDialog.Builder {
     public AlertDialog create() {
         AlertDialog dialog = super.create();
 
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         dialog.setView(mCustomLayout);
 
         return dialog;
@@ -104,6 +106,7 @@ public class RenameDialogBuilder extends AlertDialog.Builder {
                     checkFileName(dialog, s);
                 }
             });
+            mEditText.requestFocusFromTouch();
         }
         return dialog;
     }

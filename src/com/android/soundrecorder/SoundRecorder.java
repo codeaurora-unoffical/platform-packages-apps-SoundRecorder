@@ -1196,7 +1196,7 @@ public class SoundRecorder extends Activity
         if (mRecorder.sampleLength() > 0) {
             mRecorderStop = true;
             RenameDialogBuilder builder = new RenameDialogBuilder(this, mRecorder.sampleFile());
-            builder.setTitle(R.string.rename_dialog_title);
+            builder.setTitle(R.string.save_dialog_title);
             builder.setNegativeButton(R.string.discard, null);
             builder.setPositiveButton(R.string.rename_dialog_save,
                     new RenameDialogBuilder.OnPositiveListener() {

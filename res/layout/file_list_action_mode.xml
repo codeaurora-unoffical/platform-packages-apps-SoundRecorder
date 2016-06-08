@@ -43,5 +43,12 @@
         android:singleLine="true"
         android:textStyle="bold"
         android:textAppearance="?android:attr/textAppearanceLargePopupMenu"
+        android:visibility="gone"
         tools:text="1 selected" />
+
+    <Spinner
+        style="@style/ActionModeSpinner"
+        android:id="@+id/selection_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 </LinearLayout>

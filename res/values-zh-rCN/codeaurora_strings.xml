@@ -29,6 +29,10 @@
 -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- Prefix of recording file name, like "Rec", default value is null -->
+    <string name="def_save_name_prefix" translatable="false">新录音</string>
+
+    <string name="save_dialog_title">要保存录音吗？</string>
     <string name="rename_dialog_title">重命名</string>
     <string name="rename_dialog_info_null">文件名不能为空</string>
     <string name="rename_dialog_info_exists">文件名已经存在</string>

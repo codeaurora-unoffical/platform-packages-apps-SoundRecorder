@@ -28,24 +28,14 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <dimen name="rename_edit_text_margin">24dp</dimen>
-    <dimen name="rename_info_text_margin_horizontal">30dp</dimen>
-    <dimen name="file_list_item_height">72dp</dimen>
-    <dimen name="file_list_padding_top">8dp</dimen>
-    <dimen name="list_item_checkbox_padding">8dp</dimen>
-
-    <dimen name="player_indicator_width">24dp</dimen>
-    <dimen name="player_indicator_height">24dp</dimen>
-
-    <dimen name="player_panel_margin_horizontal">16dp</dimen>
-    <dimen name="player_panel_margin_bottom">8dp</dimen>
-    <dimen name="player_panel_progress_bar_height">2dp</dimen>
-    <dimen name="player_panel_progress_bar_margin_bottom">8dp</dimen>
-    <dimen name="player_panel_progress_text_margin_bottom">9dp</dimen>
-    <dimen name="player_panel_media_button_size">32dp</dimen>
-
-    <dimen name="action_mode_spinner_width">147dp</dimen>
-    <dimen name="action_mode_spinner_item_height">48dp</dimen>
-    <dimen name="action_mode_spinner_padding">6dp</dimen>
-</resources>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/text1"
+    style="?android:attr/spinnerDropDownItemStyle"
+    android:fontFamily="sans-serif-medium"
+    android:gravity="start|center_vertical"
+    android:singleLine="true"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/action_mode_spinner_item_height"
+    android:paddingStart="@dimen/action_mode_spinner_padding"
+    android:paddingEnd="@dimen/action_mode_spinner_padding"
+    android:ellipsize="marquee"/>

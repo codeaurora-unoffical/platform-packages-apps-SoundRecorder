@@ -29,10 +29,6 @@
 -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-
-    <!-- Prefix of recording file name, like "Rec", default value is null -->
-    <string name="def_save_name_prefix" translatable="false">New record</string>
-
     <!-- Format of recording file name, like "yyyy-MM-dd-HH-mm-ss", default value is "yyyy-MM-dd-HH-mm-ss" -->
     <string name="def_save_name_format" translatable="false">yyyy-MM-dd-HH-mm-ss</string>
 

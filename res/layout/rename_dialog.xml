@@ -37,6 +37,7 @@
     <EditText
         android:id="@+id/rename_edit_text"
         style="@android:style/Widget.DeviceDefault.EditText"
+        android:inputType="text"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginEnd="@dimen/rename_edit_text_margin"
