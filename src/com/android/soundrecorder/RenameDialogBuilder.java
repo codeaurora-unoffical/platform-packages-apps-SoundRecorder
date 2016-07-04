@@ -76,6 +76,8 @@ public class RenameDialogBuilder extends AlertDialog.Builder {
     public AlertDialog create() {
         AlertDialog dialog = super.create();
 
+        dialog.setCanceledOnTouchOutside(false);
+
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         dialog.setView(mCustomLayout);
 
