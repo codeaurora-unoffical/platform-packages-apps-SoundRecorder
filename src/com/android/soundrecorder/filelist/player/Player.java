@@ -29,17 +29,21 @@
 
 package com.android.soundrecorder.filelist.player;
 
+import android.content.Context;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 
 import com.android.soundrecorder.filelist.listitem.BaseListItem;
 import com.android.soundrecorder.filelist.listitem.MediaItem;
 
 import java.io.IOException;
-import android.util.Log;
 
 public class Player implements MediaPlayer.OnCompletionListener,MediaPlayer.OnPreparedListener{
+    private Context mApplicationContext;
+
     private PlayerPanel mPlayerPanel;
     private MediaItem mMediaItem;
     private MediaPlayer mPlayer = null;
@@ -67,7 +71,8 @@ public class Player implements MediaPlayer.OnCompletionListener,MediaPlayer.OnPr
         stopPlayer();
     }
 
-    public Player(PlayerPanel playerPanel) {
+    public Player(Context context, PlayerPanel playerPanel) {
+        mApplicationContext = context.getApplicationContext();
         mPlayerPanel = playerPanel;
         mPlayerPanel.setPlayerButtonClickListener(new View.OnClickListener() {
             @Override
@@ -145,6 +150,7 @@ public class Player implements MediaPlayer.OnCompletionListener,MediaPlayer.OnPr
             mPlayer.setDataSource(mMediaItem.getPath());
             mPlayer.setOnCompletionListener(this);
             mPlayer.setOnErrorListener(mErrorListener);
+
             mPlayer.setOnPreparedListener(this);
 
             isPrepared = false;
@@ -167,6 +173,18 @@ public class Player implements MediaPlayer.OnCompletionListener,MediaPlayer.OnPr
     public void onPrepared(MediaPlayer mp) {
         if (mPlayer == null) return;
 
+        //There may be other music stream are playing in background, in order to stop them,
+        //we should get audio focus before start playing
+        int audioFocusResult = requestAudioFocus();
+        if (AudioManager.AUDIOFOCUS_REQUEST_GRANTED != audioFocusResult) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "requestAudioFocus failed!");
+            }
+
+            stopPlayer();
+            return;
+        }
+
         isPrepared = true;
         mPlayer.start();
         updateUi();
@@ -180,6 +198,8 @@ public class Player implements MediaPlayer.OnCompletionListener,MediaPlayer.OnPr
     }
 
     public void stopPlayer() {
+        abandonAudioFocus();
+
         if (mPlayer == null || isPrepared == false) return;
 
         mPlayer.stop();
@@ -220,4 +240,29 @@ public class Player implements MediaPlayer.OnCompletionListener,MediaPlayer.OnPr
         mMediaItem = newItem;
         updateUi();
     }
+
+    private int requestAudioFocus() {
+        AudioManager am = (AudioManager) mApplicationContext.getSystemService(Context.AUDIO_SERVICE);
+        return am.requestAudioFocus(mAudioFocusChangeListener,
+                AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+    }
+
+    private void abandonAudioFocus() {
+        AudioManager am = (AudioManager) mApplicationContext.getSystemService(Context.AUDIO_SERVICE);
+        am.abandonAudioFocus(mAudioFocusChangeListener);
+    }
+
+    private AudioManager.OnAudioFocusChangeListener mAudioFocusChangeListener
+            = new AudioManager.OnAudioFocusChangeListener() {
+
+        @Override
+        public void onAudioFocusChange(int focusChange) {
+            if (AudioManager.AUDIOFOCUS_LOSS == focusChange) {
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "audio focus loss, stop player");
+                }
+                stopPlayer();
+            }
+        }
+    };
 }

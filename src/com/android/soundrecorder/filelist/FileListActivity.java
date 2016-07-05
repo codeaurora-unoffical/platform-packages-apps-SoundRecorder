@@ -45,7 +45,7 @@ public class FileListActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.file_list_activity);
         PlayerPanel playerPanel = (PlayerPanel) findViewById(R.id.player_panel);
-        mPlayer = new Player(playerPanel);
+        mPlayer = new Player(getApplicationContext(), playerPanel);
 
         FileListFragment fragment = new FileListFragment();
         getFragmentManager().beginTransaction()
