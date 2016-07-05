@@ -36,6 +36,7 @@
     <string name="rename_dialog_title">重命名</string>
     <string name="rename_dialog_info_null">文件名不能为空</string>
     <string name="rename_dialog_info_exists">文件名已经存在</string>
+    <string name="rename_dialog_info_length_limit">已经达到输入上限</string>
     <string name="rename_dialog_save">保存</string>
 
     <string name="delete_dialog_confirm">删除</string>

@@ -50,6 +50,7 @@ public class RenameDialogBuilder extends AlertDialog.Builder {
     }
 
     private static final String EMPTY_EXTENSION = "";
+    private static final int FILENAME_CHAR_LIMIT = 255;
     private String mFolderPath;
     private String mFileName;
     private String mFileExtension;
@@ -117,6 +118,7 @@ public class RenameDialogBuilder extends AlertDialog.Builder {
     private void checkFileName(AlertDialog dialog, Editable editable) {
         boolean errorEmptyLength = (editable.length() == 0);
         boolean errorFileExists = false;
+        boolean errorFileNameLengthLimit = (editable.length() >= FILENAME_CHAR_LIMIT);
 
         if (mFolderPath != null) {
             File newFile = new File(mFolderPath + File.separator + editable.toString()
@@ -127,11 +129,14 @@ public class RenameDialogBuilder extends AlertDialog.Builder {
             }
         }
 
-        if (errorEmptyLength || errorFileExists) {
+        if (errorEmptyLength || errorFileExists || errorFileNameLengthLimit) {
             dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
             mInfoLayout.setVisibility(View.VISIBLE);
             if (errorEmptyLength) {
                 mInfoText.setText(R.string.rename_dialog_info_null);
+            }
+            if (errorFileNameLengthLimit) {
+                mInfoText.setText(R.string.rename_dialog_info_length_limit);
             }
             if (errorFileExists) {
                 mInfoText.setText(R.string.rename_dialog_info_exists);

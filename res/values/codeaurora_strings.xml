@@ -36,6 +36,7 @@
     <string name="rename_dialog_title">Rename</string>
     <string name="rename_dialog_info_null">File name can\'t be null.</string>
     <string name="rename_dialog_info_exists">The name already exists.</string>
+    <string name="rename_dialog_info_length_limit">Maximum character limit reached.</string>
     <string name="rename_dialog_save">Save</string>
 
     <string name="delete_dialog_confirm">Delete</string>
