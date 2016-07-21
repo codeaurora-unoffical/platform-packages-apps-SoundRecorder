@@ -244,7 +244,7 @@ public class FileListRecyclerAdapter extends RecyclerView.Adapter {
             mItemListener.closeItem();
         } else {
             int index = mItemsList.indexOf(playingItem);
-            if (index > 0) {
+            if (index >= 0) {
                 BaseListItem item = mItemsList.get(index);
                 if (item instanceof MediaItem) {
                     mItemListener.updatePlayerItem((MediaItem) item);
