@@ -69,12 +69,6 @@ public class MediaItemViewHolder extends BaseViewHolder {
             mDurationView.setText(Utils.timeToString(mDurationView.getContext(), duration));
 
             updateWaveIndicator(((MediaItem) item).getPlayStatus());
-            ((MediaItem) item).setItemPlayStatusListener(new MediaItem.ItemPlayStatusListener() {
-                @Override
-                public void onPlayStatusChanged(MediaItem.PlayStatus status) {
-                    updateWaveIndicator(status);
-                }
-            });
         }
     }
 

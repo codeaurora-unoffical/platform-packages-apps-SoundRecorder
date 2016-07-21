@@ -146,6 +146,8 @@ public class FileListRecyclerAdapter extends RecyclerView.Adapter {
                                 enterSelectionMode(viewHolder.getAdapterPosition());
                             }
                         });
+
+                setMediaItemPlayStatusListener(position);
             }
         }
     }
@@ -326,5 +328,26 @@ public class FileListRecyclerAdapter extends RecyclerView.Adapter {
         if (mInSelectionMode) {
             updateSelectedCountInActionMode();
         }
+    }
+
+    private void setMediaItemPlayStatusListener(final int position) {
+        if (BaseListItem.TYPE_MEDIA_ITEM != getItemViewType(position)) {
+            return;
+        }
+
+        BaseListItem baseItem = mItemsList.get(position);
+        if ((baseItem == null) || !(baseItem instanceof MediaItem)) {
+            return;
+        }
+
+        ((MediaItem) baseItem).setItemPlayStatusListener(
+                new MediaItem.ItemPlayStatusListener() {
+
+                    @Override
+                    public void onPlayStatusChanged(MediaItem.PlayStatus status) {
+                        FileListRecyclerAdapter.this.notifyItemChanged(position);
+                    }
+                }
+        );
     }
 }
