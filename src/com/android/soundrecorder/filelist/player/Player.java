@@ -37,13 +37,17 @@ import com.android.soundrecorder.filelist.listitem.BaseListItem;
 import com.android.soundrecorder.filelist.listitem.MediaItem;
 
 import java.io.IOException;
+import android.util.Log;
 
-public class Player implements MediaPlayer.OnCompletionListener {
+public class Player implements MediaPlayer.OnCompletionListener,MediaPlayer.OnPreparedListener{
     private PlayerPanel mPlayerPanel;
     private MediaItem mMediaItem;
     private MediaPlayer mPlayer = null;
+    private final static String TAG = "Player";
 
     private static final int UPDATE_FREQ = 1000;
+    private boolean isPrepared = false;
+
     private final Handler mHandler = new Handler();
     private Runnable mUpdateProgress = new Runnable() {
         public void run() {
@@ -141,8 +145,10 @@ public class Player implements MediaPlayer.OnCompletionListener {
             mPlayer.setDataSource(mMediaItem.getPath());
             mPlayer.setOnCompletionListener(this);
             mPlayer.setOnErrorListener(mErrorListener);
-            mPlayer.prepare();
-            mPlayer.start();
+            mPlayer.setOnPreparedListener(this);
+
+            isPrepared = false;
+            mPlayer.prepareAsync();
         } catch (IOException e) {
             mPlayer = null;
             return;
@@ -152,19 +158,30 @@ public class Player implements MediaPlayer.OnCompletionListener {
     }
 
     public void pausePlayer() {
-        if (mPlayer == null) return;
+        if (mPlayer == null || isPrepared == false) return;
         mPlayer.pause();
         updateUi();
     }
 
-    private void resumePlayer() {
+    @Override
+    public void onPrepared(MediaPlayer mp) {
         if (mPlayer == null) return;
+
+        isPrepared = true;
+        mPlayer.start();
+        updateUi();
+    }
+
+    private void resumePlayer() {
+        if (mPlayer == null || isPrepared == false) return;
+
         mPlayer.start();
         updateUi();
     }
 
     public void stopPlayer() {
-        if (mPlayer == null) return;
+        if (mPlayer == null || isPrepared == false) return;
+
         mPlayer.stop();
         mPlayer.release();
         mPlayer = null;
