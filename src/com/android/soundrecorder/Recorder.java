@@ -215,8 +215,9 @@ public class Recorder implements MediaRecorder.OnInfoListener {
         try {
             String prefix = context.getResources().getString(R.string.def_save_name_prefix);
             if (!"".equals(prefix)) {
-                long index = FileUtils.getSuitableIndexOfRecording(prefix);
-                mSampleFile = createTempFile(prefix, Long.toString(index), extension, sampleDir);
+                //long index = FileUtils.getSuitableIndexOfRecording(prefix);
+                //mSampleFile = createTempFile(prefix, Long.toString(index), extension, sampleDir);
+                mSampleFile = createTempFile(context, prefix+"-", extension, sampleDir);
             } else {
                 prefix = SAMPLE_PREFIX + '-';
                 mSampleFile = createTempFile(context, prefix, extension, sampleDir);

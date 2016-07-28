@@ -147,7 +147,14 @@ public class DatabaseUtils {
         ContentValues cv = new ContentValues();
         long current = System.currentTimeMillis();
         long modDate = file.lastModified();
-        String title = FileUtils.getLastFileName(file, false);
+
+        String title = "";
+        if (!"".equals(res.getString(R.string.def_save_name_prefix))) {
+            title = file.getAbsolutePath().substring(
+                    file.getAbsolutePath().lastIndexOf("/") + 1, file.getAbsolutePath().length());
+        } else {
+            title = FileUtils.getLastFileName(file, false);
+        }
 
         // Label the recorded audio file as MUSIC so that the file
         // will be displayed automatically
