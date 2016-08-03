@@ -47,6 +47,8 @@
     <string name="share_title">Share</string>
     <string name="file_list_activity_label">Recording list</string>
     <string name="file_list_empty">No recording</string>
+    <string name="file_list_FM">FM Recording</string>
+    <string name="file_list_call">Call Recording</string>
 
     <string name="list_item_date_modified_format" translatable="false">
         <xliff:g id="format">yy/MM/dd HH:mm:ss</xliff:g>

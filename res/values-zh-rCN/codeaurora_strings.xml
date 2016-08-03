@@ -47,6 +47,8 @@
     <string name="share_title">分享</string>
     <string name="file_list_activity_label">录音列表</string>
     <string name="file_list_empty">没有录音</string>
+    <string name="file_list_FM">收音机录音</string>
+    <string name="file_list_call">电话录音</string>
     <string name="action_mode_menu_edit">编辑</string>
     <string name="action_mode_menu_share">分享</string>
     <string name="action_mode_menu_delete">删除</string>

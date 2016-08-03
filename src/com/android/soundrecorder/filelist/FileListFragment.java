@@ -63,8 +63,11 @@ import com.android.soundrecorder.util.StorageUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import android.util.Log;
 
 public class FileListFragment extends Fragment {
+    private static final String TAG = "FileListFragment";
+
     private static final int PERMISSION_REQUEST_CODE = 1;
     public static final String FRAGMENT_TAG = "FileListFragment";
     public static final String FOLDER_PATH = "folder_path";
@@ -220,7 +223,16 @@ public class FileListFragment extends Fragment {
             getActivity().setTitle(R.string.file_list_activity_label);
         } else {
             if (mArgumentPath != null) {
-                getActivity().setTitle(FileUtils.getLastFileName(mArgumentPath, false));
+                String title = FileUtils.getLastFileName(mArgumentPath, false);
+                if(title.equals(StorageUtils.FM_RECORDING_FOLDER_NAME)){
+                    getActivity().setTitle(R.string.file_list_FM);
+                }
+                else if(title.equals(StorageUtils.CALL_RECORDING_FOLDER_NAME)){
+                    getActivity().setTitle(R.string.file_list_call);
+                }
+                else{
+                    getActivity().setTitle(title);
+                }
             }
         }
     }
