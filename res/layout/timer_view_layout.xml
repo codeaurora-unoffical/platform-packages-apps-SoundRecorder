@@ -31,7 +31,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/timerViewLayout"
     style="@style/TimerViewLayout"
-    android:layout_centerHorizontal="true"
     android:background="@color/vumeter_background_color">
 
     <RelativeLayout

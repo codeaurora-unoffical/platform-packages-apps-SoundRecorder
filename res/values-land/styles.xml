@@ -46,7 +46,7 @@
     <style name="TimerViewLayout">
         <item name="android:layout_width">@dimen/timer_view_layout_size</item>
         <item name="android:layout_height">@dimen/timer_view_layout_size</item>
-        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:layout_centerVertical">true</item>
         <item name="android:layout_marginLeft">@dimen/timer_layout_margin_top</item>
     </style>
     <style name="VUMeterLayoutStyle">
