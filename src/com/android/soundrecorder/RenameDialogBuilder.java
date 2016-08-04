@@ -118,7 +118,10 @@ public class RenameDialogBuilder extends AlertDialog.Builder {
     private void checkFileName(AlertDialog dialog, Editable editable) {
         boolean errorEmptyLength = (editable.length() == 0);
         boolean errorFileExists = false;
-        boolean errorFileNameLengthLimit = (editable.length() >= FILENAME_CHAR_LIMIT);
+
+        int fileExtensionLength = mFileExtension == null ? 0 : mFileExtension.length();
+        boolean errorFileNameLengthLimit =
+                (editable.length() + fileExtensionLength) >= FILENAME_CHAR_LIMIT;
 
         if (mFolderPath != null) {
             File newFile = new File(mFolderPath + File.separator + editable.toString()
