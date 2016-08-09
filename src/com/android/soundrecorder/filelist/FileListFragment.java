@@ -160,8 +160,8 @@ public class FileListFragment extends Fragment {
         String[] rootArray = null;
         if (mIsRootPage) {
             folderArray = new String[] {
-                    StorageUtils.getFmRecordingStoragePath(),
-                    StorageUtils.getCallRecordingStoragePath()
+                    StorageUtils.getCallRecordingStoragePath(),
+                    StorageUtils.getFmRecordingStoragePath()
             };
             rootArray = new String[] {
                     StorageUtils.getPhoneStoragePath()

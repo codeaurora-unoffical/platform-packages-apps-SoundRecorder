@@ -33,6 +33,8 @@ import android.view.View;
 
 import com.android.soundrecorder.filelist.listitem.BaseListItem;
 import com.android.soundrecorder.util.FileUtils;
+import com.android.soundrecorder.util.StorageUtils;
+import com.android.soundrecorder.R;
 
 public class FolderItemViewHolder extends BaseViewHolder {
     public FolderItemViewHolder(View itemView, int rootLayoutId) {
@@ -42,6 +44,18 @@ public class FolderItemViewHolder extends BaseViewHolder {
     @Override
     public void setItem(BaseListItem item) {
         super.setItem(item);
-        setTitle(FileUtils.getLastFileName(item.getPath(), false));
+
+        String title = FileUtils.getLastFileName(item.getPath(), false);
+        if(title.equals(StorageUtils.FM_RECORDING_FOLDER_NAME)){
+            setTitle(mRootView.getContext().getApplicationContext().getResources()
+                    .getString(R.string.file_list_FM));
+        }
+        else if(title.equals(StorageUtils.CALL_RECORDING_FOLDER_NAME)){
+            setTitle(mRootView.getContext().getApplicationContext().getResources()
+                    .getString(R.string.file_list_call));
+        }
+        else{
+            setTitle(title);
+        }
     }
 }
