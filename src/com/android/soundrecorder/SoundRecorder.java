@@ -30,9 +30,8 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.media.AudioManager;
 import android.media.MediaRecorder;
-import android.media.AudioManager.OnAudioFocusChangeListener;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -71,7 +70,7 @@ import com.android.soundrecorder.util.Utils;
 /**
  * Calculates remaining recording time based on available disk space and
  * optionally a maximum recording file size.
- * 
+ *
  * The reason why this is not trivial is that the file grows in blocks
  * every few seconds or so, while we want a smooth countdown.
  */
@@ -530,41 +529,6 @@ public class SoundRecorder extends Activity
         mVUMeter.setRecorder(mRecorder);
     }
 
-    /*
-     * Make sure we're not recording music playing in the background, ask
-     * the MediaPlaybackService to pause playback.
-     */
-    private void stopAudioPlayback() {
-        AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        am.requestAudioFocus(mAudioFocusListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-    }
-
-    private OnAudioFocusChangeListener mAudioFocusListener = new OnAudioFocusChangeListener() {
-        public void onAudioFocusChange(int focusChange) {
-            mRecorderHandler.obtainMessage(FOCUSCHANGE, focusChange, 0).sendToTarget();
-        }
-    };
-
-    private Handler mRecorderHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case FOCUSCHANGE:
-                    switch (msg.arg1) {
-                        case AudioManager.AUDIOFOCUS_LOSS:
-                            if (mRecorder.state() == Recorder.RECORDING_STATE) {
-                                mRecorder.stop();
-                                // TODO show rename dialog
-                            }
-                            break;
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
-
     private String[] getOperationPermissionName(int operation) {
         switch (operation) {
         case R.id.recordButton:
@@ -627,7 +591,6 @@ public class SoundRecorder extends Activity
                 mErrorUiMessage = getResources().getString(R.string.storage_is_full);
                 updateUi();
             } else {
-                stopAudioPlayback();
 
                 if ((mCallState == TelephonyManager.CALL_STATE_OFFHOOK) &&
                     (mAudioSourceType == MediaRecorder.AudioSource.MIC)) {
@@ -1144,7 +1107,6 @@ public class SoundRecorder extends Activity
                 mRecorder.delete();
             }
         }
-        mAudioManager.abandonAudioFocus(mAudioFocusListener);
         super.onPause();
     }
 
@@ -1434,7 +1396,7 @@ public class SoundRecorder extends Activity
                     mListButton.setFocusable(true);
                 }
                 break;
-            case Recorder.RECORDING_STATE: 
+            case Recorder.RECORDING_STATE:
                 mRecordButton.setImageResource(R.drawable.pause);
                 mRecordButton.setEnabled(true);
                 mRecordButton.setFocusable(true);

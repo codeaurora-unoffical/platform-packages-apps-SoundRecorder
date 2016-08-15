@@ -27,6 +27,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.media.AudioManager;
+import android.media.AudioManager.OnAudioFocusChangeListener;
+import android.os.Handler;
+import android.os.Message;
 
 import com.android.soundrecorder.util.FileUtils;
 import com.android.soundrecorder.util.StorageUtils;
@@ -50,6 +54,8 @@ public class Recorder implements MediaRecorder.OnInfoListener {
     public static final int UNSUPPORTED_FORMAT = 4;
     public static final int RECORD_INTERRUPTED = 5;
 
+    static final int FOCUSCHANGE = 0;
+
     public int mChannels = 0;
     public int mSamplingRate = 0;
     private int mBitRate = 0;
@@ -71,12 +77,14 @@ public class Recorder implements MediaRecorder.OnInfoListener {
             setError(RECORD_INTERRUPTED);
         }
     };
-    
+
     long mSampleStart = 0;       // time at which latest record or play operation started
     long mSampleLength = 0;      // length of current sample
     File mSampleFile = null;
 
     MediaRecorder mRecorder = null;
+    private AudioManager mAudioManager;
+    Context mContext = null;
 
     public Recorder(Context context) {
         if (context.getResources().getBoolean(R.bool.config_storage_path)) {
@@ -84,6 +92,8 @@ public class Recorder implements MediaRecorder.OnInfoListener {
         } else {
             mStoragePath = StorageUtils.getPhoneStoragePath();
         }
+        mContext = context;
+        mAudioManager = (AudioManager)mContext.getSystemService(Context.AUDIO_SERVICE);
     }
 
     public Recorder() {
@@ -164,7 +174,7 @@ public class Recorder implements MediaRecorder.OnInfoListener {
     public void renameSampleFile(String newName) {
         mSampleFile = FileUtils.renameFile(mSampleFile, newName);
     }
-    
+
     /**
      * Resets the recorder state. If a sample was recorded, the file is deleted.
      */
@@ -294,6 +304,7 @@ public class Recorder implements MediaRecorder.OnInfoListener {
         }
         mSampleStart = System.currentTimeMillis();
         setState(RECORDING_STATE);
+        stopAudioPlayback();
     }
 
     public void pauseRecording() {
@@ -327,7 +338,7 @@ public class Recorder implements MediaRecorder.OnInfoListener {
         mSampleStart = System.currentTimeMillis();
         setState(RECORDING_STATE);
     }
-    
+
     public void stopRecording() {
         if (mRecorder == null)
             return;
@@ -354,6 +365,7 @@ public class Recorder implements MediaRecorder.OnInfoListener {
 
     public void stop() {
         stopRecording();
+        mAudioManager.abandonAudioFocus(mAudioFocusListener);
     }
 
     private void setState(int state) {
@@ -422,4 +434,47 @@ public class Recorder implements MediaRecorder.OnInfoListener {
             mOnStateChangedListener.onInfo(what, extra);
         }
     }
+
+    /*
+     * Make sure we're not recording music playing in the background, ask
+     * the MediaPlaybackService to pause playback.
+     */
+    private void stopAudioPlayback() {
+        AudioManager am = (AudioManager)mContext.getSystemService(Context.AUDIO_SERVICE);
+        am.requestAudioFocus(mAudioFocusListener,
+                AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+    }
+
+    private OnAudioFocusChangeListener mAudioFocusListener =
+        new OnAudioFocusChangeListener() {
+            public void onAudioFocusChange(int focusChange) {
+                mRecorderHandler.obtainMessage(FOCUSCHANGE, focusChange, 0)
+                    .sendToTarget();
+        }
+    };
+
+    private Handler mRecorderHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case FOCUSCHANGE:
+                    switch (msg.arg1) {
+                        case AudioManager.AUDIOFOCUS_LOSS:
+                            if (state() == Recorder.RECORDING_STATE) {
+                                stop();
+                                // TODO show rename dialog
+                            }
+                            break;
+
+                        default:
+                            break;
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    };
+
 }
