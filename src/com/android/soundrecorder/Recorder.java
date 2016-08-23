@@ -53,6 +53,7 @@ public class Recorder implements MediaRecorder.OnInfoListener {
     public static final int IN_CALL_RECORD_ERROR = 3;
     public static final int UNSUPPORTED_FORMAT = 4;
     public static final int RECORD_INTERRUPTED = 5;
+    public static final int RECORD_LOST_FOCUS = 6;
 
     static final int FOCUSCHANGE = 0;
 
@@ -463,7 +464,7 @@ public class Recorder implements MediaRecorder.OnInfoListener {
                         case AudioManager.AUDIOFOCUS_LOSS:
                             if (state() == Recorder.RECORDING_STATE) {
                                 stop();
-                                // TODO show rename dialog
+                                setError(RECORD_LOST_FOCUS);
                             }
                             break;
 
