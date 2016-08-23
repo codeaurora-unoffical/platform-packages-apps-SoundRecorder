@@ -325,6 +325,7 @@ public class Recorder implements MediaRecorder.OnInfoListener {
         if (mRecorder == null) {
             return;
         }
+        stopAudioPlayback();
         try {
             if(Build.VERSION.SDK_INT >= 23){
                 mRecorder.resume();
