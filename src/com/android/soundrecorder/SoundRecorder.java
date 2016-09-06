@@ -268,7 +268,7 @@ public class SoundRecorder extends Activity
                                    // is interrupted for some reason.
 
     long mMaxFileSize = -1;        // can be specified in the intent
-    RemainingTimeCalculator mRemainingTimeCalculator;
+    RemainingTimeCalculator mRemainingTimeCalculator = null;
 
     String mTimerFormat;
     final Handler mHandler = new Handler();
@@ -417,6 +417,8 @@ public class SoundRecorder extends Activity
         mRecorder.setOnStateChangedListener(this);
         mRecorder.setMaxDuration(maxDuration);
 
+        mRemainingTimeCalculator = new RemainingTimeCalculator(this);
+
         PowerManager pm
             = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK,
@@ -471,8 +473,6 @@ public class SoundRecorder extends Activity
         for(int i = 0; i < mPhoneCount; i++) {
             mTelephonyManager.listen(mPhoneStateListener[i], PhoneStateListener.LISTEN_CALL_STATE);
         }
-
-        mRemainingTimeCalculator = new RemainingTimeCalculator(SoundRecorder.this);
     }
 
     @Override
