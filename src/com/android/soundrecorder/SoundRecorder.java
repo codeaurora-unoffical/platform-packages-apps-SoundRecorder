@@ -1494,6 +1494,9 @@ public class SoundRecorder extends Activity
                 message = res.getString(R.string.error_app_unsupported);
                 isExit = true;
                 break;
+            case Recorder.RECORD_LOST_FOCUS:
+                showRenameDialogIfNeed();
+                break;
         }
         if (message != null) {
             new AlertDialog.Builder(this)
