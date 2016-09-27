@@ -256,7 +256,7 @@ public class SoundRecorder extends Activity
 
     int mAudioSourceType = MediaRecorder.AudioSource.MIC;
     int mPhoneCount = 0;
-    static Hashtable<Integer, Integer> mCallStateMap = new Hashtable<Integer, Integer>();
+    private Hashtable<Integer, Integer> mCallStateMap = new Hashtable<Integer, Integer>();
     static int mCallState = TelephonyManager.CALL_STATE_IDLE;
     WakeLock mWakeLock;
     String mRequestedType = AUDIO_ANY;
