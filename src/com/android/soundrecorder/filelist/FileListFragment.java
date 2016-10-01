@@ -115,14 +115,16 @@ public class FileListFragment extends Fragment {
 
         mRecyclerView.setAdapter(mAdapter);
 
-        getPlayer().setPlayerPanelLayoutListener(new PlayerPanel.LayoutChangedListener() {
-            @Override
-            public void onLayoutChanged(View view) {
-                updateRecyclerViewLayout(view);
-            }
-        });
+        if (getPlayer() != null) {
+            getPlayer().setPlayerPanelLayoutListener(new PlayerPanel.LayoutChangedListener() {
+                @Override
+                public void onLayoutChanged(View view) {
+                    updateRecyclerViewLayout(view);
+                }
+            });
 
-        updateRecyclerViewLayout(getPlayer().getPlayerPanel());
+            updateRecyclerViewLayout(getPlayer().getPlayerPanel());
+        }
 
         return rootView;
     }
@@ -130,8 +132,13 @@ public class FileListFragment extends Fragment {
     private void updateRecyclerViewLayout(View anchor) {
         final RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mRecyclerView
                 .getLayoutParams();
-        boolean isPlayerShown = getPlayer().isPlayShown();
-        if (isPlayerShown) {
+        boolean isPlayerShown = false;
+
+        if (getPlayer() != null) {
+            isPlayerShown = getPlayer().isPlayShown();
+        }
+
+        if (isPlayerShown && anchor != null) {
             params.bottomMargin = anchor.getMeasuredHeight();
         } else {
             params.bottomMargin = 0;
