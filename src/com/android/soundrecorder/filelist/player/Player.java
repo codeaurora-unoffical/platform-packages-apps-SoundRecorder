@@ -72,7 +72,7 @@ public class Player implements MediaPlayer.OnCompletionListener,MediaPlayer.OnPr
     }
 
     public Player(Context context, PlayerPanel playerPanel) {
-        mApplicationContext = context.getApplicationContext();
+        mApplicationContext = context;
         mPlayerPanel = playerPanel;
         mPlayerPanel.setPlayerButtonClickListener(new View.OnClickListener() {
             @Override
@@ -200,7 +200,7 @@ public class Player implements MediaPlayer.OnCompletionListener,MediaPlayer.OnPr
     public void stopPlayer() {
         abandonAudioFocus();
 
-        if (mPlayer == null || isPrepared == false) return;
+        if (mPlayer == null) return;
 
         mPlayer.stop();
         mPlayer.release();
