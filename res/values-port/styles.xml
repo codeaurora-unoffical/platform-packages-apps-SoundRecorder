@@ -30,10 +30,10 @@
 
 <resources>
     <style name="MediaButtonSmallLeft" parent="MediaButtonSmall">
-        <item name="android:layout_marginEnd">@dimen/media_button_margin</item>
+        <item name="android:layout_marginStart">@dimen/media_button_margin</item>
     </style>
     <style name="MediaButtonSmallRight" parent="MediaButtonSmall">
-        <item name="android:layout_marginStart">@dimen/media_button_margin</item>
+        <item name="android:layout_marginEnd">@dimen/media_button_margin</item>
     </style>
     <style name="MediaPanelStyle">
         <item name="android:layout_width">match_parent</item>

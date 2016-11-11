@@ -30,16 +30,16 @@
 
 <resources>
     <style name="MediaButtonSmallLeft" parent="MediaButtonSmall">
-        <item name="android:layout_marginBottom">@dimen/media_panel_margin_bottom</item>
+        <item name="android:layout_marginTop">@dimen/media_panel_margin_bottom</item>
     </style>
     <style name="MediaButtonSmallRight" parent="MediaButtonSmall">
-        <item name="android:layout_marginTop">@dimen/media_panel_margin_bottom</item>
+        <item name="android:layout_marginBottom">@dimen/media_panel_margin_bottom</item>
     </style>
     <style name="MediaPanelStyle">
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_width">@dimen/media_panel_height</item>
         <item name="android:layout_alignParentEnd">true</item>
-        <item name="android:layout_marginEnd">@dimen/media_panel_margin_bottom</item>
+        <item name="android:layout_marginEnd">@dimen/media_panel_margin_right</item>
         <item name="android:gravity">center</item>
         <item name="android:orientation">vertical</item>
     </style>
