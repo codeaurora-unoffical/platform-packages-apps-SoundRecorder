@@ -31,8 +31,10 @@ package com.android.soundrecorder.filelist.listitem;
 
 import android.database.Cursor;
 import android.provider.MediaStore;
+import android.util.Log;
 
 public class MediaItem extends BaseListItem {
+    static final String TAG = "MediaItem";
     private long mDateModified;
     private long mDuration;
     public enum PlayStatus {
