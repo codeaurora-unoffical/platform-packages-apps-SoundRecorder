@@ -207,6 +207,7 @@ public class DatabaseUtils {
 
         ContentValues cv = new ContentValues();
         cv.put(MediaStore.Audio.Media.TITLE, title);
+        cv.put(MediaStore.Audio.Media.DISPLAY_NAME, title);
         cv.put(MediaStore.Audio.Media.DATA, newFile.getAbsolutePath());
 
         Uri base = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
