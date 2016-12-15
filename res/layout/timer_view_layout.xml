@@ -63,6 +63,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="5px"
+            android:textSize="@dimen/message_text_size"
             android:text="@string/recording" />
 
     </LinearLayout>

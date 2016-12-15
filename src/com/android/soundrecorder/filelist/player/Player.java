@@ -129,7 +129,10 @@ public class Player implements MediaPlayer.OnCompletionListener,MediaPlayer.OnPr
     }
 
     private void resetUi() {
-        mMediaItem.setPlayStatus(MediaItem.PlayStatus.PAUSE);
+        if (mMediaItem != null) {
+            mMediaItem.setPlayStatus(MediaItem.PlayStatus.PAUSE);
+        }
+
         if (mPlayerPanel != null) {
             mPlayerPanel.updateTitle(mMediaItem.getTitle());
             mPlayerPanel.updateProgress(0, mMediaItem.getDuration());
@@ -148,15 +151,21 @@ public class Player implements MediaPlayer.OnCompletionListener,MediaPlayer.OnPr
 
         try {
             mPlayer.setDataSource(mMediaItem.getPath());
-            mPlayer.setOnCompletionListener(this);
-            mPlayer.setOnErrorListener(mErrorListener);
+        } catch (IOException | IllegalArgumentException | SecurityException | IllegalStateException
+                e) {
+            releasePlayer();
+            return;
+        }
 
-            mPlayer.setOnPreparedListener(this);
+        mPlayer.setOnCompletionListener(this);
+        mPlayer.setOnErrorListener(mErrorListener);
+        mPlayer.setOnPreparedListener(this);
 
-            isPrepared = false;
+        isPrepared = false;
+        try {
             mPlayer.prepareAsync();
-        } catch (IOException e) {
-            mPlayer = null;
+        } catch (IllegalStateException e) {
+            releasePlayer();
             return;
         }
 
@@ -164,8 +173,12 @@ public class Player implements MediaPlayer.OnCompletionListener,MediaPlayer.OnPr
     }
 
     public void pausePlayer() {
-        if (mPlayer == null || isPrepared == false) return;
-        mPlayer.pause();
+        if (mPlayer == null || isPrepared == false){
+            return;
+        }
+
+        pause();
+
         updateUi();
     }
 
@@ -186,25 +199,33 @@ public class Player implements MediaPlayer.OnCompletionListener,MediaPlayer.OnPr
         }
 
         isPrepared = true;
-        mPlayer.start();
+        start();
         updateUi();
     }
 
     private void resumePlayer() {
-        if (mPlayer == null || isPrepared == false) return;
+        if (mPlayer == null || isPrepared == false){
+            return;
+        }
 
-        mPlayer.start();
+        start();
         updateUi();
     }
 
     public void stopPlayer() {
+        if (mPlayer == null || isPrepared == false){
+            return;
+        }
         abandonAudioFocus();
 
-        if (mPlayer == null) return;
+        stop();
+        resetUi();
+    }
 
-        mPlayer.stop();
-        mPlayer.release();
-        mPlayer = null;
+    public void releasePlayer() {
+        abandonAudioFocus();
+
+        release();
         resetUi();
     }
 
@@ -219,6 +240,56 @@ public class Player implements MediaPlayer.OnCompletionListener,MediaPlayer.OnPr
         }
         if (mPlayerPanel != null) {
             mPlayerPanel.setVisibility(View.GONE);
+        }
+    }
+
+
+    public void stop() {
+        if (mPlayer == null){
+            return;
+        }
+
+        try {
+            mPlayer.stop();
+        } catch(RuntimeException exception) {
+            Log.e(TAG, "stop failed!");
+        }
+
+        mPlayer.release();
+        mPlayer = null;
+    }
+
+    public void release() {
+        if (mPlayer == null){
+            return;
+        }
+
+        mPlayer.reset();
+        mPlayer.release();
+        mPlayer = null;
+    }
+
+    public void start() {
+        if (mPlayer == null){
+            return;
+        }
+
+        try {
+            mPlayer.start();
+        } catch(RuntimeException exception) {
+            Log.e(TAG, "start failed!");
+        }
+    }
+
+    public void pause() {
+        if (mPlayer == null){
+            return;
+        }
+
+        try {
+            mPlayer.pause();
+        } catch(RuntimeException exception) {
+            Log.e(TAG, "pause failed!");
         }
     }
 

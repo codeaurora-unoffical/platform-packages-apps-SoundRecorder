@@ -37,6 +37,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.util.Log;
 
 import com.android.soundrecorder.R;
 import com.android.soundrecorder.filelist.listitem.BaseListItem;
@@ -56,6 +57,7 @@ import java.util.List;
 public class FileListRecyclerAdapter extends RecyclerView.Adapter {
     private String[] mTargetFolderArray;
     private String[] mTargetSourceArray;
+    private static final String TAG = "FileListRecyclerAdapter";
 
     private ContentResolver mContentResolver;
 

@@ -182,8 +182,9 @@ public class Recorder implements MediaRecorder.OnInfoListener {
     public void delete() {
         stop();
 
-        if (mSampleFile != null)
+        if (mSampleFile != null){
             mSampleFile.delete();
+        }
 
         mSampleFile = null;
         mSampleLength = 0;
@@ -198,6 +199,21 @@ public class Recorder implements MediaRecorder.OnInfoListener {
     public void clear() {
         stop();
 
+        mSampleFile = null;
+        mSampleLength = 0;
+
+        signalStateChanged(IDLE_STATE);
+    }
+
+    /**
+     * Resets the recorder state before prepared. If a sample was recorded, the file is deleted.
+     */
+    public void release(int err) {
+        releaseRecording(err);
+
+        if (mSampleFile != null){
+            mSampleFile.delete();
+        }
         mSampleFile = null;
         mSampleLength = 0;
 
@@ -238,8 +254,16 @@ public class Recorder implements MediaRecorder.OnInfoListener {
             return;
         }
 
+
         mRecorder = new MediaRecorder();
-        mRecorder.setAudioSource(audiosourcetype);
+
+        try {
+            mRecorder.setAudioSource(audiosourcetype);
+        } catch(RuntimeException exception) {
+            release(INTERNAL_ERROR);
+            return;
+        }
+
         //set channel for surround sound recording.
         if (mChannels > 0) {
             mRecorder.setAudioChannels(mChannels);
@@ -251,38 +275,26 @@ public class Recorder implements MediaRecorder.OnInfoListener {
             mRecorder.setAudioEncodingBitRate(mBitRate);
         }
 
-        mRecorder.setOutputFormat(outputfileformat);
-        mRecorder.setOnErrorListener(mMRErrorListener);
-
-        mRecorder.setMaxDuration(mMaxDuration);
-        mRecorder.setOnInfoListener(this);
-
         try {
+            mRecorder.setOutputFormat(outputfileformat);
+            mRecorder.setOnErrorListener(mMRErrorListener);
+
+            mRecorder.setMaxDuration(mMaxDuration);
+            mRecorder.setOnInfoListener(this);
+
             mRecorder.setAudioEncoder(codectype);
         } catch(RuntimeException exception) {
-            setError(UNSUPPORTED_FORMAT);
-            mRecorder.reset();
-            mRecorder.release();
-            if (mSampleFile != null) mSampleFile.delete();
-            mSampleFile = null;
-            mSampleLength = 0;
-            mRecorder = null;
+            release(UNSUPPORTED_FORMAT);
             return;
         }
 
-        mRecorder.setOutputFile(mSampleFile.getAbsolutePath());
-
         // Handle IOException
         try {
+            mRecorder.setOutputFile(mSampleFile.getAbsolutePath());
+
             mRecorder.prepare();
-        } catch(IOException exception) {
-            setError(INTERNAL_ERROR);
-            mRecorder.reset();
-            mRecorder.release();
-            if (mSampleFile != null) mSampleFile.delete();
-            mSampleFile = null;
-            mSampleLength = 0;
-            mRecorder = null;
+        } catch(IOException | IllegalStateException exception) {
+            release(INTERNAL_ERROR);
             return;
         }
         // Handle RuntimeException if the recording couldn't start
@@ -298,9 +310,7 @@ public class Recorder implements MediaRecorder.OnInfoListener {
             } else {
                 setError(INTERNAL_ERROR);
             }
-            mRecorder.reset();
-            mRecorder.release();
-            mRecorder = null;
+            delete();
             return;
         }
         mSampleStart = System.currentTimeMillis();
@@ -342,8 +352,10 @@ public class Recorder implements MediaRecorder.OnInfoListener {
     }
 
     public void stopRecording() {
-        if (mRecorder == null)
+        if (mRecorder == null){
             return;
+        }
+
         try {
             if ((PAUSE_STATE == mState) && (Build.VERSION.SDK_INT >= 23)){
                 resumeRecording();
@@ -354,6 +366,7 @@ public class Recorder implements MediaRecorder.OnInfoListener {
             setError(INTERNAL_ERROR);
             Log.e(TAG, "Stop Failed");
         }
+
         mRecorder.reset();
         mRecorder.release();
         mRecorder = null;
@@ -363,6 +376,21 @@ public class Recorder implements MediaRecorder.OnInfoListener {
             mSampleLength = mSampleLength + (System.currentTimeMillis() - mSampleStart);
         }
         setState(IDLE_STATE);
+    }
+
+
+    public void releaseRecording(int err) {
+
+        setError(err);
+
+        if (mRecorder == null){
+            return;
+        }
+
+        mRecorder.reset();
+        mRecorder.release();
+        mRecorder = null;
+
     }
 
     public void stop() {
