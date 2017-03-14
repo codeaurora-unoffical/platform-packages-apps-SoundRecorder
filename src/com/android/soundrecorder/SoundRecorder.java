@@ -629,7 +629,7 @@ public class SoundRecorder extends Activity
                     //AAC  2-channel recording
                     if (true == bSSRSupported) {
                       mRemainingTimeCalculator.setBitRate(BITRATE_AAC);
-                      mRecorder.setChannels(2);
+                      mRecorder.setChannels(6);
                       mRecorder.setSamplingRate(SAMPLERATE_MULTI_CH);
                       mAudioSourceType = MediaRecorder.AudioSource.MIC;
                       mRecorder.startRecording(MediaRecorder.OutputFormat.THREE_GPP, ".3gpp", this,
