@@ -410,7 +410,7 @@ public class SoundRecorder extends Activity
         mFileType = mSharedPreferences.getInt("fileType",
                 getResources().getInteger(R.integer.def_save_type));
         mStoragePath = mSharedPreferences.getString("storagePath", mStoragePath);
-        if (!mWAVSupport && mRequestedType == AUDIO_WAVE_2CH_LPCM) {
+        if (!mWAVSupport && (AUDIO_WAVE_2CH_LPCM.equals(mRequestedType))) {
             mRequestedType = AUDIO_AMR;
             mFileType = 0;
         }
@@ -453,7 +453,7 @@ public class SoundRecorder extends Activity
             mPhoneStateListener[j] = getPhoneStateListener(subId[0]);
         }
 
-        String ssrRet = SystemPropertiesWrapper.get("ro.qc.sdk.audio.ssr","false");
+        String ssrRet = SystemPropertiesWrapper.get("ro.vendor.qc.sdk.audio.ssr","false");
         if (ssrRet.contains("true")) {
             Log.d(TAG,"Surround sound recording is supported");
             bSSRSupported = true;
@@ -964,24 +964,28 @@ public class SoundRecorder extends Activity
     if((event.getKeyCode() == KeyEvent.KEYCODE_1 || event.getKeyCode() == KeyEvent.KEYCODE_2)
          && (event.getAction() == event.ACTION_UP)){
        //Ignore ACTION_DOWN to avoid showing error dialog twice
-       if((mAudioManager.getMode() != AudioManager.MODE_IN_CALL) ||
-         (mRequestedType == AUDIO_AAC_MP4)) {
-          mAudioSourceType = MediaRecorderWrapper.AudioSource.MIC;//Default type
-          Resources res = getResources();
-          String message = null;
-          if(mAudioManager.getMode() != AudioManager.MODE_IN_CALL) {
-            message = res.getString(R.string.error_mediadb_incall);
-          } else {
-            message = res.getString(R.string.error_mediadb_aacincall);
-          }
-          new AlertDialog.Builder(this)
-          .setTitle(R.string.app_name)
-          .setMessage(message)
-          .setPositiveButton(R.string.button_ok, null)
-          .setCancelable(false)
-          .show();
-          return super.dispatchKeyEvent(event);
-       }
+        if((mAudioManager.getMode() != AudioManager.MODE_IN_CALL) ||
+               (AUDIO_AAC_MP4.equals(mRequestedType))) {
+
+            mAudioSourceType = MediaRecorderWrapper.AudioSource.MIC;//Default type
+            Resources res = getResources();
+            String message = null;
+
+            if(mAudioManager.getMode() != AudioManager.MODE_IN_CALL) {
+                message = res.getString(R.string.error_mediadb_incall);
+            } else {
+                message = res.getString(R.string.error_mediadb_aacincall);
+            }
+
+            new AlertDialog.Builder(this)
+                .setTitle(R.string.app_name)
+                .setMessage(message)
+                .setPositiveButton(R.string.button_ok, null)
+                .setCancelable(false)
+                .show();
+
+            return super.dispatchKeyEvent(event);
+        }
     }
         // Intercept some events before they get dispatched to our views.
         boolean ret = false;
