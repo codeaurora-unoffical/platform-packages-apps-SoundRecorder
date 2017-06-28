@@ -35,6 +35,15 @@ import android.net.Uri;
 
 import java.io.File;
 import java.util.ArrayList;
+import android.content.ContentValues;
+import android.util.Log;
+import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
+import android.os.Build;
+import android.content.ContentUris;
+import android.database.Cursor;
+import android.content.ContentResolver;
+
 
 public class FileUtils {
     public static final int NOT_FOUND = -1;
@@ -150,7 +159,31 @@ public class FileUtils {
         return ret;
     }
 
-    public static ArrayList<Uri> urisFromFolder(File folder) {
+
+    public static Uri uriFromFile(File file, Context context) {
+        if (file == null || context == null) {
+            return null;
+        }
+
+        ContentResolver cr = context.getContentResolver();
+        Cursor c = null;
+        long id = 0;
+        c = cr.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null,
+                MediaStore.Audio.Media.DATA + "=?", new String[] { file.getAbsolutePath() }, null);
+
+        if(c != null){
+            c.moveToFirst();
+            id = c.getLong(c.getColumnIndexOrThrow(MediaStore.Audio.Media._ID));
+        }
+
+        Uri uri = ContentUris.withAppendedId(
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
+
+        Log.d("FileUtils","uriFromFile uri="+uri);
+        return uri;
+    }
+
+    public static ArrayList<Uri> urisFromFolder(File folder, Context context) {
         if (folder == null || !folder.isDirectory()) {
             return null;
         }
@@ -158,7 +191,11 @@ public class FileUtils {
         ArrayList<Uri> uris = new ArrayList<Uri>();
         File[] list = folder.listFiles();
         for (File file : list) {
-            uris.add(Uri.fromFile(file));
+            if (Build.VERSION.SDK_INT >= 24) {
+                uris.add(uriFromFile(file,context));
+            } else {
+                uris.add(Uri.fromFile(file));
+            }
         }
         return uris;
     }
