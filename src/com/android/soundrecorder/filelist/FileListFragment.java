@@ -64,6 +64,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import android.util.Log;
+import android.os.Build;
 
 public class FileListFragment extends Fragment {
     private static final String TAG = "FileListFragment";
@@ -383,9 +384,14 @@ public class FileListFragment extends Fragment {
         for (BaseListItem item : items) {
             File file = new File(item.getPath());
             if (file.isDirectory()) {
-                uris.addAll(FileUtils.urisFromFolder(file));
+                uris.addAll(FileUtils.urisFromFolder(file, getContext()));
             } else {
-                Uri uri = Uri.fromFile(file);
+                Uri uri = null;
+                if (Build.VERSION.SDK_INT >= 24) {
+                    uri = FileUtils.uriFromFile(file, getContext());
+                } else {
+                    uri = Uri.fromFile(file);
+                }
                 uris.add(uri);
             }
         }
