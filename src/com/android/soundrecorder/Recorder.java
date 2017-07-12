@@ -366,8 +366,12 @@ public class Recorder implements MediaRecorder.OnInfoListener {
             }
             mRecorder.stop();
         }catch (RuntimeException exception){
-            setError(INTERNAL_ERROR);
-            Log.e(TAG, "Stop Failed");
+            if(sampleLength() > 1){
+                setError(INTERNAL_ERROR);
+                Log.e(TAG, "Stop Failed");
+            }else{
+                Log.e(TAG, "Quickly Stop Failed");
+            }
         }
 
         mRecorder.reset();
