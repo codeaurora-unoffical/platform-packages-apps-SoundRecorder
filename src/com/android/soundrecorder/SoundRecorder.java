@@ -231,6 +231,8 @@ public class SoundRecorder extends Activity
 
     static final int FOCUSCHANGE = 0;
 
+    static final String VENDOR_SOUNDRECORDER_DEBUG_ENABLE = "vendor.soundrecorder.debug.enable";
+
     static final int SETTING_TYPE_STORAGE_LOCATION = 0;
     static final int SETTING_TYPE_FILE_TYPE = 1;
 
@@ -865,7 +867,7 @@ public class SoundRecorder extends Activity
         menu.findItem(R.id.menu_item_filetype).setEnabled(
                 (mRecorder.state() == Recorder.IDLE_STATE) && (!mExitAfterRecord));
         menu.findItem(R.id.menu_item_storage).setEnabled(mRecorder.state() == Recorder.IDLE_STATE);
-        if (SystemPropertiesWrapper.getBoolean("debug.soundrecorder.enable", false)) {
+        if (SystemPropertiesWrapper.getBoolean(VENDOR_SOUNDRECORDER_DEBUG_ENABLE, false)) {
             menu.findItem(R.id.menu_item_keyboard).setVisible(true);
         } else {
             menu.findItem(R.id.menu_item_keyboard).setVisible(false);
@@ -1360,7 +1362,7 @@ public class SoundRecorder extends Activity
                     if (true == bSSRSupported) {
                         mStateMessage2.setText(res.getString(R.string.press_record_ssr));
                     } else {
-                        if (SystemPropertiesWrapper.getBoolean("debug.soundrecorder.enable", false)) {
+                        if (SystemPropertiesWrapper.getBoolean(VENDOR_SOUNDRECORDER_DEBUG_ENABLE, false)) {
                             mStateMessage2.setText(res.getString(R.string.press_record));
                         } else {
                             mStateMessage2.setText(res.getString(R.string.press_record2));
