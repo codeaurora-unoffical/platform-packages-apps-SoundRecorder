@@ -79,6 +79,9 @@ public class FileListFragment extends Fragment {
     private boolean mIsRootPage = true;
     private String mArgumentPath;
 
+    //fix the rename failure when reload adapter during renaming.
+    private AlertDialog mRenameDialog;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,6 +95,10 @@ public class FileListFragment extends Fragment {
         // FileListActivity will receive the result.
         if (PermissionUtils.checkPermissions(getActivity(), PermissionUtils.PermissionType.PLAY,
                 PERMISSION_REQUEST_CODE)) {
+            if (mRenameDialog != null && mRenameDialog.isShowing()) {
+                mRenameDialog.dismiss();
+                mRenameDialog = null;
+            }
             reloadAdapter();
         }
     }
@@ -339,7 +346,7 @@ public class FileListFragment extends Fragment {
                     }
                 });
         builder.setEditTextContent(FileUtils.getLastFileName(file, false));
-        builder.show();
+        mRenameDialog = builder.show();
     }
 
     private void deleteItems(final List<BaseListItem> items) {
