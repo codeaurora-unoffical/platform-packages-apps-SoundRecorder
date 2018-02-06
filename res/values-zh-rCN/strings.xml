@@ -62,4 +62,6 @@
     <string name="file_saved">文件保存成功</string>
     <string name="file_saved_interrupt">录音已停止并保存</string>
     <string name="file_discard">放弃录音</string>
+    <string name="title_please_wait">请等待...</string>
+    <string name="msg_starting_recording">正在启动录音</string>
 </resources>
