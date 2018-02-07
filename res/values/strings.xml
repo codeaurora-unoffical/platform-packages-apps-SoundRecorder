@@ -108,4 +108,6 @@
     <string name="file_saved_interrupt">Recording has been stopped and saved</string>
     <!-- shown as the message in a dialog when the recording file is discarded -->
     <string name="file_discard">File has been discarded</string>
+    <string name="title_please_wait">Please wait... </string>
+    <string name="msg_starting_recording">Starting recording</string>
 </resources>
