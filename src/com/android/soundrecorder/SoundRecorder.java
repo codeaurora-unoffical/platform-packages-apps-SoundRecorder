@@ -1578,55 +1578,69 @@ public class SoundRecorder extends Activity
      * Called when MediaPlayer encounters an error.
      */
     public void onError(int error) {
-        Resources res = getResources();
-        boolean isExit = false;
+        final int iError = error;
 
-        String message = null;
-        switch (error) {
-            case Recorder.RECORD_INTERRUPTED:
-                message = res.getString(R.string.error_record_interrupted);
-                break;
-            case Recorder.SDCARD_ACCESS_ERROR:
-                message = res.getString(R.string.error_sdcard_access);
-                break;
-            case Recorder.IN_CALL_RECORD_ERROR:
-                // TODO: update error message to reflect that the recording could not be
-                //       performed during a call.
-                message = res.getString(R.string.in_call_record_error);
-                isExit = true;
-                break;
-            case Recorder.INTERNAL_ERROR:
-                message = res.getString(R.string.error_app_internal);
-                isExit = true;
-                break;
-            case Recorder.UNSUPPORTED_FORMAT:
-                message = res.getString(R.string.error_app_unsupported);
-                isExit = true;
-                break;
-            case Recorder.RECORD_LOST_FOCUS:
-                showRenameDialogIfNeed();
-                break;
-        }
-        if (message != null) {
-            new AlertDialog.Builder(this)
-                .setTitle(R.string.app_name)
-                .setMessage(message)
-                .setPositiveButton(R.string.button_ok, (true==isExit)?
-                    (new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            finish();
-                        }}):null)
-                .setCancelable(false)
-                .show();
-        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Resources res = getResources();
+                boolean isExit = false;
+
+                String message = null;
+                switch (iError) {
+                    case Recorder.RECORD_INTERRUPTED:
+                        message = res.getString(R.string.error_record_interrupted);
+                        break;
+                    case Recorder.SDCARD_ACCESS_ERROR:
+                        message = res.getString(R.string.error_sdcard_access);
+                        break;
+                    case Recorder.IN_CALL_RECORD_ERROR:
+                        // TODO: update error message to reflect that the recording could not be
+                        //       performed during a call.
+                        message = res.getString(R.string.in_call_record_error);
+                        isExit = true;
+                        break;
+                    case Recorder.INTERNAL_ERROR:
+                        message = res.getString(R.string.error_app_internal);
+                        isExit = true;
+                        break;
+                    case Recorder.UNSUPPORTED_FORMAT:
+                        message = res.getString(R.string.error_app_unsupported);
+                        isExit = true;
+                        break;
+                    case Recorder.RECORD_LOST_FOCUS:
+                        showRenameDialogIfNeed();
+                        break;
+                }
+                if (message != null) {
+                    new AlertDialog.Builder(SoundRecorder.this)
+                            .setTitle(R.string.app_name)
+                            .setMessage(message)
+                            .setPositiveButton(R.string.button_ok, (true==isExit)?
+                                    (new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                            finish();
+                                        }}):null)
+                            .setCancelable(false)
+                            .show();
+                }
+            }
+        });
     }
 
     public void onInfo(int what, int extra) {
-        if (what == MediaRecorderWrapper.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
-            mRecorder.stop();
-            showRenameDialogIfNeed();
-            mVUMeter.resetAngle();
-            invalidateOptionsMenu();
-        }
+        final int iWhat = what;
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (iWhat == MediaRecorderWrapper.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
+                    mRecorder.stop();
+                    showRenameDialogIfNeed();
+                    mVUMeter.resetAngle();
+                    invalidateOptionsMenu();
+                }
+            }
+        });
     }
 }
