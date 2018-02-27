@@ -64,6 +64,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import android.util.Log;
+import android.os.Build;
 
 public class FileListFragment extends Fragment {
     private static final String TAG = "FileListFragment";
@@ -78,6 +79,9 @@ public class FileListFragment extends Fragment {
     private boolean mIsRootPage = true;
     private String mArgumentPath;
 
+    //fix the rename failure when reload adapter during renaming.
+    private AlertDialog mRenameDialog;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,6 +95,10 @@ public class FileListFragment extends Fragment {
         // FileListActivity will receive the result.
         if (PermissionUtils.checkPermissions(getActivity(), PermissionUtils.PermissionType.PLAY,
                 PERMISSION_REQUEST_CODE)) {
+            if (mRenameDialog != null && mRenameDialog.isShowing()) {
+                mRenameDialog.dismiss();
+                mRenameDialog = null;
+            }
             reloadAdapter();
         }
     }
@@ -338,7 +346,7 @@ public class FileListFragment extends Fragment {
                     }
                 });
         builder.setEditTextContent(FileUtils.getLastFileName(file, false));
-        builder.show();
+        mRenameDialog = builder.show();
     }
 
     private void deleteItems(final List<BaseListItem> items) {
@@ -383,9 +391,14 @@ public class FileListFragment extends Fragment {
         for (BaseListItem item : items) {
             File file = new File(item.getPath());
             if (file.isDirectory()) {
-                uris.addAll(FileUtils.urisFromFolder(file));
+                uris.addAll(FileUtils.urisFromFolder(file, getContext()));
             } else {
-                Uri uri = Uri.fromFile(file);
+                Uri uri = null;
+                if (Build.VERSION.SDK_INT >= 24) {
+                    uri = FileUtils.uriFromFile(file, getContext());
+                } else {
+                    uri = Uri.fromFile(file);
+                }
                 uris.add(uri);
             }
         }

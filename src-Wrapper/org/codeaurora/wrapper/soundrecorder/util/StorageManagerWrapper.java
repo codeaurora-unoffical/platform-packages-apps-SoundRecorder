@@ -44,8 +44,7 @@ public class StorageManagerWrapper{
 
     public static StorageManager getStorageManager(Context context) {
         if (mStorageManager == null) {
-            StorageManager mStorageManager =
-                    (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
+            mStorageManager = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
         }
         return mStorageManager;
     }
