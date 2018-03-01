@@ -25,6 +25,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += android-support-v7-recyclerview
 LOCAL_STATIC_JAVA_LIBRARIES += soundrecorder_wrapper
 
 LOCAL_PACKAGE_NAME := SoundRecorder
+LOCAL_SDK_VERSION := current
 
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags
 
