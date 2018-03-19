@@ -229,6 +229,7 @@ public class SoundRecorder extends Activity
     static final String AUDIO_WAVE_2CH_LPCM = "audio/wave_2ch_lpcm";
     static final String AUDIO_AAC_5POINT1_CHANNEL = "audio/aac_5point1_channel";
     static final String AUDIO_AMR_WB = "audio/amr-wb";
+    static final String AUDIO_MPEGH = "audio/mhas";
     static final String AUDIO_ANY = "audio/*";
     static final String ANY_ANY = "*/*";
 
@@ -248,6 +249,8 @@ public class SoundRecorder extends Activity
     static final int SAMPLERATE_MULTI_CH = 48000;
     static final int BITRATE_AMR_WB = 23850;
     static final int SAMPLERATE_AMR_WB = 16000;
+    static final int BITRATE_MPEGH = 307200;
+    static final int SAMPLERATE_MPEGH = 48000;
     static final int SAMPLERATE_8000 = 8000;
     static final long STOP_WAIT = 300;
     static final long BACK_KEY_WAIT = 400;
@@ -753,6 +756,15 @@ public class SoundRecorder extends Activity
                     new StartRecordingTask().execute(new RecordingParams(
                             mAudioOutputFormat, mAmrWidebandExtension, this,
                             mAudioSourceType, MediaRecorderWrapper.AudioEncoder.AMR_WB));
+                } else if (AUDIO_MPEGH.equals(mRequestedType)) {
+                    mRemainingTimeCalculator.setBitRate(BITRATE_MPEGH);
+                    mRecorder.setSamplingRate(SAMPLERATE_MPEGH);
+                    mRecorder.setAudioEncodingBitRate(BITRATE_MPEGH);
+                    mRecorder.setChannels(4);
+                    mAudioSourceType = MediaRecorderWrapper.AudioSource.MIC;
+                    new StartRecordingTask().execute(new RecordingParams(
+                            mAudioOutputFormat, ".mp4", this,
+                            mAudioSourceType, MediaRecorderWrapper.AudioEncoder.MPEGH));
                 } else {
                     throw new IllegalArgumentException("Invalid output file type requested");
                 }
@@ -1172,7 +1184,14 @@ public class SoundRecorder extends Activity
               ret = true;
               break;
             }
-
+            case KeyEvent.KEYCODE_B: // Selected mpegh codec type in .mp4 file format
+            {
+              Log.e(TAG, "### Selected mpegh_Enc : Key Event" + KeyEvent.KEYCODE_B);
+              mRequestedType = AUDIO_MPEGH;
+              mAudioOutputFormat = MediaRecorderWrapper.OutputFormat.MPEG_4;
+              ret = true;
+              break;
+            }
             default:
                 break;
         }
