@@ -229,6 +229,7 @@ public class SoundRecorder extends Activity
     static final String AUDIO_WAVE_2CH_LPCM = "audio/wave_2ch_lpcm";
     static final String AUDIO_AAC_5POINT1_CHANNEL = "audio/aac_5point1_channel";
     static final String AUDIO_AMR_WB = "audio/amr-wb";
+    static final String AUDIO_MPEGH = "audio/mhas";
     static final String AUDIO_ANY = "audio/*";
     static final String ANY_ANY = "*/*";
 
@@ -248,6 +249,8 @@ public class SoundRecorder extends Activity
     static final int SAMPLERATE_MULTI_CH = 48000;
     static final int BITRATE_AMR_WB = 23850;
     static final int SAMPLERATE_AMR_WB = 16000;
+    static final int BITRATE_MPEGH = 307200;
+    static final int SAMPLERATE_MPEGH = 48000;
     static final int SAMPLERATE_8000 = 8000;
     static final long STOP_WAIT = 300;
     static final long BACK_KEY_WAIT = 400;
@@ -753,6 +756,15 @@ public class SoundRecorder extends Activity
                     new StartRecordingTask().execute(new RecordingParams(
                             mAudioOutputFormat, mAmrWidebandExtension, this,
                             mAudioSourceType, MediaRecorderWrapper.AudioEncoder.AMR_WB));
+                } else if (AUDIO_MPEGH.equals(mRequestedType)) {
+                    mRemainingTimeCalculator.setBitRate(BITRATE_MPEGH);
+                    mRecorder.setSamplingRate(SAMPLERATE_MPEGH);
+                    mRecorder.setAudioEncodingBitRate(BITRATE_MPEGH);
+                    mRecorder.setChannels(4);
+                    mAudioSourceType = MediaRecorderWrapper.AudioSource.MIC;
+                    new StartRecordingTask().execute(new RecordingParams(
+                            mAudioOutputFormat, ".mp4", this,
+                            mAudioSourceType, MediaRecorderWrapper.AudioEncoder.MPEGH));
                 } else {
                     throw new IllegalArgumentException("Invalid output file type requested");
                 }
@@ -1172,7 +1184,14 @@ public class SoundRecorder extends Activity
               ret = true;
               break;
             }
-
+            case KeyEvent.KEYCODE_B: // Selected mpegh codec type in .mp4 file format
+            {
+              Log.e(TAG, "### Selected mpegh_Enc : Key Event" + KeyEvent.KEYCODE_B);
+              mRequestedType = AUDIO_MPEGH;
+              mAudioOutputFormat = MediaRecorderWrapper.OutputFormat.MPEG_4;
+              ret = true;
+              break;
+            }
             default:
                 break;
         }
@@ -1578,55 +1597,69 @@ public class SoundRecorder extends Activity
      * Called when MediaPlayer encounters an error.
      */
     public void onError(int error) {
-        Resources res = getResources();
-        boolean isExit = false;
+        final int iError = error;
 
-        String message = null;
-        switch (error) {
-            case Recorder.RECORD_INTERRUPTED:
-                message = res.getString(R.string.error_record_interrupted);
-                break;
-            case Recorder.SDCARD_ACCESS_ERROR:
-                message = res.getString(R.string.error_sdcard_access);
-                break;
-            case Recorder.IN_CALL_RECORD_ERROR:
-                // TODO: update error message to reflect that the recording could not be
-                //       performed during a call.
-                message = res.getString(R.string.in_call_record_error);
-                isExit = true;
-                break;
-            case Recorder.INTERNAL_ERROR:
-                message = res.getString(R.string.error_app_internal);
-                isExit = true;
-                break;
-            case Recorder.UNSUPPORTED_FORMAT:
-                message = res.getString(R.string.error_app_unsupported);
-                isExit = true;
-                break;
-            case Recorder.RECORD_LOST_FOCUS:
-                showRenameDialogIfNeed();
-                break;
-        }
-        if (message != null) {
-            new AlertDialog.Builder(this)
-                .setTitle(R.string.app_name)
-                .setMessage(message)
-                .setPositiveButton(R.string.button_ok, (true==isExit)?
-                    (new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            finish();
-                        }}):null)
-                .setCancelable(false)
-                .show();
-        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Resources res = getResources();
+                boolean isExit = false;
+
+                String message = null;
+                switch (iError) {
+                    case Recorder.RECORD_INTERRUPTED:
+                        message = res.getString(R.string.error_record_interrupted);
+                        break;
+                    case Recorder.SDCARD_ACCESS_ERROR:
+                        message = res.getString(R.string.error_sdcard_access);
+                        break;
+                    case Recorder.IN_CALL_RECORD_ERROR:
+                        // TODO: update error message to reflect that the recording could not be
+                        //       performed during a call.
+                        message = res.getString(R.string.in_call_record_error);
+                        isExit = true;
+                        break;
+                    case Recorder.INTERNAL_ERROR:
+                        message = res.getString(R.string.error_app_internal);
+                        isExit = true;
+                        break;
+                    case Recorder.UNSUPPORTED_FORMAT:
+                        message = res.getString(R.string.error_app_unsupported);
+                        isExit = true;
+                        break;
+                    case Recorder.RECORD_LOST_FOCUS:
+                        showRenameDialogIfNeed();
+                        break;
+                }
+                if (message != null) {
+                    new AlertDialog.Builder(SoundRecorder.this)
+                            .setTitle(R.string.app_name)
+                            .setMessage(message)
+                            .setPositiveButton(R.string.button_ok, (true==isExit)?
+                                    (new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                            finish();
+                                        }}):null)
+                            .setCancelable(false)
+                            .show();
+                }
+            }
+        });
     }
 
     public void onInfo(int what, int extra) {
-        if (what == MediaRecorderWrapper.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
-            mRecorder.stop();
-            showRenameDialogIfNeed();
-            mVUMeter.resetAngle();
-            invalidateOptionsMenu();
-        }
+        final int iWhat = what;
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (iWhat == MediaRecorderWrapper.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
+                    mRecorder.stop();
+                    showRenameDialogIfNeed();
+                    mVUMeter.resetAngle();
+                    invalidateOptionsMenu();
+                }
+            }
+        });
     }
 }
