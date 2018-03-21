@@ -102,6 +102,8 @@ public class MediaRecorderWrapper {
         public static final int QCELP = 11;//MediaRecorder.AudioEncoder.QCELP;
         /**  Linear PCM audio codec */
         public static final int LPCM = 12;//MediaRecorder.AudioEncoder.LPCM;
+        /**  MPEGH audio codec */
+        public static final int MPEGH = 13;//MediaRecorder.AudioEncoder.MPEGH;
     }
 
     public final class OutputFormat {
