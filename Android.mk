@@ -5,6 +5,10 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(call all-java-files-under, src-Wrapper)
 LOCAL_MODULE := soundrecorder_wrapper
 LOCAL_MODULE_TAGS := optional
+
+# support access hidden APIs
+LOCAL_PRIVATE_PLATFORM_APIS:=true
+
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 include $(CLEAR_VARS)
@@ -25,6 +29,9 @@ LOCAL_STATIC_JAVA_LIBRARIES += android-support-v7-recyclerview
 LOCAL_STATIC_JAVA_LIBRARIES += soundrecorder_wrapper
 
 LOCAL_PACKAGE_NAME := SoundRecorder
+
+# support access hidden APIs
+LOCAL_PRIVATE_PLATFORM_APIS:=true
 
 LOCAL_PROGUARD_FLAG_FILES := proguard.flags
 
