@@ -458,7 +458,13 @@ public class SoundRecorder extends Activity
         mPhoneStateListener = new PhoneStateListener[mPhoneCount];
         for(int j = 0; j < mPhoneCount; j++) {
             int[] subId = SubscriptionManager.getSubId(j);
-            mPhoneStateListener[j] = getPhoneStateListener(subId[0]);
+
+            // adapt case: disabled telephony feature or activate card failure
+            if (null != subId && subId.length > 0) {
+                mPhoneStateListener[j] = getPhoneStateListener(subId[0]);
+            } else {
+                mPhoneStateListener[j] = null;
+            }
         }
 
         String ssrRet = SystemPropertiesWrapper.get("ro.vendor.qc.sdk.audio.ssr","false");
@@ -483,7 +489,11 @@ public class SoundRecorder extends Activity
         // While we're in the foreground, listen for phone state changes.
         mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         for(int i = 0; i < mPhoneCount; i++) {
-            mTelephonyManager.listen(mPhoneStateListener[i], PhoneStateListener.LISTEN_CALL_STATE);
+            // adapt case: disabled telephony feature or activate card failure
+            if (null != mPhoneStateListener[i]) {
+                mTelephonyManager.listen(mPhoneStateListener[i],
+                        PhoneStateListener.LISTEN_CALL_STATE);
+            }
         }
     }
 
@@ -1190,7 +1200,11 @@ public class SoundRecorder extends Activity
     protected void onPause() {
         // Stop listening for phone state changes.
         for(int i = 0; i < mPhoneCount; i++) {
-            mTelephonyManager.listen(mPhoneStateListener[i], PhoneStateListener.LISTEN_NONE);
+            // adapt case: disabled telephony feature or activate card failure
+            if (null != mPhoneStateListener[i]) {
+                mTelephonyManager.listen(mPhoneStateListener[i],
+                        PhoneStateListener.LISTEN_NONE);
+            }
         }
         mRecorder.stop();
         // if dialog is shown, dialog processing the logic.
