@@ -31,7 +31,12 @@ package com.android.soundrecorder.filelist;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
+import android.telephony.SubscriptionManager;
+import android.util.Log;
 import android.view.MenuItem;
 import com.android.soundrecorder.R;
 import com.android.soundrecorder.filelist.player.Player;
@@ -40,6 +45,10 @@ import com.android.soundrecorder.util.PermissionUtils;
 
 public class FileListActivity extends Activity {
     private Player mPlayer;
+    private TelephonyManager mTelephonyManager;
+    private PhoneStateListener[] mPhoneStateListener;
+    private int mPhoneCount = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +60,8 @@ public class FileListActivity extends Activity {
         getFragmentManager().beginTransaction()
                 .replace(android.R.id.content, fragment, FileListFragment.FRAGMENT_TAG)
                 .commit();
+
+        initListener();
     }
 
     /** This request result is from FileListFragment. */
@@ -90,6 +101,28 @@ public class FileListActivity extends Activity {
         if (getPlayer() != null) {
             getPlayer().pausePlayer();
         }
+        // Stop listening for phone state changes.
+        for(int i = 0; i < mPhoneCount; i++) {
+            // adapt targets who disabled telephony feature
+            if (null != mPhoneStateListener[i]) {
+                mTelephonyManager.listen(mPhoneStateListener[i],
+                        PhoneStateListener.LISTEN_NONE);
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // While we're in the foreground, listen for phone state changes.
+        mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        for(int i = 0; i < mPhoneCount; i++) {
+            // adapt targets who disabled telephony feature
+            if (null != mPhoneStateListener[i]) {
+                mTelephonyManager.listen(mPhoneStateListener[i],
+                        PhoneStateListener.LISTEN_CALL_STATE);
+            }
+        }
     }
 
     @Override
@@ -98,5 +131,35 @@ public class FileListActivity extends Activity {
         if (getPlayer() != null) {
             getPlayer().stopPlayer();
         }
+    }
+
+    private void initListener() {
+        mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        mPhoneCount = mTelephonyManager.getPhoneCount();
+        mPhoneStateListener = new PhoneStateListener[mPhoneCount];
+        for(int j = 0; j < mPhoneCount; j++) {
+            int[] subId = SubscriptionManager.getSubId(j);
+
+            // adapt targets who disabled telephony feature
+            if (null != subId && subId.length > 0) {
+                mPhoneStateListener[j] = getPhoneStateListener(subId[0]);
+            } else {
+                mPhoneStateListener[j] = null;
+            }
+        }
+    }
+
+    private PhoneStateListener getPhoneStateListener(int subId) {
+        PhoneStateListener phoneStateListener = new PhoneStateListener(subId) {
+            @Override
+            public void onCallStateChanged(int state, String ignored) {
+                if (state == TelephonyManager.CALL_STATE_RINGING) {
+                    if(mPlayer != null) {
+                        mPlayer.pausePlayer();
+                    }
+                }
+            }
+        };
+        return phoneStateListener;
     }
 }
