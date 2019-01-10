@@ -20,7 +20,7 @@
     <original-package android:name="com.android.soundrecorder" />
 
     <uses-sdk
-        android:minSdkVersion="21"/>
+        android:minSdkVersion="21" android:targetSdkVersion="26"/>
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
