@@ -73,19 +73,15 @@ public class DatabaseUtils {
        and  maintain the play order in the playlist.
      */
     public static void InsertIntoPlaylist(ContentResolver resolver, int audioId, long playlistId) {
-        String[] columns = new String[] {"count(*)"};
-
         Uri uri = MediaStore.Audio.Playlists.Members.getContentUri(VOLUME_NAME, playlistId);
-        Cursor cursor = query(resolver, uri, columns, null, null, null);
-        if (cursor != null) {
-            cursor.moveToFirst();
-            final int base = cursor.getInt(0);
-            cursor.close();
 
-            ContentValues value = new ContentValues();
-            value.put(MediaStore.Audio.Playlists.Members.AUDIO_ID, audioId);
-            value.put(MediaStore.Audio.Playlists.Members.PLAY_ORDER, base + audioId);
+        ContentValues value = new ContentValues();
+        value.put(MediaStore.Audio.Playlists.Members.AUDIO_ID, audioId);
+        value.put(MediaStore.Audio.Playlists.Members.PLAY_ORDER, audioId);
+        try {
             resolver.insert(uri, value);
+        } catch (Exception exception) {
+            exception.printStackTrace();
         }
     }
 
