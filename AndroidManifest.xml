@@ -19,47 +19,25 @@
 
     <original-package android:name="com.android.soundrecorder" />
 
-    <uses-sdk
-        android:minSdkVersion="21" android:targetSdkVersion="26"/>
-
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_MEDIA_STORAGE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.CAPTURE_AUDIO_OUTPUT" />
-
     <application android:label="@string/app_name"
                  android:icon="@drawable/ic_launcher_soundrecorder"
-                 android:usesCleartextTraffic="false"
-                 android:supportsRtl="true">
+                 android:usesCleartextTraffic="false">
         <activity android:name="SoundRecorder"
                 android:configChanges="orientation|screenSize|keyboardHidden"
                 android:screenOrientation="unspecified"
+                android:clearTaskOnLaunch="true"
                 android:theme="@style/Theme.SoundRecorder">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
-                 <action android:name="android.intent.action.GET_CONTENT" />
-                 <category android:name="android.intent.category.DEFAULT" />
-                 <category android:name="android.intent.category.OPENABLE" />
-                 <data android:mimeType="audio/amr" />
-                 <data android:mimeType="audio/3gpp" />
             </intent-filter>
             <intent-filter>
                  <action android:name="android.provider.MediaStore.RECORD_SOUND" />
                  <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name=".filelist.FileListActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            android:label="@string/file_list_activity_label"
-            android:theme="@style/FileListActivity">
         </activity>
     </application>
 </manifest>
