@@ -21,7 +21,7 @@ package com.android.soundrecorder;
 
 import java.io.File;
 import java.util.Hashtable;
-
+import android.view.Window;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -376,6 +376,7 @@ public class SoundRecorder extends Activity
     @Override
     public void onCreate(Bundle icycle) {
         super.onCreate(icycle);
+        requestWindowFeature(Window.FEATURE_SWIPE_TO_DISMISS);
         if (getResources().getBoolean(R.bool.config_storage_path)) {
             mStoragePath = StorageUtils.applyCustomStoragePath(this);
         }
