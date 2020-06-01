@@ -38,7 +38,7 @@
         <item name="android:colorPrimaryDark">@color/list_activity_color_primary_dark</item>
 
         <item name="android:homeAsUpIndicator">@drawable/action_bar_back</item>
-
+        <item name="android:windowSwipeToDismiss">false</item>
         <item name="android:actionModeBackground">@color/action_mode_color_primary</item>
         <item name="android:actionModeCloseDrawable">@drawable/action_mode_back</item>
     </style>
