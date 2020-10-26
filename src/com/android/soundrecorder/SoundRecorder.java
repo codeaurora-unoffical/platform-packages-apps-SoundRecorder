@@ -244,8 +244,6 @@ public class SoundRecorder extends Activity
     @Override
     public void onCreate(Bundle icycle) {
         super.onCreate(icycle);
-        requestWindowFeature(Window.FEATURE_SWIPE_TO_DISMISS);
-
         Intent i = getIntent();
         if (i != null) {
             String s = i.getType();
